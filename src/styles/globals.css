@@ -491,7 +491,7 @@ body { overscroll-behavior-x: none; }
   h1 { font-size: clamp(2rem, 11vw, 2.6rem); }
   .hero { padding: 50px 0 70px; }
   .nav__inner { padding: 8px 0; }
-  .brand img { height: 40px !important; }
+  .brand img { height: 52px !important; }
   .btn { padding: 11px 14px; font-size: .9rem; }
   .kpis { grid-template-columns: 1fr; }
   .planner__step { flex-basis: 100%; }
@@ -627,9 +627,9 @@ body { overscroll-behavior-x: none; }
   src: local('SF Pro Display'), local('Inter'), local('Segoe UI'), local('Roboto');
 }
 
-/* ----- Optical fixes for the wordmark ----- */
-.brand img { display: block; max-height: 56px; }
-@media (max-width: 480px) { .brand img { max-height: 44px; } }
+/* ----- Optical fixes for the wordmark — bigger so tagline reads clearly ----- */
+.brand img { display: block; max-height: 76px; }
+@media (max-width: 480px) { .brand img { max-height: 56px; } }
 
 /* ----- Bottom nav: hide labels on truly tiny phones ----- */
 @media (max-width: 320px) {
