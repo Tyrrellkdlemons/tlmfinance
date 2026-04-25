@@ -25,13 +25,27 @@ if exist ".git\refs\heads\main.lock" del /q /f ".git\refs\heads\main.lock" 2>nul
 
 REM 1. Make sure all current files are committed locally
 echo --- Staging local files ---
+REM Refresh index in case CRLF normalization is hiding changes
+git update-index --refresh >nul 2>nul
+REM Force re-evaluation by touching working tree timestamps
+git status --porcelain >nul 2>nul
+git add -A --renormalize >nul 2>nul
 git add -A
-git diff --cached --quiet
-if errorlevel 1 (
-  git commit -m "Sync project files to GitHub" >nul
-  echo [i] Local commit created.
+REM Check WORKING tree changes (not just cached) to detect missed stages
+for /f %%H in ('git status --porcelain ^| find /c /v ""') do set CHANGES=%%H
+if "%CHANGES%"=="0" (
+  git diff --cached --quiet
+  if errorlevel 1 (
+    git commit -m "Sync project files to GitHub" >nul
+    echo [i] Local commit created.
+  ) else (
+    echo [i] No local changes to commit.
+  )
 ) else (
-  echo [i] No local changes to commit.
+  REM There are working-tree changes; force-stage and commit
+  git add -A
+  git commit -m "Sync project files to GitHub" >nul 2>nul
+  echo [i] Local commit created (forced stage of %CHANGES% files^).
 )
 
 REM 2. Set the remote
