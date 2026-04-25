@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 110" role="img" aria-label="The Last Mile · Finance">
-  <title>The Last Mile · Finance</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 130" role="img" aria-label="The Last Mile · Finance — Paving the Road">
+  <title>The Last Mile · Finance — Paving the Road</title>
   <g transform="translate(74 18)">
     <circle r="6" fill="#DAA520"/>
     <g stroke="#DAA520" stroke-width="2.6" stroke-linecap="round">
@@ -9,8 +9,10 @@
       <line x1="-6.5" y1="6.5" x2="-11" y2="11"/><line x1="6.5" y1="6.5" x2="11" y2="11"/>
     </g>
   </g>
-  <text x="6" y="42"  font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="16" letter-spacing="0.5" fill="#FFFFFF">THE</text>
-  <text x="48" y="68" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="56" letter-spacing="-1.4" fill="#FFFFFF">LAST</text>
-  <text x="200" y="68" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="56" letter-spacing="-1.4" fill="#DAA520">MILE</text>
-  <text x="48" y="98" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="13" letter-spacing="3" fill="#FFFFFF" opacity="0.95">PAVING THE ROAD · FINANCE</text>
+  <text x="6"   y="42"  font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="16" letter-spacing="0.5" fill="#FFFFFF">THE</text>
+  <text x="48"  y="68"  font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="56" letter-spacing="-1.4" fill="#FFFFFF">LAST</text>
+  <text x="200" y="68"  font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="56" letter-spacing="-1.4" fill="#DAA520">MILE</text>
+  <text x="44"  y="106" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="19" letter-spacing="2.4" fill="#FFFFFF" opacity="0.96">PAVING THE ROAD</text>
+  <text x="265" y="106" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="19" letter-spacing="2.4" fill="#DAA520">· FINANCE</text>
+  <line x1="44" y1="118" x2="380" y2="118" stroke="#DAA520" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
 </svg>

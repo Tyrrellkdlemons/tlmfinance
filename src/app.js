@@ -520,10 +520,28 @@ function toast(msg) {
     const buildersGrid = $('#buildersGrid');
     if (buildersGrid) {
       const SILS = [
-        // Tall figure · suit shoulders
         '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="62" r="28" fill="#DAA520" opacity=".88"/><path d="M40 240 Q60 130 100 130 Q140 130 160 240Z" fill="#DAA520" opacity=".82"/><path d="M82 130 q18 -10 36 0 l-2 14 q-16 -8 -32 0z" fill="#0E0E0E"/></svg>',
-        // Wide figure · short hair
-        '<svg viewBox="0 0 200 240" aria-hidden=
+        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="60" r="30" fill="#F5C84F" opacity=".9"/><path d="M30 240 Q56 122 100 122 Q144 122 170 240Z" fill="#F5C84F" opacity=".82"/><rect x="80" y="124" width="40" height="14" fill="#0E0E0E" opacity=".8"/></svg>',
+        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="64" r="26" fill="#DAA520" opacity=".88"/><path d="M44 240 Q62 130 100 130 Q138 130 156 240Z" fill="#DAA520" opacity=".78"/><path d="M86 130 q14 -8 28 0 l-2 12 q-12 -6 -24 0z" fill="#0E0E0E"/></svg>',
+        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="58" r="32" fill="#FFD970" opacity=".9"/><path d="M28 240 Q54 120 100 120 Q146 120 172 240Z" fill="#FFD970" opacity=".82"/><circle cx="100" cy="50" r="36" fill="#0E0E0E" opacity=".18"/></svg>',
+        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="62" r="28" fill="#DAA520" opacity=".88"/><path d="M38 240 Q60 128 100 128 Q140 128 162 240Z" fill="#DAA520" opacity=".8"/><path d="M84 128 q16 -10 32 0 l-2 14 q-14 -8 -28 0z" fill="#0E0E0E"/></svg>',
+        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="60" r="30" fill="#B8860B" opacity=".9"/><path d="M34 240 Q58 124 100 124 Q142 124 166 240Z" fill="#B8860B" opacity=".82"/><rect x="78" y="126" width="44" height="12" fill="#0E0E0E" opacity=".7"/></svg>'
+      ];
+      (people || []).slice(0, 6).forEach((p, i) => {
+        const card = el('article', { className: 'builder' });
+        card.innerHTML =
+          '<div class="builder__sil" aria-hidden="true">' + SILS[i % SILS.length] + '</div>' +
+          '<h3 class="builder__name">' + (p.name || 'Builder') + '</h3>' +
+          '<p class="builder__role muted">' + (p.role || '') + '</p>' +
+          (p.story ? '<p class="builder__story">' + p.story + '</p>' : '') +
+          (p.url ? '<a class="btn btn--ghost btn--sm" href="' + p.url + '" target="_blank" rel="noopener">Read more →</a>' : '');
+        buildersGrid.appendChild(card);
+      });
+    }
+  } catch (err) {
+    console.warn('renderStatic failed', err);
+  }
+})();
 /* =====================================================================
    ADVANCED PLAN GENERATOR — produces a 72h / 30 / 60 / 90 / 180 / 365
    day plan from a few inputs. Saves into the same plan store so it
@@ -719,4 +737,112 @@ function toast(msg) {
     hero.style.setProperty('--mx', (e.clientX - r.left) + 'px');
     hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
   });
+})();
+
+/* =====================================================================
+   PLANNER INIT — fire all initial renders so the UI actually shows up
+   ===================================================================== */
+(function bootPlanner() {
+  const boot = () => {
+    try { if (document.getElementById('plannerSteps')) renderSteps(); } catch (e) { console.warn('renderSteps', e); }
+    try { if (document.getElementById('plannerStep'))  renderStep();  } catch (e) { console.warn('renderStep', e); }
+    try { if (document.getElementById('quiz'))         renderQuiz();  } catch (e) { console.warn('renderQuiz', e); }
+    try { if (document.getElementById('quizOutput'))   renderQuizOutput(); } catch (e) { console.warn('renderQuizOutput', e); }
+    try { if (document.getElementById('kpiIncome'))    renderSummary(); } catch (e) { console.warn('renderSummary', e); }
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
+  } else {
+    // already past DOMContentLoaded
+    boot();
+  }
+})();
+
+/* =====================================================================
+   ANIMATED NAV — link underline, active highlight, mobile slide,
+   smooth scroll, scroll-progress bar, button ripple, page-fade
+   ===================================================================== */
+(function navAnimations() {
+  const nav = document.querySelector('.nav'); if (!nav) return;
+
+  // Build a scroll-progress bar at the top
+  const bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  document.body.appendChild(bar);
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const pct = max > 0 ? Math.min(1, scrollY / max) : 0;
+    bar.style.transform = `scaleX(${pct})`;
+    nav.classList.toggle('nav--shrunk', scrollY > 30);
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Active-link highlight by URL pathname
+  const here = location.pathname.split('/').pop().toLowerCase() || 'index.html';
+  document.querySelectorAll('.nav__links a, .bottom-nav a').forEach(a => {
+    const href = (a.getAttribute('href') || '').toLowerCase();
+    const file = href.replace(/^\.\//, '').split('#')[0];
+    if (file && file === here) a.setAttribute('aria-current', 'page');
+  });
+
+  // Smooth-scroll anchors and slow-fade page transitions on internal links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href');
+      if (id === '#' || id.length < 2) return;
+      const t = document.querySelector(id);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', id);
+    });
+  });
+
+  // Page-out fade for internal navigation
+  document.querySelectorAll('a[href$=".html"]').forEach(a => {
+    if (a.target === '_blank') return;
+    a.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      const url = new URL(a.href, location.href);
+      if (url.origin !== location.origin) return;
+      e.preventDefault();
+      document.body.classList.add('page-leaving');
+      setTimeout(() => { location.href = a.href; }, 220);
+    });
+  });
+
+  // Subtle ripple on .btn clicks
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.btn'); if (!b) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const r = b.getBoundingClientRect();
+    const dot = document.createElement('span');
+    dot.className = 'btn-ripple';
+    dot.style.left = (e.clientX - r.left) + 'px';
+    dot.style.top  = (e.clientY - r.top)  + 'px';
+    b.appendChild(dot);
+    setTimeout(() => dot.remove(), 700);
+  });
+
+  // Reveal-on-scroll for any node with .reveal-on-scroll OR data-reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        en.target.classList.add('is-visible');
+        io.unobserve(en.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+  document.querySelectorAll('.reveal-on-scroll, [data-reveal]').forEach(n => io.observe(n));
+})();
+
+/* =====================================================================
+   PAGE-IN FADE — fades main content in on first paint
+   ===================================================================== */
+(function pageIn() {
+  document.body.classList.add('page-entering');
+  const reveal = () => requestAnimationFrame(() => document.body.classList.add('page-entered'));
+  if (document.readyState === 'complete' || document.readyState === 'interactive') reveal();
+  else document.addEventListener('DOMContentLoaded', reveal, { once: true });
 })();

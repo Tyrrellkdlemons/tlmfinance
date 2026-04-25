@@ -825,3 +825,198 @@ body { overscroll-behavior-x: none; }
   .hub-cta__icon,
   .hub-cta__arrow { background: ButtonText; color: ButtonFace; }
 }
+
+/* ==========================================================================
+   PAGE TRANSITIONS, NAV ANIMATION, BUTTON RIPPLE, SCROLL REVEAL
+   Appended for "many more animations" pass. All effects respect
+   prefers-reduced-motion.
+   ========================================================================== */
+
+/* Scroll progress bar */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #FFD970 0%, #DAA520 50%, #B8860B 100%);
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(218, 165, 32, .5);
+  transition: transform .15s linear;
+}
+
+/* Nav shrink + glass on scroll */
+.nav { transition: padding .25s ease, backdrop-filter .25s ease, background .25s ease, box-shadow .25s ease; }
+.nav--shrunk {
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  background: linear-gradient(180deg, rgba(14,14,14,.78) 0%, rgba(14,14,14,.55) 100%);
+  box-shadow: 0 6px 24px -10px rgba(0, 0, 0, .55);
+}
+
+/* Animated underline + lift on nav links */
+.nav__links a {
+  position: relative;
+  transition: color .2s ease, transform .2s ease;
+}
+.nav__links a::after {
+  content: "";
+  position: absolute;
+  left: 12%; right: 12%;
+  bottom: 6px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #DAA520, transparent);
+  transform: scaleX(0);
+  transform-origin: 50% 50%;
+  transition: transform .28s cubic-bezier(.2,.7,.2,1);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.nav__links a:hover,
+.nav__links a:focus-visible { transform: translateY(-1px); }
+.nav__links a:hover::after,
+.nav__links a:focus-visible::after,
+.nav__links a[aria-current="page"]::after { transform: scaleX(1); }
+.nav__links a[aria-current="page"] { color: #FFD970; }
+
+/* Bottom nav active highlight */
+.bottom-nav a[aria-current="page"] {
+  color: #DAA520;
+  text-shadow: 0 0 12px rgba(218, 165, 32, .35);
+}
+
+/* Button ripple */
+.btn { position: relative; overflow: hidden; }
+.btn-ripple {
+  position: absolute;
+  pointer-events: none;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: rgba(255, 217, 112, .6);
+  animation: btn-ripple-go .65s ease-out forwards;
+  z-index: 0;
+}
+@keyframes btn-ripple-go {
+  to { transform: translate(-50%, -50%) scale(48); opacity: 0; }
+}
+.btn > * { position: relative; z-index: 1; }
+
+/* Reveal on scroll (nicer than the old .reveal — fades + lifts) */
+.reveal-on-scroll, [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .55s cubic-bezier(.2,.7,.2,1),
+              transform .55s cubic-bezier(.2,.7,.2,1);
+  will-change: opacity, transform;
+}
+.reveal-on-scroll.is-visible,
+[data-reveal].is-visible { opacity: 1; transform: none; }
+
+/* Stagger children when parent has data-reveal-stagger */
+[data-reveal-stagger] > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+[data-reveal-stagger].is-visible > *      { opacity: 1; transform: none; }
+[data-reveal-stagger].is-visible > *:nth-child(1) { transition-delay: .03s; }
+[data-reveal-stagger].is-visible > *:nth-child(2) { transition-delay: .09s; }
+[data-reveal-stagger].is-visible > *:nth-child(3) { transition-delay: .15s; }
+[data-reveal-stagger].is-visible > *:nth-child(4) { transition-delay: .21s; }
+[data-reveal-stagger].is-visible > *:nth-child(5) { transition-delay: .27s; }
+[data-reveal-stagger].is-visible > *:nth-child(6) { transition-delay: .33s; }
+[data-reveal-stagger].is-visible > *:nth-child(7) { transition-delay: .39s; }
+[data-reveal-stagger].is-visible > *:nth-child(8) { transition-delay: .45s; }
+
+/* Page-fade transitions */
+body.page-entering main { opacity: 0; transform: translateY(8px); }
+body.page-entered  main {
+  opacity: 1; transform: none;
+  transition: opacity .45s ease, transform .45s cubic-bezier(.2,.7,.2,1);
+}
+body.page-leaving main {
+  opacity: 0; transform: translateY(-6px);
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+/* Card hover lift — applies to any .card */
+.card {
+  transition: transform .25s cubic-bezier(.2,.7,.2,1),
+              box-shadow .25s ease,
+              border-color .25s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 48px -16px rgba(0, 0, 0, .35),
+              0 0 0 1px rgba(218, 165, 32, .35);
+}
+
+/* Stat counters get a subtle pulse on reveal */
+.stat.reveal.is-visible .stat__num {
+  animation: stat-pulse .9s ease-out 1;
+}
+@keyframes stat-pulse {
+  0%   { transform: scale(.92); filter: brightness(1.2); }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1);    filter: none; }
+}
+
+/* Builder card subtle float */
+.builder { transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+.builder:hover { transform: translateY(-4px) rotate(-.4deg); }
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress,
+  .nav__links a::after,
+  .reveal-on-scroll, [data-reveal],
+  body.page-entering main, body.page-leaving main,
+  .card, .builder, .btn-ripple { transition: none; animation: none; transform: none; opacity: 1; }
+}
+
+/* Forced colors */
+@media (forced-colors: active) {
+  .scroll-progress { background: Highlight; }
+  .nav__links a::after { background: Highlight; }
+}
+
+/* Act cards now act as links — keep them looking like cards */
+a.act {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  cursor: pointer;
+  transition: transform .25s cubic-bezier(.2,.7,.2,1),
+              box-shadow .25s ease,
+              border-color .25s ease;
+}
+a.act:hover,
+a.act:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 48px -16px rgba(0, 0, 0, .35),
+              0 0 0 1px rgba(218, 165, 32, .55);
+  outline: none;
+}
+.act__cta {
+  display: inline-block;
+  margin-top: 14px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: #DAA520;
+  border-bottom: 2px solid transparent;
+  transition: color .2s ease, border-color .2s ease, transform .2s ease;
+}
+a.act:hover .act__cta,
+a.act:focus-visible .act__cta {
+  color: #FFD970;
+  border-color: #DAA520;
+  transform: translateX(2px);
+}
+
+/* Make all .builder cards keyboard-focusable hover-friendly */
+.builder { cursor: default; }
+
+/* Resource cards already feel clickable from anywhere */
+.card a.btn { text-decoration: none; }

@@ -38,7 +38,7 @@
     <a class="brand" href="./index.html" aria-label="The Last Mile · Finance home">
       <picture>
         <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
-        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="220" height="64" style="height:56px;width:auto"/>
+        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="240" height="78" style="height:72px;width:auto"/>
       </picture>
     </a>
     <nav class="nav__links" aria-label="Primary">
@@ -158,10 +158,25 @@
     <span class="eyebrow eyebrow--light">From the inside out</span>
     <h2 id="journey-title">Education. Reentry. Employment.</h2>
     <p class="lede" style="color:rgba(255,255,255,.85)">The Last Mile model in three acts. Finance is the throughline that makes each act stick.</p>
-    <div class="journey__grid mt-3">
-      <article class="act"><div class="act__num">01</div><span class="act__tag">Education</span><h3>Skills built inside.</h3><p>Full-scale tech labs in correctional facilities — secure internet, live remote instruction, web development, audio/video production, project management, sales, entrepreneurship, AI literacy.</p></article>
-      <article class="act"><div class="act__num">02</div><span class="act__tag">Reentry</span><h3>72-hour to 90-day plan.</h3><p>The first three months decide a lot. Money, documents, housing, transit, health, family, and a job lead. Plus financial literacy that respects where you've been.</p></article>
-      <article class="act"><div class="act__num">03</div><span class="act__tag">Employment</span><h3>Career, not just a paycheck.</h3><p>Apprenticeships, internships, and direct hires at major employers — plus continuing education that lets you stack credentials over years, not months.</p></article>
+    <div class="journey__grid mt-3" data-reveal-stagger>
+      <a class="act" href="./learn.html#tech-track" aria-label="Education — open the Learn page">
+        <div class="act__num">01</div><span class="act__tag">Education</span>
+        <h3>Skills built inside.</h3>
+        <p>Full-scale tech labs in correctional facilities — secure internet, live remote instruction, web development, audio/video production, project management, sales, entrepreneurship, AI literacy.</p>
+        <span class="act__cta">Explore the Learn page →</span>
+      </a>
+      <a class="act" href="#planner" aria-label="Reentry — open the planner">
+        <div class="act__num">02</div><span class="act__tag">Reentry</span>
+        <h3>72-hour to 90-day plan.</h3>
+        <p>The first three months decide a lot. Money, documents, housing, transit, health, family, and a job lead. Plus financial literacy that respects where you've been.</p>
+        <span class="act__cta">Build my plan →</span>
+      </a>
+      <a class="act" href="./hub.html" aria-label="Employment — open the Hub">
+        <div class="act__num">03</div><span class="act__tag">Employment</span>
+        <h3>Career, not just a paycheck.</h3>
+        <p>Apprenticeships, internships, and direct hires at major employers — plus continuing education that lets you stack credentials over years, not months.</p>
+        <span class="act__cta">Open the deep Hub →</span>
+      </a>
     </div>
   </div>
 </section>
@@ -340,16 +355,4 @@
   <a href="#planner"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7h18M3 12h12M3 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Plan</a>
   <a href="./learn.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14l-8-4-8 4V5z" stroke="currentColor" stroke-width="2"/></svg>Learn</a>
   <button data-open-plan><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M7 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Quick plan</button>
-  <a href="./hub.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/></svg>Hub</a>
-  <a href="./watch.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6z" stroke="currentColor" stroke-width="2"/><path d="M10 9l5 3-5 3V9z" fill="currentColor"/></svg>Watch</a>
-</nav>
-<canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
-<script type="module" src="./src/app.js"></script>
-<script src="./src/admin-overrides.js"></script>
-<script src="./src/chatbot.js" defer></script>
-<script>
-  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./service-worker.js').catch(() => {}); }); }
-  document.getElementById('year').textContent = new Date().getFullYear();
-</script>
-</body>
-</html>
+  <a href="./hub.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect 
