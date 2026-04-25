@@ -154,12 +154,108 @@
           <rect x="178" y="390" width="4" height="22" fill="#DAA520"/>
         </g>
       </svg>
-      <div class="road__milestones">
-        <button class="milestone" style="left: 32%; top: 70%;" data-open-plan aria-label="72-hour plan"><span class="milestone__label">72 hr</span></button>
-        <button class="milestone" style="left: 50%; top: 80%;" data-open-plan aria-label="30 day plan"><span class="milestone__label">30 d</span></button>
-        <button class="milestone" style="left: 68%; top: 88%;" data-open-plan aria-label="90 day plan"><span class="milestone__label">90 d</span></button>
+      <!-- ADDED: cinematic animation layers, additive on top of the existing SVG -->
+      <svg class="road__fx" viewBox="0 0 360 450" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <radialGradient id="coronaGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"  stop-color="#FFE08A" stop-opacity=".0"/>
+            <stop offset="50%" stop-color="#FFD970" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="#DAA520" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="auroraGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"   stop-color="#DAA520" stop-opacity="0"/>
+            <stop offset="50%"  stop-color="#FFD970" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="#DAA520" stop-opacity="0"/>
+          </linearGradient>
+          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Aurora ribbon over the horizon -->
+        <g class="road__aurora">
+          <path d="M -80 220 Q 90 200 180 215 T 440 218" stroke="url(#auroraGrad)" stroke-width="22" fill="none" opacity=".55"/>
+          <path d="M -60 232 Q 100 214 180 226 T 420 230" stroke="url(#auroraGrad)" stroke-width="14" fill="none" opacity=".75"/>
+        </g>
+
+        <!-- Twinkling stars -->
+        <g class="road__stars" fill="#FFFFFF">
+          <circle cx="40"  cy="60"  r="1.1" class="twinkle d0"/>
+          <circle cx="80"  cy="100" r="0.9" class="twinkle d1"/>
+          <circle cx="140" cy="50"  r="1.2" class="twinkle d2"/>
+          <circle cx="210" cy="70"  r="0.8" class="twinkle d3"/>
+          <circle cx="270" cy="120" r="1.0" class="twinkle d4"/>
+          <circle cx="320" cy="60"  r="1.1" class="twinkle d5"/>
+          <circle cx="100" cy="170" r="0.8" class="twinkle d6"/>
+          <circle cx="240" cy="190" r="0.9" class="twinkle d7"/>
+        </g>
+
+        <!-- Rotating sun rays + corona -->
+        <g class="road__sun-grp" transform="translate(180 270)">
+          <circle r="155" fill="url(#coronaGrad)" class="road__corona"/>
+          <g class="road__rays">
+            <g stroke="#FFD970" stroke-width="1.2" stroke-linecap="round" opacity=".55">
+              <line x1="0" y1="-160" x2="0" y2="-180"/>
+              <line x1="0" y1="160"  x2="0" y2="180"/>
+              <line x1="-160" y1="0" x2="-180" y2="0"/>
+              <line x1="160"  y1="0" x2="180"  y2="0"/>
+              <line x1="-113" y1="-113" x2="-127" y2="-127"/>
+              <line x1="113"  y1="-113" x2="127"  y2="-127"/>
+              <line x1="-113" y1="113"  x2="-127" y2="127"/>
+              <line x1="113"  y1="113"  x2="127"  y2="127"/>
+              <line x1="-60"  y1="-150" x2="-68"  y2="-170"/>
+              <line x1="60"   y1="-150" x2="68"   y2="-170"/>
+              <line x1="-150" y1="-60"  x2="-170" y2="-68"/>
+              <line x1="150"  y1="-60"  x2="170"  y2="-68"/>
+            </g>
+          </g>
+        </g>
+
+        <!-- Animated lane dashes that scroll toward the viewer -->
+        <g class="road__lane-anim">
+          <line x1="180" y1="260" x2="180" y2="450" stroke="#DAA520" stroke-width="4"
+                stroke-dasharray="22 16" stroke-linecap="round" opacity=".95"/>
+        </g>
+
+        <!-- Glowing road edges -->
+        <g class="road__edges" filter="url(#softGlow)">
+          <line x1="120" y1="260" x2="0"   y2="450" stroke="#DAA520" stroke-width="1.6" opacity=".55"/>
+          <line x1="240" y1="260" x2="360" y2="450" stroke="#DAA520" stroke-width="1.6" opacity=".55"/>
+        </g>
+
+        <!-- Birds drifting across -->
+        <g class="road__birds">
+          <g class="bird b1"><path d="M0 0 q5 -5 10 0 q5 -5 10 0" stroke="#FFFFFF" stroke-width="1.3" fill="none"/></g>
+          <g class="bird b2"><path d="M0 0 q4 -4 8 0 q4 -4 8 0"   stroke="#FFD970" stroke-width="1.3" fill="none"/></g>
+          <g class="bird b3"><path d="M0 0 q3 -3 6 0 q3 -3 6 0"   stroke="#FFFFFF" stroke-width="1.1" fill="none"/></g>
+        </g>
+
+        <!-- Heat shimmer line at the horizon -->
+        <line class="road__shimmer" x1="60" y1="260" x2="300" y2="260" stroke="#FFD970" stroke-width="1.2" opacity=".8"/>
+      </svg>
+
+      <!-- Ember particles rising from the road -->
+      <div class="road__embers" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
       </div>
-      <p class="road__hint">Tap the road or sunrise to open your plan</p>
+
+      <div class="road__milestones">
+        <button class="milestone" style="left: 32%; top: 70%;" data-open-plan aria-label="72-hour plan">
+          <span class="milestone__ring" aria-hidden="true"></span>
+          <span class="milestone__label">72 hr</span>
+        </button>
+        <button class="milestone" style="left: 50%; top: 80%;" data-open-plan aria-label="30 day plan">
+          <span class="milestone__ring" aria-hidden="true"></span>
+          <span class="milestone__label">30 d</span>
+        </button>
+        <button class="milestone" style="left: 68%; top: 88%;" data-open-plan aria-label="90 day plan">
+          <span class="milestone__ring" aria-hidden="true"></span>
+          <span class="milestone__label">90 d</span>
+        </button>
+      </div>
+      <p class="road__hint"><span>Tap the road or sunrise to open your plan</span></p>
     </div>
   </div>
 </section>

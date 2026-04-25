@@ -1145,3 +1145,393 @@ html, body { overscroll-behavior-y: contain; }
 }
 -install-cta { animation: none; }
 }
+
+/* ==========================================================================
+   CINEMA — additive animation pass for the road piece + sitewide. Every
+   selector here is brand-new; nothing in the loved baseline is touched.
+   Everything respects prefers-reduced-motion.
+   ========================================================================== */
+
+/* ---- Road piece ---- */
+.road { position: relative; perspective: 800px; transform-style: preserve-3d; }
+.road__fx {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Subtle 3D tilt on hover */
+@media (hover: hover) {
+  .road:hover .road__fx       { transition: transform .4s ease; transform: rotateX(3deg) rotateY(-2deg); }
+  .road:hover .road__lane-anim { animation-duration: 1.2s; }
+}
+
+/* Slow corona pulse */
+.road__corona { transform-origin: center; animation: corona-pulse 4.6s ease-in-out infinite; }
+@keyframes corona-pulse {
+  0%, 100% { opacity: .55; transform: scale(1); }
+  50%      { opacity: .95; transform: scale(1.06); }
+}
+
+/* Sun rays slowly rotate */
+.road__rays { transform-origin: center; animation: rays-rotate 26s linear infinite; }
+@keyframes rays-rotate { to { transform: rotate(360deg); } }
+
+/* Aurora ribbon drifts */
+.road__aurora { animation: aurora-drift 9s ease-in-out infinite alternate; transform-origin: center; }
+@keyframes aurora-drift {
+  0%   { transform: translateX(-12px) translateY(0) scaleY(1); opacity: .55; }
+  50%  { transform: translateX(8px)   translateY(-4px) scaleY(1.05); opacity: .85; }
+  100% { transform: translateX(14px)  translateY(2px) scaleY(1.02); opacity: .65; }
+}
+
+/* Twinkling stars */
+.twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+.twinkle.d0 { animation-delay: .0s; }
+.twinkle.d1 { animation-delay: .3s; }
+.twinkle.d2 { animation-delay: .6s; }
+.twinkle.d3 { animation-delay: .9s; }
+.twinkle.d4 { animation-delay: 1.2s; }
+.twinkle.d5 { animation-delay: 1.5s; }
+.twinkle.d6 { animation-delay: 1.8s; }
+.twinkle.d7 { animation-delay: 2.1s; }
+@keyframes twinkle { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+
+/* Lane stripes scroll toward viewer */
+.road__lane-anim line {
+  stroke-dashoffset: 0;
+  animation: lane-scroll 1.8s linear infinite;
+}
+@keyframes lane-scroll { to { stroke-dashoffset: -38; } }
+
+/* Heat shimmer at horizon */
+.road__shimmer {
+  stroke-dasharray: 6 6;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer { to { stroke-dashoffset: -24; } }
+
+/* Glowing road edges gentle pulse */
+.road__edges line { animation: edge-pulse 3.4s ease-in-out infinite; }
+.road__edges line:last-child { animation-delay: 1.7s; }
+@keyframes edge-pulse { 0%, 100% { opacity: .35; } 50% { opacity: .85; } }
+
+/* Birds fly across the sky */
+.road__birds .bird { transform: translate(-40px, 100px); }
+.road__birds .b1 { animation: bird-fly1 14s linear infinite; }
+.road__birds .b2 { animation: bird-fly2 18s linear infinite; animation-delay: -4s; }
+.road__birds .b3 { animation: bird-fly3 22s linear infinite; animation-delay: -10s; }
+@keyframes bird-fly1 {
+  0%   { transform: translate(-40px, 110px); }
+  50%  { transform: translate(180px, 90px); }
+  100% { transform: translate(420px, 120px); }
+}
+@keyframes bird-fly2 {
+  0%   { transform: translate(-30px, 80px); }
+  50%  { transform: translate(180px, 60px); }
+  100% { transform: translate(420px, 90px); }
+}
+@keyframes bird-fly3 {
+  0%   { transform: translate(420px, 60px); }
+  50%  { transform: translate(180px, 50px); }
+  100% { transform: translate(-30px, 70px); }
+}
+
+/* Ember particles rising from the road */
+.road__embers {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 60%;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+.road__embers span {
+  position: absolute;
+  bottom: -10px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #FFD970 0%, #DAA520 60%, transparent 100%);
+  filter: blur(.4px);
+  opacity: 0;
+  animation: ember-rise 5s linear infinite;
+}
+.road__embers span:nth-child(1)  { left: 18%; animation-delay: 0.0s; animation-duration: 4.8s; }
+.road__embers span:nth-child(2)  { left: 32%; animation-delay: 0.8s; animation-duration: 6.2s; width: 3px; height: 3px; }
+.road__embers span:nth-child(3)  { left: 41%; animation-delay: 1.6s; animation-duration: 5.4s; }
+.road__embers span:nth-child(4)  { left: 49%; animation-delay: 2.4s; animation-duration: 7.0s; width: 5px; height: 5px; }
+.road__embers span:nth-child(5)  { left: 56%; animation-delay: 0.4s; animation-duration: 5.6s; }
+.road__embers span:nth-child(6)  { left: 63%; animation-delay: 1.2s; animation-duration: 6.8s; width: 3px; height: 3px; }
+.road__embers span:nth-child(7)  { left: 71%; animation-delay: 2.0s; animation-duration: 5.2s; }
+.road__embers span:nth-child(8)  { left: 78%; animation-delay: 2.8s; animation-duration: 6.0s; width: 4px; height: 4px; }
+.road__embers span:nth-child(9)  { left: 25%; animation-delay: 3.2s; animation-duration: 5.8s; }
+.road__embers span:nth-child(10) { left: 84%; animation-delay: 1.0s; animation-duration: 7.4s; width: 3px; height: 3px; }
+@keyframes ember-rise {
+  0%   { transform: translate(0, 0) scale(.6); opacity: 0; }
+  10%  { opacity: .9; }
+  50%  { transform: translate(8px, -120px) scale(1); opacity: .95; }
+  100% { transform: translate(-6px, -260px) scale(.4); opacity: 0; }
+}
+
+/* Milestones — pulse rings and bouncy entrance */
+.milestone { position: relative; overflow: visible; }
+.milestone__ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid #DAA520;
+  opacity: .9;
+  animation: ring-pulse 2.6s ease-out infinite;
+  pointer-events: none;
+}
+.milestone:nth-child(2) .milestone__ring { animation-delay: .8s; }
+.milestone:nth-child(3) .milestone__ring { animation-delay: 1.6s; }
+@keyframes ring-pulse {
+  0%   { transform: scale(.6); opacity: .85; }
+  70%  { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.milestone {
+  animation: milestone-pop .9s cubic-bezier(.2,.7,.2,1) both;
+}
+.milestone:nth-child(1) { animation-delay: .35s; }
+.milestone:nth-child(2) { animation-delay: .55s; }
+.milestone:nth-child(3) { animation-delay: .75s; }
+@keyframes milestone-pop {
+  0%   { opacity: 0; transform: translateY(20px) scale(.7); filter: blur(4px); }
+  70%  { opacity: 1; transform: translateY(-3px) scale(1.05); filter: blur(0); }
+  100% { transform: translateY(0) scale(1); }
+}
+.milestone:hover, .milestone:focus-visible {
+  transform: scale(1.08);
+  transition: transform .25s cubic-bezier(.2,.7,.2,1);
+}
+
+/* Hint text shimmer */
+.road__hint { position: relative; overflow: hidden; }
+.road__hint span {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,.65) 0%,
+    rgba(255,255,255,.65) 38%,
+    #FFD970 50%,
+    rgba(255,255,255,.65) 62%,
+    rgba(255,255,255,.65) 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  animation: hint-shimmer 4.5s linear infinite;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+@keyframes hint-shimmer { from { background-position: 220% 0; } to { background-position: -120% 0; } }
+
+/* ---- Sitewide additive animation pass ---- */
+
+/* Eyebrow gold underline grows on hover */
+.eyebrow, .eyebrow--light { position: relative; }
+.eyebrow::after, .eyebrow--light::after {
+  content: "";
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+  margin-left: 10px;
+  vertical-align: middle;
+  background: linear-gradient(90deg, #DAA520, transparent);
+  transition: width .4s cubic-bezier(.2,.7,.2,1);
+}
+*:hover > .eyebrow::after,
+*:hover > .eyebrow--light::after,
+.section:hover .eyebrow::after,
+.section:hover .eyebrow--light::after { width: 70px; }
+
+/* Stat numbers get a slow gold gradient sweep */
+.stat__num {
+  background: linear-gradient(110deg, #DAA520 0%, #FFD970 30%, #DAA520 60%, #FFD970 90%, #DAA520 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  animation: stat-sweep 8s linear infinite;
+}
+@keyframes stat-sweep { from { background-position: 220% 0; } to { background-position: -120% 0; } }
+
+/* Marquee chips get a subtle gold shimmer ribbon */
+.marquee, .scroller, [class*="marquee"] { position: relative; overflow: hidden; }
+.marquee::before, .scroller::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 217, 112, .14) 50%,
+    transparent 100%);
+  transform: translateX(-100%);
+  animation: marquee-shimmer 6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes marquee-shimmer {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Cards get a "running light" gold border on hover */
+.card, .builder, .act, .stat {
+  position: relative;
+  isolation: isolate;
+}
+.card::before, .builder::before, .act::before, .stat::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg,
+    transparent 0deg, transparent 80deg,
+    #DAA520 130deg, #FFD970 160deg, #DAA520 190deg,
+    transparent 240deg, transparent 360deg);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity .35s ease;
+  animation: border-spin 6s linear infinite;
+  animation-play-state: paused;
+}
+.card:hover::before, .builder:hover::before, .act:hover::before, .stat:hover::before {
+  opacity: .55;
+  animation-play-state: running;
+}
+@keyframes border-spin { to { transform: rotate(360deg); } }
+
+/* Hero word-by-word stagger reveal — uses existing <span class="word"> */
+.hero h1 .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(18px) scale(.92);
+  filter: blur(6px);
+  animation: word-rise .9s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.hero h1 .word:nth-child(1) { animation-delay: .15s; }
+.hero h1 .word:nth-child(2) { animation-delay: .30s; }
+.hero h1 .word:nth-child(3) { animation-delay: .45s; }
+.hero h1 .word:nth-child(4) { animation-delay: .60s; }
+.hero h1 .word:nth-child(5) { animation-delay: .75s; }
+@keyframes word-rise {
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+/* Hero gold-text gentle pulse */
+.gold-text {
+  text-shadow:
+    0 0 18px rgba(218, 165, 32, .45),
+    0 0 4px  rgba(255, 217, 112, .35);
+  animation: gold-text-pulse 3.6s ease-in-out infinite;
+}
+@keyframes gold-text-pulse {
+  0%, 100% { text-shadow: 0 0 18px rgba(218, 165, 32, .45), 0 0 4px rgba(255, 217, 112, .35); }
+  50%      { text-shadow: 0 0 32px rgba(218, 165, 32, .75), 0 0 8px rgba(255, 217, 112, .55); }
+}
+
+/* Hero chips lift in sequence */
+.hero__chip {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: chip-rise .7s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.hero__chip:nth-of-type(1) { animation-delay: 1.0s; }
+.hero__chip:nth-of-type(2) { animation-delay: 1.2s; }
+.hero__chip:nth-of-type(3) { animation-delay: 1.4s; }
+@keyframes chip-rise { to { opacity: 1; transform: none; } }
+
+/* Skip-link reveal for keyboard users */
+.skip-link:focus {
+  animation: skip-pop .25s ease both;
+}
+@keyframes skip-pop { from { transform: translateY(-200%); } to { transform: none; } }
+
+/* CTA arrow icon nudges */
+.btn .arrow,
+.btn--primary svg + ,
+.btn svg {
+  transition: transform .25s cubic-bezier(.2,.7,.2,1);
+}
+.btn:hover svg { transform: translateX(3px); }
+.btn:hover .arrow { transform: translateX(4px); }
+
+/* Builder figures — gentle breathing */
+.builder__sil svg { animation: builder-breath 6s ease-in-out infinite; transform-origin: center bottom; }
+.builder:nth-child(2) .builder__sil svg { animation-delay: 1s; }
+.builder:nth-child(3) .builder__sil svg { animation-delay: 2s; }
+.builder:nth-child(4) .builder__sil svg { animation-delay: 3s; }
+.builder:nth-child(5) .builder__sil svg { animation-delay: 4s; }
+.builder:nth-child(6) .builder__sil svg { animation-delay: 5s; }
+@keyframes builder-breath {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.02); }
+}
+
+/* Section eyebrows + headings get a tiny entrance lift on first paint */
+.section h2 {
+  animation: section-h2-in .8s cubic-bezier(.2,.7,.2,1) both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 30%;
+}
+
+/* Bottom-nav cooler indicator */
+.bottom-nav a[aria-current="page"] svg {
+  animation: tab-icon-bob 1.6s ease-in-out infinite;
+  color: #DAA520;
+}
+@keyframes tab-icon-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+.bottom-nav a:active svg { transform: scale(.85); transition: transform .12s ease; }
+
+/* Bottom-nav: subtle gold sweep when active */
+.bottom-nav { position: relative; }
+.bottom-nav::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(218, 165, 32, .65) 50%,
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: nav-top-sweep 8s linear infinite;
+  pointer-events: none;
+}
+@keyframes nav-top-sweep {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Scroll-progress bar gentle hue shift */
+.scroll-progress { animation: scroll-hue 8s linear infinite; }
+@keyframes scroll-hue {
+  0%, 100% { filter: hue-rotate(0deg)  drop-shadow(0 0 10px rgba(218,165,32,.5)); }
+  50%      { filter: hue-rotate(-12deg) drop-shadow(0 0 14px rgba(255,200,80,.6)); }
+}
+
+/* Reduced motion off-switch */
+@media (prefers-reduced-motion: reduce) {
+  .road__corona, .road__rays, .road__aurora, .twinkle,
+  .road__lane-anim line, .road__shimmer, .road__edges line,
+  .road__birds .bird, .road__embers span, .milestone, .milestone__ring,
+  .road__hint span, .stat__num, .marquee::before, .scroller::before,
+  .card::before, .builder::before, .act::before, .stat::before,
+  .hero h1 .word, .gold-text, .hero__chip, .builder__sil svg,
+  .bottom-nav a[aria-current="page"] svg, .bottom-nav::after,
+  .scroll-progress { animation: none !important; }
+  .hero h1 .word { opacity: 1; transform: none; filter: none; }
+  .hero__chip    { opacity: 1; transform: none; }
+}
+
+/* Forced colors: don't paint glow effects */
+@media (forced-colors: active) {
+  .road__corona, .road__embers span, .gold-text { animation: none; }
+}
+, .gold-text { animation: none; }
+}
