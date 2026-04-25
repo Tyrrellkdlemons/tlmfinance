@@ -353,6 +353,20 @@
 </footer>
 <nav class="bottom-nav" aria-label="Mobile primary">
   <a href="#planner"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7h18M3 12h12M3 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Plan</a>
-  <a href="./learn.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14l-8-4-8 4V5z" stroke="currentColor" stroke-width="2"/></svg>Learn</a>
-  <button data-open-plan><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M7 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Quick plan</button>
-  <a href="./hub.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect 
+  ="M4 5h8a2 2 0 012 2v12H6a2 2 0 01-2-2V5zM12 5h8v12a2 2 0 01-2 2h-6V5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Learn</a>
+  <a href="./hub.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/></svg>Hub</a>
+  <a href="#planner"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12l4-4 4 4 7-7 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Plan</a>
+  <a href="./watch.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><polygon points="6 4 20 12 6 20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Watch</a>
+  <a href="./media.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Media</a>
+</nav>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  }
+</script>
+<script type="module" src="./src/app.js"></script>
+<script src="./src/admin-overrides.js" defer></script>
+<script src="./src/chatbot.js" defer></script>
+</body>
+</html>
