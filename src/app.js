@@ -701,27 +701,215 @@ function toast(msg) {
     `;
     stepHost.appendChild(wrap);
 
-    $('#advBtn').addEventListener('click', () => {
-      const persona = prompt("Main goal? Type one of: job, school, business, health", "job") || "job";
-      const skill   = prompt("Your strongest skill or interest?", "") || "";
-      const city    = prompt("City or region?", "") || "";
-      const savings = parseInt(prompt("3-month emergency fund target ($)?", "1000")) || 1000;
+    $('#advBtn').addEventListener('click', () => openFuturePlanWizard());
 
-      const plan = buildPlan(persona.trim().toLowerCase(), { skill, city, savings });
-      try {
-        const raw = localStorage.getItem('paving-the-road:plan:v1');
-        const state = raw ? JSON.parse(raw) : {};
-        Object.keys(plan).forEach(k => {
-          state[k] = Array.from(new Set([...(state[k] || []), ...plan[k]]));
+    function openFuturePlanWizard() {
+      if (document.getElementById('fpWizard')) return;
+      const PERSONAS = [
+        { id: 'job',      icon: '🛠️', title: 'Job',      tag: 'Land work fast',   desc: 'Resume, fair-chance employers, certifications, banking.' },
+        { id: 'school',   icon: '🎓',       title: 'School',   tag: 'Get back in class',desc: 'Project Rebound, FAFSA, transfer plans, scholarships.' },
+        { id: 'business', icon: '💼',       title: 'Business', tag: 'Start something',  desc: 'EIN, LLC, microloan, first sales, books in Wave.' },
+        { id: 'health',   icon: '⚕️',       title: 'Health',   tag: 'Body & mind first',desc: 'Refill meds, Medicaid, sliding-scale clinic, peer support.' },
+      ];
+      const wiz = document.createElement('div');
+      wiz.id = 'fpWizard';
+      wiz.className = 'fp-wizard';
+      wiz.setAttribute('role', 'dialog');
+      wiz.setAttribute('aria-modal', 'true');
+      wiz.setAttribute('aria-labelledby', 'fpWizTitle');
+      const personaCards = PERSONAS.map(p =>
+        '<button class="fp-persona" type="button" data-persona="' + p.id + '">' +
+          '<span class="fp-persona__icon" aria-hidden="true">' + p.icon + '</span>' +
+          '<span class="fp-persona__title">' + p.title + '</span>' +
+          '<span class="fp-persona__tag">' + p.tag + '</span>' +
+          '<span class="fp-persona__desc">' + p.desc + '</span>' +
+        '</button>'
+      ).join('');
+      wiz.innerHTML =
+        '<div class="fp-wizard__scrim" data-fp-close></div>' +
+        '<div class="fp-wizard__panel" role="document">' +
+          '<button class="fp-wizard__close" type="button" aria-label="Close" data-fp-close>×</button>' +
+          '<div class="fp-wizard__progress" aria-hidden="true"><span class="fp-wizard__bar"></span></div>' +
+          '<div class="fp-wizard__steps">' +
+            '<section class="fp-step is-active" data-step="1">' +
+              '<p class="fp-eyebrow">Step 1 of 4</p>' +
+              '<h2 id="fpWizTitle">Pick the focus that fits you right now.</h2>' +
+              '<p class="fp-sub">We\'ll build a 72-hour, 30/60/90-day, 6-month and 1-year plan around it. Change anything later.</p>' +
+              '<div class="fp-personas">' + personaCards + '</div>' +
+            '</section>' +
+            '<section class="fp-step" data-step="2">' +
+              '<p class="fp-eyebrow">Step 2 of 4</p>' +
+              '<h2>What\'s your strongest skill or interest?</h2>' +
+              '<p class="fp-sub">A keyword is fine — we\'ll weave it into your plan.</p>' +
+              '<input class="fp-input" id="fpSkill" type="text" placeholder="e.g. coding, sales, hands-on trades" autocomplete="off" />' +
+              '<div class="fp-suggest" id="fpSkillSuggest">' +
+                ['code','sales','welding','design','food service','driving','music','construction']
+                  .map(s => '<button type="button">' + s + '</button>').join('') +
+              '</div>' +
+            '</section>' +
+            '<section class="fp-step" data-step="3">' +
+              '<p class="fp-eyebrow">Step 3 of 4</p>' +
+              '<h2>What city or region?</h2>' +
+              '<p class="fp-sub">We tune resource references to where you\'re rebuilding. Skip if you\'d rather not say.</p>' +
+              '<input class="fp-input" id="fpCity" type="text" placeholder="e.g. Los Angeles, Bay Area, Atlanta" autocomplete="off" />' +
+            '</section>' +
+            '<section class="fp-step" data-step="4">' +
+              '<p class="fp-eyebrow">Step 4 of 4</p>' +
+              '<h2>3-month emergency fund target.</h2>' +
+              '<p class="fp-sub">Drag the dial — we set milestones to match.</p>' +
+              '<div class="fp-dial">' +
+                '<input class="fp-range" id="fpSavings" type="range" min="500" max="10000" step="100" value="1000" />' +
+                '<div class="fp-dial__readout"><span id="fpSavingsAmt">$1,000</span></div>' +
+                '<div class="fp-dial__ticks" aria-hidden="true"><span>$500</span><span>$2.5k</span><span>$5k</span><span>$7.5k</span><span>$10k</span></div>' +
+              '</div>' +
+            '</section>' +
+            '<section class="fp-step" data-step="5">' +
+              '<p class="fp-eyebrow">Almost there</p>' +
+              '<h2>Here\'s your custom plan.</h2>' +
+              '<div class="fp-preview" id="fpPreview"></div>' +
+            '</section>' +
+            '<section class="fp-step" data-step="6">' +
+              '<p class="fp-eyebrow">Done</p>' +
+              '<h2>Plan saved to this device.</h2>' +
+              '<p class="fp-sub">Tasks added to the Planner below. Print, export, or share when you\'re ready.</p>' +
+              '<div class="fp-confetti" aria-hidden="true">' +
+                '<span></span><span></span><span></span><span></span><span></span>' +
+                '<span></span><span></span><span></span><span></span><span></span>' +
+                '<span></span><span></span><span></span><span></span><span></span>' +
+              '</div>' +
+            '</section>' +
+          '</div>' +
+          '<footer class="fp-wizard__nav">' +
+            '<button class="btn btn--ghost btn--sm" type="button" data-fp-back>← Back</button>' +
+            '<button class="btn btn--primary btn--sm" type="button" data-fp-next>Next →</button>' +
+          '</footer>' +
+        '</div>';
+      document.body.appendChild(wiz);
+      requestAnimationFrame(() => wiz.classList.add('is-open'));
+
+      const data = { persona: '', skill: '', city: '', savings: 1000 };
+      let step = 1;
+      const TOTAL = 6;
+      const W = (s) => wiz.querySelector(s);
+      const Wa = (s) => Array.from(wiz.querySelectorAll(s));
+
+      function setStep(n) {
+        step = Math.max(1, Math.min(TOTAL, n));
+        Wa('.fp-step').forEach(el => el.classList.toggle('is-active', el.dataset.step === String(step)));
+        const pct = ((step - 1) / (TOTAL - 1)) * 100;
+        W('.fp-wizard__bar').style.width = pct + '%';
+        const back = W('[data-fp-back]');
+        const next = W('[data-fp-next]');
+        back.disabled = step === 1 || step === TOTAL;
+        if (step === TOTAL) next.textContent = 'Close';
+        else if (step === 5) next.textContent = 'Save my plan ✓';
+        else next.textContent = 'Next →';
+        next.disabled = (step === 1 && !data.persona);
+        if (step === 5) renderPreview();
+        if (step === TOTAL) fireWizConfetti(wiz);
+        setTimeout(() => {
+          const live = W('.fp-step.is-active');
+          const focusable = live && live.querySelector('input, button:not([data-fp-close])');
+          if (focusable) focusable.focus({ preventScroll: true });
+        }, 60);
+      }
+
+      Wa('.fp-persona').forEach(b => {
+        b.addEventListener('click', () => {
+          Wa('.fp-persona').forEach(x => x.classList.remove('is-selected'));
+          b.classList.add('is-selected');
+          data.persona = b.dataset.persona;
+          W('[data-fp-next]').disabled = false;
         });
-        state.updatedAt = new Date().toISOString();
-        localStorage.setItem('paving-the-road:plan:v1', JSON.stringify(state));
-      } catch {}
-      // gentle reload so the UI repaints with the new tasks
-      const sum = `Generated! Added:\n• ${plan.first72Hours.length} tasks for 72h\n• ${plan.thirtyDayPlan.length} tasks for 30 days\n• ${plan.sixtyDayPlan.length} for 60 days\n• ${plan.ninetyDayPlan.length} for 90 days\n• ${plan.halfYearPlan.length} for 6 months\n• ${plan.yearPlan.length} for 1 year`;
-      alert(sum + "\n\nReloading the planner so you see them.");
-      location.hash = "#planner"; location.reload();
-    });
+      });
+
+      Wa('#fpSkillSuggest button').forEach(b => {
+        b.addEventListener('click', () => { W('#fpSkill').value = b.textContent.trim(); });
+      });
+
+      const range = W('#fpSavings');
+      const readout = W('#fpSavingsAmt');
+      function updateAmt() {
+        const v = parseInt(range.value, 10) || 0;
+        readout.textContent = '$' + v.toLocaleString();
+        const pct = (v - 500) / (10000 - 500);
+        range.style.background = 'linear-gradient(90deg, #DAA520 0%, #FFD970 ' + (pct*100) + '%, rgba(255,255,255,.12) ' + (pct*100) + '%, rgba(255,255,255,.12) 100%)';
+      }
+      range.addEventListener('input', updateAmt);
+      updateAmt();
+
+      function renderPreview() {
+        data.skill   = (W('#fpSkill').value || '').trim();
+        data.city    = (W('#fpCity').value || '').trim();
+        data.savings = parseInt(W('#fpSavings').value, 10) || 1000;
+        const plan = buildPlan(data.persona, { skill: data.skill, city: data.city, savings: data.savings });
+        const sections = [
+          ['First 72 hours', plan.first72Hours],
+          ['30 days',        plan.thirtyDayPlan],
+          ['60 days',        plan.sixtyDayPlan],
+          ['90 days',        plan.ninetyDayPlan],
+          ['6 months',       plan.halfYearPlan],
+          ['1 year',         plan.yearPlan],
+        ];
+        const total = sections.reduce((s, pair) => s + pair[1].length, 0);
+        const cols = sections.map(pair => {
+          const label = pair[0]; const list = pair[1];
+          const items = list.slice(0, 2).map(t =>
+            '<li>' + (t.length > 80 ? (t.slice(0, 77) + '…') : t) + '</li>'
+          ).join('');
+          return '<div class="fp-preview__col">' +
+                   '<div class="fp-preview__label">' + label + '</div>' +
+                   '<div class="fp-preview__count">' + list.length + '</div>' +
+                   '<ul>' + items + '</ul>' +
+                 '</div>';
+        }).join('');
+        W('#fpPreview').innerHTML =
+          '<p class="fp-preview__total"><strong>' + total + '</strong> personalized tasks across 6 horizons.</p>' +
+          '<div class="fp-preview__grid">' + cols + '</div>';
+      }
+
+      function applyPlan() {
+        const plan = buildPlan(data.persona, { skill: data.skill, city: data.city, savings: data.savings });
+        try {
+          const raw = localStorage.getItem('paving-the-road:plan:v1');
+          const stored = raw ? JSON.parse(raw) : {};
+          Object.keys(plan).forEach(k => {
+            stored[k] = Array.from(new Set([].concat(stored[k] || [], plan[k])));
+          });
+          stored.updatedAt = new Date().toISOString();
+          localStorage.setItem('paving-the-road:plan:v1', JSON.stringify(stored));
+        } catch (e) {}
+      }
+
+      W('[data-fp-back]').addEventListener('click', () => setStep(step - 1));
+      W('[data-fp-next]').addEventListener('click', () => {
+        if (step === 1 && !data.persona) return;
+        if (step === 5) { applyPlan(); setStep(6); return; }
+        if (step === TOTAL) { closeWiz(true); return; }
+        setStep(step + 1);
+      });
+      Wa('[data-fp-close]').forEach(el => el.addEventListener('click', () => closeWiz(false)));
+      function escListener(e) { if (e.key === 'Escape') closeWiz(false); }
+      document.addEventListener('keydown', escListener);
+
+      function closeWiz(reload) {
+        document.removeEventListener('keydown', escListener);
+        wiz.classList.remove('is-open');
+        setTimeout(() => {
+          wiz.remove();
+          if (reload) { location.hash = '#planner'; location.reload(); }
+        }, 280);
+      }
+
+      function fireWizConfetti(host) {
+        host.querySelectorAll('.fp-confetti span').forEach((s, i) => {
+          s.style.left = (5 + Math.random() * 90) + '%';
+          s.style.animationDelay = (i * 0.08) + 's';
+        });
+      }
+
+      setStep(1);
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject);
