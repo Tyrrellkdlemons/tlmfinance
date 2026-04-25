@@ -1,5 +1,5 @@
 /* Paving the Road — service worker. Static-first cache + stale-while-revalidate. */
-const CACHE = 'paving-the-road-v3';
+const CACHE = 'paving-the-road-v4';
 const SHELL = [
   './', './index.html', './learn.html', './hub.html', './watch.html',
   './radio.html', './feed.html', './media.html',
