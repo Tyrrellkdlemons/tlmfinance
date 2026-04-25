@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0E0E0E" />
+<title>Feed · Everything TLM in one place</title>
+<meta name="description" content="A unified feed combining The Last Mile's official site, YouTube, LinkedIn, Instagram, Facebook, X, Spotify, SoundCloud, and The Last Mile Radio." />
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
+<link rel="stylesheet" href="./src/styles/globals.css" />
+<link rel="stylesheet" href="./src/styles/print.css" media="print" />
+</head>
+<body class="has-bottom-nav">
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="nav" role="banner">
+  <div class="nav__inner">
+    <a class="brand" href="./index.html" aria-label="The Last Mile · Finance home">
+      <picture>
+        <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
+        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="190" height="48" style="height:48px;width:auto"/>
+      </picture>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="./index.html#planner">Plan</a>
+      <a href="./learn.html">Learn</a>
+      <a href="./index.html#resources">Resources</a>
+      <a href="./feed.html" aria-current="page">Feed</a>
+      <a href="./radio.html">Radio</a>
+      <a href="./media.html">Media</a>
+    </nav>
+    <div class="nav__cta">
+      <a class="btn btn--primary btn--sm" href="./index.html#planner">Build My Plan</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero" style="padding:80px 0 60px" aria-labelledby="f-title">
+  <div class="hero__horizon" aria-hidden="true"></div>
+  <div class="hero__sun" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <div>
+      <span class="eyebrow eyebrow--light">The unified feed</span>
+      <h1 id="f-title">Everything TLM, <span class="gold-text">in one stream</span>.</h1>
+      <p class="lede">A single timeline of The Last Mile's official site, podcast, YouTube, Instagram, Facebook, X, LinkedIn, Spotify, and SoundCloud. Filter by source, click to open the original.</p>
+      <div class="hero__ctas">
+        <button class="btn btn--ghost-light" data-filter="all" aria-pressed="true">All</button>
+        <button class="btn btn--ghost-light" data-filter="radio">Radio</button>
+        <button class="btn btn--ghost-light" data-filter="press">Press</button>
+        <button class="btn btn--ghost-light" data-filter="social">Social</button>
+        <button class="btn btn--ghost-light" data-filter="report">Reports</button>
+      </div>
+    </div>
+    <div class="card" style="background:rgba(255,255,255,.05);color:#fff;border-color:rgba(255,255,255,.15)">
+      <h3 style="color:#fff;margin-top:0">Sources</h3>
+      <p style="line-height:1.9;color:rgba(255,255,255,.85);margin:0">
+        🌐 <a href="https://thelastmile.org/" target="_blank" rel="noopener" style="color:var(--tlm-gold)">thelastmile.org</a><br>
+        🎧 <a href="https://thelastmileradio.org/" target="_blank" rel="noopener" style="color:var(--tlm-gold)">The Last Mile Radio</a><br>
+        🎵 <a href="https://open.spotify.com/show/2AUpxHWgiqBY11hqi3MAKF" target="_blank" rel="noopener" style="color:var(--tlm-gold)">Spotify</a> ·
+           <a href="https://soundcloud.com/tlmradio" target="_blank" rel="noopener" style="color:var(--tlm-gold)">SoundCloud</a><br>
+        📺 <a href="https://www.youtube.com/@TheLastMile" target="_blank" rel="noopener" style="color:var(--tlm-gold)">YouTube</a><br>
+        📷 <a href="https://www.instagram.com/thelastmileorg/" target="_blank" rel="noopener" style="color:var(--tlm-gold)">Instagram</a> ·
+           <a href="https://www.facebook.com/thelastmileorg" target="_blank" rel="noopener" style="color:var(--tlm-gold)">Facebook</a><br>
+        🐦 <a href="https://x.com/TLM" target="_blank" rel="noopener" style="color:var(--tlm-gold)">X</a> ·
+           <a href="https://www.linkedin.com/company/the-last-mile/" target="_blank" rel="noopener" style="color:var(--tlm-gold)">LinkedIn</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="stream">
+  <div class="container">
+    <span class="eyebrow">Combined timeline</span>
+    <h2 id="stream">Latest from across TLM.</h2>
+    <p class="muted">Items are shown newest-first based on what we can see publicly. Click "Open" to view the original on its source.</p>
+    <div class="grid grid--2 mt-3" id="feed"></div>
+  </div>
+</section>
+
+<section class="section section--charcoal" aria-labelledby="follow">
+  <div class="container">
+    <span class="eyebrow eyebrow--light">Follow once</span>
+    <h2 id="follow">Subscribe to one place; we surface the rest.</h2>
+    <p class="lede" style="color:rgba(255,255,255,.85)">Pick the platform you actually use. We'll keep aggregating.</p>
+    <div class="grid grid--3 mt-3" id="socials"></div>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <p class="disclaimer">All content is owned by its original publishers. This page links to publicly available posts and feeds. No private data is fetched.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <p>© <span id="year"></span> The Last Mile · Finance — Unified feed.</p>
+  </div>
+</footer>
+
+<nav class="bottom-nav" aria-label="Mobile primary">
+  <a href="./index.html#planner">Plan</a>
+  <a href="./learn.html">Learn</a>
+  <a href="./feed.html" aria-current="page">Feed</a>
+  <a href="./radio.html">Radio</a>
+  <a href="./media.html">Media</a>
+</nav>
+
+<script type="module">
+  const r = await fetch('./src/data/media.json'); const m = await r.json();
+  const feed = document.getElementById('feed');
+  const items = [];
+
+  // Radio episodes (newest 6)
+  m.radioEpisodes.slice(0, 6).forEach(ep => {
+    const slug = (ep.title || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    items.push({
+      kind: 'radio',
+      pill: 'Radio',
+      color: '#DAA520',
+      date: ep.date || '',
+      title: `EP ${ep.n}: ${ep.title}`,
+      body: ep.summary || '',
+      url: `https://thelastmileradio.org/podcast/episode-${ep.n}-${slug}/`
+    });
+  });
+
+  // Press / annual reports
+  items.push({ kind:'report', pill:'Report',  color:'#5B3FAE', date:'2025-03', title:'2024 Annual Report',  body:'TLM 2024 metrics: 451 students across 16 facilities; 75% employment for alumni 6+ months.', url:'https://thelastmile.org/wp-content/uploads/2025/03/2024AnnualReport.pdf' });
+  items.push({ kind:'report', pill:'Report',  color:'#5B3FAE', date:'2025',    title:'2025 Annual Report',  body:'Year-in-review of education, reentry, and employment outcomes.', url:'https://thelastmile.org/annual-report/' });
+  items.push({ kind:'press',  pill:'Press',   color:'#2F5DDB', date:'2026',    title:'The Last Mile in 2026', body:'Scaling opportunity, education, and employment for a new economy.', url:'https://thelastmile.org/the-last-mile-in-2026/' });
+  items.push({ kind:'press',  pill:'Press',   color:'#2F5DDB', date:'2024',    title:'Stand Together feature', body:'How TLM prepares incarcerated individuals for reentry careers.', url:'https://standtogether.org/stories/future-of-work/the-last-mile-prepares-incarcerated-individuals-for-reentry' });
+
+  // Social channel pointers (always-on)
+  items.push({ kind:'social', pill:'YouTube',   color:'#FF0033', date:'live', title:'@TheLastMile on YouTube',  body:'Latest videos: graduations, alumni stories, partner content.', url: m.official.youtube.url });
+  items.push({ kind:'social', pill:'Instagram', color:'#C13584', date:'live', title:'@thelastmileorg on Instagram', body:'Community photos, alumni features, events.', url: m.official.instagram.url });
+  items.push({ kind:'social', pill:'Facebook',  color:'#1877F2', date:'live', title:'TLM on Facebook',          body:'Public Facebook page with announcements and news.', url: m.official.facebook.url });
+  items.push({ kind:'social', pill:'X',         color:'#000000', date:'live', title:'@TLM on X',                body:'Short updates and news threads.', url: m.official.twitter.url });
+  items.push({ kind:'social', pill:'LinkedIn',  color:'#0A66C2', date:'live', title:'TLM on LinkedIn',          body:'Partnership news, hiring, and employer announcements.', url: m.official.linkedin.url });
+  items.push({ kind:'social', pill:'Spotify',   color:'#1DB954', date:'live', title:'TLM Radio on Spotify',     body:'Full episode archive.', url: m.official.spotify.url });
+  items.push({ kind:'social', pill:'SoundCloud',color:'#FF7700', date:'live', title:'TLM Radio on SoundCloud',  body:'Audio episodes and clips.', url: m.official.soundcloud.url });
+
+  // Sort newest first (radio dates use ISO; non-dated "live" pinned to top)
+  items.sort((a, b) => {
+    if (a.date === 'live' && b.date !== 'live') return -1;
+    if (b.date === 'live' && a.date !== 'live') return 1;
+    return (b.date || '').localeCompare(a.date || '');
+  });
+
+  function paint(filter = 'all') {
+    feed.innerHTML = '';
+    items
+      .filter(it => filter === 'all' || it.kind === filter || (filter === 'social' && it.kind === 'social'))
+      .forEach(it => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="flex" style="margin-bottom:8px">
+            <span class="tag" style="background:${it.color};color:#fff">${it.pill}</span>
+            <span class="tag tag--ghost">${it.date || ''}</span>
+          </div>
+          <h3 style="margin:0 0 6px">${it.title}</h3>
+          <p>${it.body || ''}</p>
+          <a class="btn btn--dark btn--sm" href="${it.url}" target="_blank" rel="noopener">Open ↗</a>
+        `;
+        feed.appendChild(card);
+      });
+  }
+  paint();
+
+  document.querySelectorAll('[data-filter]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter]').forEach(x => x.setAttribute('aria-pressed', 'false'));
+      b.setAttribute('aria-pressed', 'true');
+      paint(b.dataset.filter);
+    });
+  });
+
+  // Render socials grid
+  const socialsHost = document.getElementById('socials');
+  const socials = [
+    { n: 'YouTube',   u: m.official.youtube.url,    h: m.official.youtube.handle },
+    { n: 'Spotify',   u: m.official.spotify.url,    h: 'The Last Mile Radio' },
+    { n: 'SoundCloud',u: m.official.soundcloud.url, h: 'tlmradio' },
+    { n: 'Instagram', u: m.official.instagram.url,  h: m.official.instagram.handle },
+    { n: 'Facebook',  u: m.official.facebook.url,   h: 'thelastmileorg' },
+    { n: 'X',         u: m.official.twitter.url,    h: m.official.twitter.handle },
+    { n: 'LinkedIn',  u: m.official.linkedin.url,   h: 'The Last Mile' },
+    { n: 'Radio site',u: 'https://thelastmileradio.org/', h: 'thelastmileradio.org' },
+    { n: 'Press kit', u: m.official.press.pressKit, h: 'press kit' }
+  ];
+  socials.forEach(s => {
+    const a = document.createElement('a');
+    a.className = 'card'; a.href = s.u; a.target = '_blank'; a.rel = 'noopener';
+    a.style.background = 'rgba(255,255,255,.05)'; a.style.borderColor = 'rgba(255,255,255,.15)'; a.style.color = '#fff'; a.style.textDecoration = 'none';
+    a.innerHTML = `<h3 style="color:#fff;margin:0 0 4px">${s.n}</h3><p style="margin:0;color:rgba(255,255,255,.85)">${s.h} ↗</p>`;
+    socialsHost.appendChild(a);
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

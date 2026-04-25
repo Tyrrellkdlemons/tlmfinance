@@ -1,0 +1,56 @@
+{
+  "asOf": "2026-04-24",
+  "stats": [
+    {
+      "label": "Students served (2024)",
+      "value": "451",
+      "context": "Across 16 facilities; average daily enrollment 310.",
+      "source": "TLM 2024 Annual Report",
+      "sourceUrl": "https://thelastmile.org/wp-content/uploads/2025/03/2024AnnualReport.pdf",
+      "year": 2024
+    },
+    {
+      "label": "Alumni employment rate",
+      "value": "75%",
+      "context": "Released 6+ months and employed.",
+      "source": "TLM Workforce Reentry program page",
+      "sourceUrl": "https://thelastmile.org/programs/reentry/",
+      "year": 2025
+    },
+    {
+      "label": "Reported recidivism",
+      "value": "<8%",
+      "context": "Compared with a US national rate hovering around 64%.",
+      "source": "TLM Rehabilitative Justice Model",
+      "sourceUrl": "https://thelastmile.org/rehabilitative-justice-model/",
+      "year": 2025
+    },
+    {
+      "label": "Alumni who pursue further education",
+      "value": "90%",
+      "context": "Continue learning after release while maintaining employment.",
+      "source": "TLM Workforce Reentry",
+      "sourceUrl": "https://thelastmile.org/programs/reentry/",
+      "year": 2025
+    },
+    {
+      "label": "Total alumni",
+      "value": "~1,000",
+      "context": "Returned home with TLM training, mentorship, and ongoing support.",
+      "source": "The Last Mile in 2026",
+      "sourceUrl": "https://thelastmile.org/the-last-mile-in-2026/",
+      "year": 2026
+    },
+    {
+      "label": "Active footprint",
+      "value": "16 facilities · 7 states",
+      "context": "California, Indiana, Oklahoma, Michigan, North Dakota, Montana, Massachusetts (with PA & RI expansion).",
+      "source": "The Last Mile in 2026",
+      "sourceUrl": "https://thelastmile.org/the-last-mile-in-2026/",
+      "year": 2026
+    }
+  ],
+  "employersOfAlumni": [
+    "Google", "Microsoft", "Amazon", "Apple", "Meta", "Nvidia", "NASA", "Capital One", "Indiana Pacers"
+  ]
+}

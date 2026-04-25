@@ -1,0 +1,25 @@
+{
+  "name": "paving-the-road",
+  "version": "1.0.0",
+  "description": "A free, private, mobile-first reentry planning companion inspired by The Last Mile.",
+  "private": true,
+  "homepage": "https://paving-the-road.netlify.app",
+  "scripts": {
+    "start": "npx -y serve@latest -l 8080 .",
+    "dev": "npx -y serve@latest -l 8080 .",
+    "validate": "node ./scripts/validate.mjs",
+    "deploy": "netlify deploy --prod --dir=.",
+    "deploy:preview": "netlify deploy --dir=."
+  },
+  "keywords": [
+    "reentry",
+    "the-last-mile",
+    "financial-planning",
+    "pwa",
+    "static-site"
+  ],
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18"
+  }
+}

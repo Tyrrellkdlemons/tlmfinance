@@ -1,0 +1,27 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Node (only used for tooling/CI)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Netlify
+.netlify/
+
+# Local secrets (Neon, etc.)
+.env
+.env.local
+.env.*.local
+
+# Build / cache (none today, but reserve)
+dist/
+build/
+.cache/

@@ -1,0 +1,86 @@
+# Netlify configuration — Paving the Road
+# Static site, no build step. PWA-ready.
+
+[build]
+  publish = "."
+  command = "echo 'Static site — no build needed'"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@neondatabase/serverless"]
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Redirects — single-page sections live on index.html, media on media.html
+[[redirects]]
+  from = "/plan"
+  to = "/index.html#planner"
+  status = 301
+
+[[redirects]]
+  from = "/resources"
+  to = "/index.html#resources"
+  status = 301
+
+[[redirects]]
+  from = "/stories"
+  to = "/index.html#stories"
+  status = 301
+
+[[redirects]]
+  from = "/youtube"
+  to = "/media.html"
+  status = 301
+
+[[redirects]]
+  from = "/learn"
+  to = "/learn.html"
+  status = 301
+
+[[redirects]]
+  from = "/radio"
+  to = "/radio.html"
+  status = 301
+
+[[redirects]]
+  from = "/feed"
+  to = "/feed.html"
+  status = 301
+
+[[redirects]]
+  from = "/media"
+  to = "/media.html"
+  status = 301
+
+# Headers — security + PWA
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+
+[[headers]]
+  for = "/service-worker.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+    Content-Type = "application/manifest+json"
+
+[[headers]]
+  for = "/src/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

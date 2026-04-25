@@ -1,0 +1,41 @@
+{
+  "channelLastChecked": "2026-04-24",
+  "official": {
+    "site":      { "url": "https://thelastmile.org/", "description": "The Last Mile official site." },
+    "youtube":   { "handle": "@TheLastMile", "url": "https://www.youtube.com/@TheLastMile", "alt": "https://www.youtube.com/TheLastMile", "embedUrl": "https://www.youtube.com/embed?listType=user_uploads&list=TheLastMile", "description": "Official YouTube — program updates, graduations, alumni stories." },
+    "linkedin":  { "url": "https://www.linkedin.com/company/the-last-mile/", "description": "Official LinkedIn — partnership news, hiring, employer announcements." },
+    "instagram": { "handle": "@thelastmileorg", "url": "https://www.instagram.com/thelastmileorg/", "description": "Official Instagram — community photos, alumni features, events." },
+    "twitter":   { "handle": "@TLM", "url": "https://x.com/TLM", "description": "Official X / Twitter handle." },
+    "facebook":  { "url": "https://www.facebook.com/thelastmileorg", "description": "Official Facebook page." },
+    "spotify":   { "url": "https://open.spotify.com/show/2AUpxHWgiqBY11hqi3MAKF", "embedUrl": "https://open.spotify.com/embed/show/2AUpxHWgiqBY11hqi3MAKF?utm_source=generator&theme=0", "description": "The Last Mile Radio on Spotify." },
+    "soundcloud":{ "url": "https://soundcloud.com/tlmradio", "embedUrl": "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/tlmradio&color=%23daa520&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true", "description": "TLM Radio on SoundCloud." },
+    "radio":     { "url": "https://thelastmileradio.org/", "rss": "https://thelastmileradio.org/feed/podcast", "siriusxm": "Saturdays @ 12pm ET", "description": "The Last Mile Radio — podcast and SiriusXM show, hosted by Tara Trask." },
+    "press":     { "pressKit": "https://thelastmile.org/press-kit/", "mediaInquiries": "https://thelastmile.org/media-inquiries/", "mediaNews": "https://thelastmile.org/media-news/", "mediaContactEmail": "info@thelastmile.org" },
+    "annualReports": [
+      { "year": 2024, "url": "https://thelastmile.org/the-last-miles-2024-annual-report/", "pdf": "https://thelastmile.org/wp-content/uploads/2025/03/2024AnnualReport.pdf" },
+      { "year": 2025, "url": "https://thelastmile.org/annual-report/" }
+    ]
+  },
+  "playlists": [
+    { "title": "The Last Mile — All Uploads", "description": "Latest videos posted to the official channel.", "url": "https://www.youtube.com/@TheLastMile/videos", "embedUrl": "https://www.youtube.com/embed?listType=user_uploads&list=TheLastMile" },
+    { "title": "Programs & Graduations", "description": "Highlights from coding-program graduations across TLM facilities.", "url": "https://www.youtube.com/@TheLastMile/videos" },
+    { "title": "Alumni & Reentry Stories", "description": "First-person stories from alumni about reentry, careers, and life after incarceration.", "url": "https://www.youtube.com/@TheLastMile/videos" }
+  ],
+  "radioEpisodes": [
+    { "n": 93, "title": "Restoring Promise", "date": "2026-04-10", "duration": "44:47", "summary": "The Brennan Center report overview and the movement to humanize incarceration." },
+    { "n": 92, "title": "Gio Romero", "date": "2025-11-10", "summary": "UCLA student and criminal-justice-reform advocate Gio Hernandez Romero, wrongfully convicted at 14 and exonerated in 2023 after 17 years." },
+    { "n": 91, "title": "April Bosworth and Michelle Cirocco", "date": "2025-09-29", "duration": "28:00", "summary": "TLM graduate April Bosworth (Website Specialist at Televerde) and Michelle Cirocco." },
+    { "n": 90, "title": "Shelley Winner", "date": "2025-08-24", "summary": "Founder of Winner's Circle — mindset, financial literacy, and sales skills for justice-impacted individuals." },
+    { "n": 89, "title": "Dr. James 'JC' Cavitt", "summary": "Conversation with Dr. JC Cavitt." },
+    { "n": 88, "title": "Tom Vozzo of HomeBoy Industries", "summary": "Tom Vozzo on the HomeBoy model." },
+    { "n": 87, "title": "Franky Carrillo", "summary": "Franky Carrillo." },
+    { "n": 86, "title": "Trans Day Of Visibility", "summary": "Trans Day Of Visibility special." },
+    { "n": 85, "title": "Khalid Cannon", "summary": "Khalid Cannon." },
+    { "n": 84, "title": "Zach Skow", "summary": "Zach Skow." }
+  ],
+  "notes": [
+    "Embeds load only after the user clicks Play. Spotify embed uses official open.spotify.com/embed.",
+    "Radio site source: https://thelastmileradio.org/  ·  Episode RSS: https://thelastmileradio.org/feed/podcast",
+    "Hosts cited from the radio site as of 2026-04-24: Tara Trask is the current host."
+  ]
+}

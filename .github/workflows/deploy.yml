@@ -1,0 +1,75 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate static site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Run validator
+        run: node ./scripts/validate.mjs
+
+  deploy:
+    name: Deploy to Netlify
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli@latest
+
+      - name: Deploy to production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID:    ${{ secrets.NETLIFY_SITE_ID }}
+        run: netlify deploy --prod --dir=. --message "GitHub Actions $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+  preview:
+    name: Deploy preview
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli@latest
+
+      - name: Deploy preview
+        id: deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID:    ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          URL=$(netlify deploy --dir=. --json | jq -r '.deploy_url')
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🔗 Netlify preview: ${{ steps.deploy.outputs.url }}`
+            })

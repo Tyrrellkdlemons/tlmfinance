@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 96" role="img" aria-label="The Last Mile · Finance">
+  <title>The Last Mile · Finance</title>
+
+  <!-- Sunburst above the L of "LAST" -->
+  <g transform="translate(74 18)">
+    <!-- center disc -->
+    <circle r="6" fill="#DAA520"/>
+    <!-- 8 rays -->
+    <g stroke="#DAA520" stroke-width="2.6" stroke-linecap="round">
+      <line x1="0"   y1="-9"  x2="0"   y2="-15"/>
+      <line x1="0"   y1="9"   x2="0"   y2="15"/>
+      <line x1="-9"  y1="0"   x2="-15" y2="0"/>
+      <line x1="9"   y1="0"   x2="15"  y2="0"/>
+      <line x1="-6.5" y1="-6.5" x2="-11" y2="-11"/>
+      <line x1="6.5" y1="-6.5" x2="11"  y2="-11"/>
+      <line x1="-6.5" y1="6.5" x2="-11" y2="11"/>
+      <line x1="6.5" y1="6.5" x2="11"   y2="11"/>
+    </g>
+  </g>
+
+  <!-- THE — small uppercase tag -->
+  <text x="6" y="42"
+        font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="800" font-size="16" letter-spacing="0.5"
+        fill="#FFFFFF">THE</text>
+
+  <!-- LAST — bold white -->
+  <text x="48" y="68"
+        font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="56" letter-spacing="-1.4"
+        fill="#FFFFFF">LAST</text>
+
+  <!-- MILE — bold goldenrod -->
+  <text x="200" y="68"
+        font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="56" letter-spacing="-1.4"
+        fill="#DAA520">MILE</text>
+
+  <!-- thin tagline -->
+  <text x="48" y="86"
+        font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="600" font-size="9" letter-spacing="2.2"
+        fill="#FFFFFF" opacity="0.8">PAVING THE ROAD · FINANCE</text>
+</svg>
