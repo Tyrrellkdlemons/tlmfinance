@@ -1020,3 +1020,128 @@ a.act:focus-visible .act__cta {
 
 /* Resource cards already feel clickable from anywhere */
 .card a.btn { text-decoration: none; }
+
+/* ==========================================================================
+   PWA / mobile-app polish — non-visual baseline change. Tightens the
+   "feels like a real app" experience without touching the loved layout.
+   ========================================================================== */
+
+/* iOS standalone — when launched from the Home Screen, drop tab-chrome cues */
+@media (display-mode: standalone), (display-mode: window-controls-overlay), (display-mode: minimal-ui) {
+  body { -webkit-touch-callout: none; }
+  /* iOS does not apply env(safe-area-inset-bottom) when standalone unless we ask */
+  body.has-bottom-nav { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  .bottom-nav { padding-bottom: max(env(safe-area-inset-bottom, 0px), 6px); }
+  /* Hide the install button if we're already installed */
+  .pwa-install-cta { display: none !important; }
+  /* Pull the page-leaving fade in tighter for a snappier app feel */
+  body.page-leaving main { transition: opacity .14s ease, transform .14s ease; }
+}
+
+/* No tap-highlight flicker on iOS */
+a, button, .planner__step, .quiz button, .card, .builder, .act, .hub-cta, .stat, .bottom-nav a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Disable text selection on UI chrome (still allow it inside content) */
+.nav, .bottom-nav, .hero__chips, .bottom-nav a, .nav__links a, .btn, .pwa-install-cta {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Better bottom-nav active indicator — a small gold pill above the icon,
+   reliable in standalone PWAs where ::after positioning was off */
+.bottom-nav a { position: relative; padding-top: 12px; }
+.bottom-nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #FFD970, #DAA520);
+  box-shadow: 0 0 10px rgba(218, 165, 32, .55);
+  margin: 0;
+}
+
+/* Bigger tap targets in bottom-nav so iOS thumbs hit them cleanly */
+.bottom-nav a {
+  min-height: 56px;
+  gap: 3px;
+}
+.bottom-nav svg { width: 22px; height: 22px; }
+.bottom-nav span { font-size: .7rem; letter-spacing: .02em; }
+
+/* Pull-to-refresh feels weird on a SPA — let the browser still do it,
+   but stop overscroll bounce from making the bottom-nav float visually */
+html, body { overscroll-behavior-y: contain; }
+
+/* Lock orientation hint: portrait keeps the nav usable, but tablets/desktops
+   should get the desktop nav anyway */
+@media (orientation: landscape) and (max-height: 480px) {
+  .bottom-nav { display: none; }
+  body.has-bottom-nav { padding-bottom: env(safe-area-inset-bottom, 0px); }
+}
+
+/* iOS notch / Dynamic Island — keep the top nav clear */
+.nav { padding-top: max(8px, env(safe-area-inset-top, 0px)); }
+
+/* Better focus rings for keyboard users on mobile devices with bluetooth keyboards */
+:focus-visible {
+  outline: 2px solid #FFD970;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Install-app prompt banner — shown once, dismissible */
+.pwa-install-cta {
+  position: fixed;
+  left: 50%;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #FFD970, #DAA520);
+  color: #0E0E0E;
+  font-weight: 800;
+  font-size: .92rem;
+  box-shadow: 0 14px 40px -12px rgba(218, 165, 32, .55), 0 0 0 1px rgba(218, 165, 32, .55);
+  z-index: 90;
+  cursor: pointer;
+  animation: pwa-cta-in .35s cubic-bezier(.2,.7,.2,1) both;
+}
+.pwa-install-cta__icon {
+  display: grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: rgba(14, 14, 14, .92);
+  color: #FFD970;
+}
+.pwa-install-cta__close {
+  background: transparent;
+  border: 0;
+  color: rgba(14, 14, 14, .65);
+  font-size: 1.2rem;
+  padding: 0 4px;
+  cursor: pointer;
+}
+@keyframes pwa-cta-in {
+  from { opacity: 0; transform: translate(-50%, 18px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@media (min-width: 920px) {
+  .pwa-install-cta { bottom: 24px; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .pwa-install-cta { animation: none; }
+}
+-install-cta { animation: none; }
+}

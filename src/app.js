@@ -846,3 +846,73 @@ function toast(msg) {
   if (document.readyState === 'complete' || document.readyState === 'interactive') reveal();
   else document.addEventListener('DOMContentLoaded', reveal, { once: true });
 })();
+
+/* =====================================================================
+   PWA — Add-to-Home prompt + standalone class
+   ===================================================================== */
+(function pwaInstall() {
+  const isStandalone = matchMedia('(display-mode: standalone)').matches ||
+                       matchMedia('(display-mode: window-controls-overlay)').matches ||
+                       window.navigator.standalone === true;
+  if (isStandalone) {
+    document.documentElement.classList.add('is-standalone');
+    return;
+  }
+
+  // Skip if user dismissed within last 7 days
+  try {
+    const dismissed = parseInt(localStorage.getItem('tlm:pwa:dismissed') || '0', 10);
+    if (dismissed && Date.now() - dismissed < 7 * 24 * 3600 * 1000) return;
+  } catch {}
+
+  let deferred = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferred = e;
+    showCTA();
+  });
+
+  function showCTA() {
+    if (document.querySelector('.pwa-install-cta')) return;
+    const cta = document.createElement('div');
+    cta.className = 'pwa-install-cta';
+    cta.setAttribute('role', 'button');
+    cta.setAttribute('aria-label', 'Install The Last Mile · Finance as an app');
+    cta.innerHTML =
+      '<span class="pwa-install-cta__icon" aria-hidden="true">' +
+        '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>' +
+      '</span>' +
+      '<span>Install app</span>' +
+      '<button class="pwa-install-cta__close" aria-label="Dismiss" type="button">×</button>';
+    document.body.appendChild(cta);
+    cta.querySelector('.pwa-install-cta__close').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      cta.remove();
+      try { localStorage.setItem('tlm:pwa:dismissed', String(Date.now())); } catch {}
+    });
+    cta.addEventListener('click', async () => {
+      if (deferred) {
+        deferred.prompt();
+        const choice = await deferred.userChoice.catch(() => null);
+        deferred = null;
+        cta.remove();
+        if (choice && choice.outcome === 'accepted') {
+          try { localStorage.setItem('tlm:pwa:installed', String(Date.now())); } catch {}
+        }
+      } else {
+        // iOS / Safari fallback: explain manual install
+        alert('To install: tap the Share button, then choose "Add to Home Screen".');
+        cta.remove();
+        try { localStorage.setItem('tlm:pwa:dismissed', String(Date.now())); } catch {}
+      }
+    });
+  }
+
+  // iOS Safari has no beforeinstallprompt; show CTA after first interaction
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua) && !/(CriOS|FxiOS)/.test(ua);
+  if (isIOS) {
+    window.addEventListener('load', () => setTimeout(showCTA, 4000), { once: true });
+  }
+})();
