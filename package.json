@@ -1,9 +1,10 @@
 {
-  "name": "paving-the-road",
+  "name": "tlmfinance",
   "version": "1.0.0",
-  "description": "A free, private, mobile-first reentry planning companion inspired by The Last Mile.",
+  "description": "The Last Mile · Finance — a free, private, mobile-first reentry planning companion. Money plan, modern-finance education (banking, credit, crypto, AI), and resource hub for returning citizens.",
   "private": true,
-  "homepage": "https://paving-the-road.netlify.app",
+  "homepage": "https://tlmfinance.netlify.app",
+  "repository": { "type": "git", "url": "https://github.com/Tyrrellkdlemons/tlmfinance.git" },
   "scripts": {
     "start": "npx -y serve@latest -l 8080 .",
     "dev": "npx -y serve@latest -l 8080 .",

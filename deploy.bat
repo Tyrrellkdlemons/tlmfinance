@@ -1,22 +1,25 @@
 @echo off
 REM ============================================================
-REM   Paving the Road - everyday deploy
+REM   The Last Mile · Finance — everyday deploy
 REM   Validates, commits, pushes to GitHub (which triggers
-REM   Netlify via Actions) and also deploys directly to Netlify
-REM   so prod updates the moment this finishes.
+REM   Netlify via auto-publish) and also deploys directly to
+REM   Netlify so prod updates the moment this finishes.
+REM
+REM   Repo: https://github.com/Tyrrellkdlemons/tlmfinance
+REM   Site: https://tlmfinance.netlify.app
 REM
 REM   Usage: deploy.bat "your commit message"
 REM ============================================================
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
-title Paving the Road - Deploy
+title TLM Finance - Deploy
 
 set "MSG=%~1"
 if "%MSG%"=="" set "MSG=update %DATE% %TIME%"
 
 echo.
 echo ============================================
-echo   Paving the Road - deploy
+echo   TLM Finance - deploy
 echo   Message: %MSG%
 echo ============================================
 echo.

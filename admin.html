@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0E0E0E" />
+<title>Admin · TLM Finance Control Panel</title>
+<meta name="description" content="Admin control panel — manage every aspect of The Last Mile · Finance from one screen." />
+<meta name="robots" content="noindex,nofollow" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
+<link rel="stylesheet" href="./src/styles/globals.css" />
+<style>
+  /* Admin-only layout layered on top of the TLM theme */
+  body { background: #0A0A0A; color: #FAF7EE; }
+  .adm__shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100dvh; }
+  @media (max-width: 720px){ .adm__shell { grid-template-columns: 1fr; } .adm__nav{ position:sticky; top:0; z-index:5; } }
+  .adm__nav {
+    background: linear-gradient(180deg,#1A1A1A 0%,#0A0A0A 100%);
+    border-right: 1px solid rgba(218,165,32,.20);
+    padding: 18px 14px;
+  }
+  .adm__brand { display:flex; align-items:center; gap:10px; margin-bottom: 18px; }
+  .adm__brand img { height: 44px; width: auto; }
+  .adm__nav h4 { color: #DAA520; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; margin: 16px 0 6px; }
+  .adm__nav button {
+    display: block; width: 100%; text-align: left; padding: 9px 12px; border-radius: 10px;
+    color: rgba(255,255,255,.85); font-size: .92rem; margin-bottom: 4px; border: 1px solid transparent;
+  }
+  .adm__nav button:hover { background: rgba(218,165,32,.08); }
+  .adm__nav button[aria-current="true"] {
+    background: rgba(218,165,32,.18); color: #DAA520; border-color: rgba(218,165,32,.35);
+  }
+  .adm__main { padding: 28px clamp(16px, 3vw, 36px); max-width: 1100px; }
+  .adm__head { display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .adm__head h1 { font-size: clamp(1.4rem, 3vw, 2rem); margin: 0; color: #fff; }
+  .adm__pill { background: rgba(218,165,32,.15); color: #DAA520; padding: 4px 10px; border-radius: 999px; font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .adm__panel { background: #131313; border: 1px solid rgba(218,165,32,.15); border-radius: 16px; padding: 22px; margin-bottom: 18px; }
+  .adm__panel h2 { font-size: 1.15rem; margin: 0 0 14px; color: #fff; }
+  .adm__field { display: grid; gap: 6px; margin-bottom: 12px; }
+  .adm__field label { font-weight: 700; color: #fff; font-size: .9rem; }
+  .adm__field input, .adm__field select, .adm__field textarea {
+    background: #1A1A1A; color: #fff; border: 1px solid rgba(255,255,255,.10);
+    border-radius: 8px; padding: 9px 12px; font: inherit;
+  }
+  .adm__field input:focus, .adm__field textarea:focus { outline: 2px solid #DAA520; }
+  .adm__field textarea { min-height: 84px; resize: vertical; }
+  .adm__row { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 720px){ .adm__row { grid-template-columns: 1fr 1fr; } }
+  .adm__row--3 { grid-template-columns: 1fr; }
+  @media (min-width: 720px){ .adm__row--3 { grid-template-columns: repeat(3,1fr); } }
+  .adm__btn {
+    background: #DAA520; color: #0E0E0E; border-radius: 999px; padding: 9px 16px;
+    font-weight: 800; cursor: pointer; border: 0;
+  }
+  .adm__btn--ghost { background: transparent; color: #DAA520; border: 1px solid rgba(218,165,32,.4); }
+  .adm__btn--danger { background: #B23A1F; color: #fff; }
+  .adm__toggle { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .adm__toggle:last-child { border-bottom: 0; }
+  .adm__switch {
+    position: relative; width: 42px; height: 24px; background: #2A2A2A; border-radius: 12px; cursor: pointer; flex: none;
+  }
+  .adm__switch::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+    background: #888; border-radius: 50%; transition: transform .2s ease, background .2s ease;
+  }
+  .adm__switch[aria-pressed="true"] { background: rgba(218,165,32,.35); }
+  .adm__switch[aria-pressed="true"]::after { transform: translateX(18px); background: #DAA520; }
+  .adm__toggle__txt { flex: 1; font-size: .92rem; }
+  .adm__toggle__txt small { color: rgba(255,255,255,.55); display: block; }
+  .adm__list { display: grid; gap: 10px; }
+  .adm__listrow { display: grid; gap: 8px; grid-template-columns: 1fr 1fr 1fr 64px; align-items: center; }
+  .adm__listrow input { background: #1A1A1A; color: #fff; border: 1px solid rgba(255,255,255,.10); border-radius: 8px; padding: 7px 10px; font: inherit; font-size: .88rem; }
+  @media (max-width: 720px){ .adm__listrow { grid-template-columns: 1fr; } }
+  .adm__lock { position: fixed; inset: 0; background: rgba(0,0,0,.94); display: grid; place-items: center; z-index: 999; }
+  .adm__lockcard { background: #131313; border: 1px solid rgba(218,165,32,.30); border-radius: 16px; padding: 28px; max-width: 360px; width: 92vw; text-align: center; }
+  .adm__lockcard input { margin: 14px 0; }
+  .adm__deploy pre { background: #050505; color: #DAA520; padding: 12px; border-radius: 10px; overflow: auto; font-size: .85rem; }
+  .adm__copy { font-size: .82rem; }
+  .adm__view { display: none; }
+  .adm__view[data-active="true"] { display: block; }
+</style>
+</head>
+<body>
+
+<div class="adm__lock" id="lock">
+  <div class="adm__lockcard">
+    <picture>
+      <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
+      <img src="./assets/icons/tlm-wordmark.svg" alt="TLM Finance" style="height:48px;width:auto;margin:0 auto"/>
+    </picture>
+    <h2 style="color:#fff;margin:14px 0 6px">Admin access</h2>
+    <p style="color:rgba(255,255,255,.6);font-size:.85rem;margin:0">Local-only gate — your password never leaves this device.</p>
+    <input id="lockPass" class="adm__field" type="password" placeholder="Set or enter passcode" style="width:100%;padding:11px 14px;border-radius:10px;background:#1A1A1A;color:#fff;border:1px solid rgba(255,255,255,.15);font-size:1rem"/>
+    <button class="adm__btn" id="lockBtn" style="width:100%;padding:11px 14px">Unlock</button>
+    <p style="color:rgba(255,255,255,.5);font-size:.78rem;margin-top:10px">First time? Type any passcode and click Unlock — it'll be remembered on this device.</p>
+  </div>
+</div>
+
+<div class="adm__shell" id="shell" hidden>
+  <aside class="adm__nav" aria-label="Admin sections">
+    <a class="adm__brand" href="./index.html" title="Open the live site">
+      <picture>
+        <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
+        <img src="./assets/icons/tlm-wordmark.svg" alt="TLM Finance"/>
+      </picture>
+    </a>
+    <h4>Site</h4>
+    <button data-tab="brand"     aria-current="true">Brand &amp; Theme</button>
+    <button data-tab="hero">Hero copy</button>
+    <button data-tab="stats">Impact stats</button>
+    <h4>Content</h4>
+    <button data-tab="resources">Resources</button>
+    <button data-tab="videos">Videos &amp; Radio</button>
+    <button data-tab="people">People / Builders</button>
+    <h4>System</h4>
+    <button data-tab="features">Feature toggles</button>
+    <button data-tab="privacy">Privacy &amp; legal</button>
+    <button data-tab="deploy">Deploy</button>
+    <button data-tab="export">Export &amp; reset</button>
+    <div style="margin-top:24px;border-top:1px solid rgba(255,255,255,.06);padding-top:14px">
+      <button class="adm__btn adm__btn--ghost" style="width:100%" id="logoutBtn">Lock</button>
+    </div>
+  </aside>
+
+  <main class="adm__main">
+    <div class="adm__head">
+      <h1 id="viewTitle">Brand &amp; Theme</h1>
+      <span class="adm__pill" id="savedPill">Saved</span>
+    </div>
+
+    <!-- Brand & Theme -->
+    <section class="adm__view" data-view="brand" data-active="true">
+      <div class="adm__panel">
+        <h2>Brand</h2>
+        <div class="adm__row">
+          <div class="adm__field"><label>Brand short name (used in PWA + alt)</label><input id="f-brandShort" placeholder="TLM Finance"/></div>
+          <div class="adm__field"><label>Tagline</label><input id="f-tagline" placeholder="Paving the road · Finance"/></div>
+        </div>
+      </div>
+      <div class="adm__panel">
+        <h2>Theme variant</h2>
+        <div class="adm__field">
+          <label>Color scheme</label>
+          <select id="f-themeVariant">
+            <option value="auto">Auto (follow OS)</option>
+            <option value="dark">Always dark</option>
+            <option value="light">Always light</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hero copy -->
+    <section class="adm__view" data-view="hero">
+      <div class="adm__panel">
+        <h2>Homepage hero</h2>
+        <div class="adm__field"><label>Eyebrow</label><input id="f-heroEyebrow" placeholder="A finance initiative of The Last Mile"/></div>
+        <div class="adm__field"><label>Headline (HTML allowed — wrap gold parts in &lt;span class="gold-text"&gt;)</label><textarea id="f-heroH1"></textarea></div>
+        <div class="adm__field"><label>Subhead</label><textarea id="f-heroLede"></textarea></div>
+      </div>
+    </section>
+
+    <!-- Impact stats -->
+    <section class="adm__view" data-view="stats">
+      <div class="adm__panel">
+        <h2>Hero counters</h2>
+        <div class="adm__row adm__row--3">
+          <div class="adm__field"><label>Alumni supported</label><input id="f-statAlumni" type="number"/></div>
+          <div class="adm__field"><label>Employed (% — 6mo+)</label><input id="f-statEmployed" type="number" min="0" max="100"/></div>
+          <div class="adm__field"><label>Recidivism (%)</label><input id="f-statRecid" type="number" min="0" max="100"/></div>
+        </div>
+        <p class="muted" style="font-size:.85rem;margin:0">Updates show on next page reload.</p>
+      </div>
+    </section>
+
+    <!-- Resources CRUD -->
+    <section class="adm__view" data-view="resources">
+      <div class="adm__panel">
+        <h2>Resource cards</h2>
+        <p class="muted" style="font-size:.85rem">Add or edit cards shown in the homepage hub. Saved to localStorage; click Export to write a JSON you can drop into <code>src/data/resources.json</code>.</p>
+        <div class="adm__list" id="resList"></div>
+        <button class="adm__btn adm__btn--ghost" id="addRes" style="margin-top:10px">+ Add resource</button>
+      </div>
+    </section>
+
+    <!-- Videos & Radio -->
+    <section class="adm__view" data-view="videos">
+      <div class="adm__panel">
+        <h2>Featured YouTube videos</h2>
+        <p class="muted" style="font-size:.85rem">Use real video IDs (the part after <code>v=</code> in a YouTube URL).</p>
+        <div class="adm__list" id="vidList"></div>
+        <button class="adm__btn adm__btn--ghost" id="addVid" style="margin-top:10px">+ Add video</button>
+      </div>
+      <div class="adm__panel">
+        <h2>Radio show links</h2>
+        <div class="adm__field"><label>Spotify show URL</label><input id="f-spotify" /></div>
+        <div class="adm__field"><label>SoundCloud URL</label><input id="f-soundcloud" /></div>
+      </div>
+    </section>
+
+    <!-- People -->
+    <section class="adm__view" data-view="people">
+      <div class="adm__panel">
+        <h2>Builders / Founders / Alumni</h2>
+        <p class="muted" style="font-size:.85rem">Names + roles for the Builders wall. Photos stay as silhouettes unless you upload licensed images.</p>
+        <div class="adm__list" id="peopleList"></div>
+        <button class="adm__btn adm__btn--ghost" id="addPerson" style="margin-top:10px">+ Add person</button>
+      </div>
+    </section>
+
+    <!-- Feature toggles -->
+    <section class="adm__view" data-view="features">
+      <div class="adm__panel">
+        <h2>Toggles</h2>
+        <div class="adm__toggle"><div class="adm__toggle__txt">AI chatbot widget<small>Floating help in the bottom-right of every page.</small></div><button class="adm__switch" data-flag="chatbot" aria-pressed="true"></button></div>
+        <div class="adm__toggle"><div class="adm__toggle__txt">Confetti on plan completion<small>Brief celebration when a 90-day plan finishes.</small></div><button class="adm__switch" data-flag="confetti" aria-pressed="true"></button></div>
+        <div class="adm__toggle"><div class="adm__toggle__txt">Hero animations<small>Stars, particles, breaking-chain → dove SVG.</small></div><button class="adm__switch" data-flag="heroFx" aria-pressed="true"></button></div>
+        <div class="adm__toggle"><div class="adm__toggle__txt">Marquee scroller<small>Where TLM alumni build careers.</small></div><button class="adm__switch" data-flag="marquee" aria-pressed="true"></button></div>
+      </div>
+    </section>
+
+    <!-- Privacy -->
+    <section class="adm__view" data-view="privacy">
+      <div class="adm__panel">
+        <h2>Disclaimer text</h2>
+        <div class="adm__field"><textarea id="f-disclaimerText"></textarea></div>
+      </div>
+      <div class="adm__panel">
+        <h2>PWA + offline</h2>
+        <div class="adm__toggle"><div class="adm__toggle__txt">Service worker (offline cache)<small>Recommended ON for production.</small></div><button class="adm__switch" data-flag="sw" aria-pressed="true"></button></div>
+        <button class="adm__btn adm__btn--danger" id="clearSW">Clear service worker + caches</button>
+      </div>
+    </section>
+
+    <!-- Deploy -->
+    <section class="adm__view" data-view="deploy">
+      <div class="adm__panel adm__deploy">
+        <h2>Deploy commands</h2>
+        <p class="muted" style="font-size:.85rem">From the project folder:</p>
+<pre>setup.bat            <em># first-time only — links GitHub + Netlify</em>
+deploy.bat "msg"     <em># everyday — commits, pushes, deploys</em>
+netlify-deploy.bat   <em># Netlify-only quick deploy</em>
+push-to-github.bat   <em># GitHub-only push</em></pre>
+        <button class="adm__btn adm__btn--ghost adm__copy" id="copyDeploy">Copy commands</button>
+      </div>
+      <div class="adm__panel">
+        <h2>Live URLs</h2>
+        <p>Site: <a href="https://tlmfinance.netlify.app" target="_blank" rel="noopener" style="color:#DAA520">tlmfinance.netlify.app</a></p>
+        <p>Repo: <a href="https://github.com/Tyrrellkdlemons/tlmfinance" target="_blank" rel="noopener" style="color:#DAA520">github.com/Tyrrellkdlemons/tlmfinance</a></p>
+        <p>Netlify dashboard: <a href="https://app.netlify.com/projects/tlmfinance" target="_blank" rel="noopener" style="color:#DAA520">app.netlify.com/projects/tlmfinance</a></p>
+      </div>
+    </section>
+
+    <!-- Export & reset -->
+    <section class="adm__view" data-view="export">
+      <div class="adm__panel">
+        <h2>Export current admin overrides</h2>
+        <p class="muted" style="font-size:.85rem">Saves a JSON of every change you made. Drop it into <code>src/data/admin-overrides.json</code> in the repo, or paste fields into the source data files for a permanent change.</p>
+        <button class="adm__btn" id="exportBtn">Download admin-overrides.json</button>
+      </div>
+      <div class="adm__panel">
+        <h2>Reset</h2>
+        <button class="adm__btn adm__btn--danger" id="resetBtn">Wipe all admin overrides on this device</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  const KEY       = 'tlm:admin:v1';
+  const PASS_KEY  = 'tlm:admin:pass';
+  const TOKEN_KEY = 'tlm:admin:token';
+  const TOKEN_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+  // --- LOCK ---
+  const lock = document.getElementById('lock');
+  const shell = document.getElementById('shell');
+  const lockBtn = document.getElementById('lockBtn');
+  const lockPass = document.getElementById('lockPass');
+  function unlocked() {
+    // Persist a 30-day session token so user doesn't re-enter the pass each visit
+    try {
+      const tok = (crypto.randomUUID && crypto.randomUUID()) || (Date.now() + ':' + Math.random());
+      localStorage.setItem(TOKEN_KEY, JSON.stringify({ tok, exp: Date.now() + TOKEN_TTL }));
+    } catch {}
+    lock.style.display = 'none'; shell.hidden = false; init();
+  }
+  function autoUnlock() {
+    try {
+      const raw = localStorage.getItem(TOKEN_KEY);
+      if (!raw) return false;
+      const { exp } = JSON.parse(raw);
+      if (exp && Date.now() < exp) { lock.style.display='none'; shell.hidden=false; init(); return true; }
+    } catch {}
+    return false;
+  }
+  function tryUnlock() {
+    const stored = localStorage.getItem(PASS_KEY);
+    const v = lockPass.value.trim();
+    if (!v) return;
+    if (!stored) { localStorage.setItem(PASS_KEY, v); unlocked(); return; }
+    if (stored === v) { unlocked(); }
+    else { lockPass.value = ''; lockPass.placeholder = 'Wrong passcode — try again'; }
+  }
+  lockBtn.addEventListener('click', tryUnlock);
+  lockPass.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem(TOKEN_KEY);
+    location.reload();
+  });
+  // Try silent unlock with saved token on every load
+  if (autoUnlock()) return;
+
+  function init() {
+    // --- TABS ---
+    const tabs = document.querySelectorAll('.adm__nav button[data-tab]');
+    const views = document.querySelectorAll('.adm__view');
+    function show(t) {
+      tabs.forEach(b => b.setAttribute('aria-current', b.dataset.tab === t ? 'true' : 'false'));
+      views.forEach(v => v.dataset.active = v.dataset.view === t ? 'true' : 'false');
+      document.getElementById('viewTitle').textContent = (document.querySelector(`button[data-tab="${t}"]`).textContent || '').trim();
+    }
+    tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.tab)));
+
+    // --- STATE ---
+    const cfg = JSON.parse(localStorage.getItem(KEY) || '{}');
+    const flags = cfg.flags = cfg.flags || { chatbot:true, confetti:true, heroFx:true, marquee:true, sw:true };
+    cfg.resources = cfg.resources || [];
+    cfg.videos = cfg.videos || [];
+    cfg.people = cfg.people || [];
+
+    function save() {
+      cfg.updatedAt = new Date().toISOString();
+      localStorage.setItem(KEY, JSON.stringify(cfg));
+      const p = document.getElementById('savedPill');
+      p.textContent = 'Saved · ' + new Date().toLocaleTimeString();
+      p.style.background = 'rgba(31,122,77,.18)'; p.style.color = '#7DD8A6';
+      setTimeout(() => { p.textContent = 'Saved'; p.style.background='rgba(218,165,32,.15)'; p.style.color='#DAA520'; }, 1400);
+    }
+
+    // --- BIND simple inputs ---
+    const fields = ["brandShort","tagline","themeVariant","heroEyebrow","heroH1","heroLede","statAlumni","statEmployed","statRecid","spotify","soundcloud","disclaimerText"];
+    fields.forEach(f => {
+      const el = document.getElementById('f-'+f); if (!el) return;
+      if (cfg[f] !== undefined) el.value = cfg[f];
+      el.addEventListener('input', () => { cfg[f] = el.value; save(); });
+    });
+
+    // --- TOGGLES ---
+    document.querySelectorAll('.adm__switch').forEach(s => {
+      const f = s.dataset.flag;
+      s.setAttribute('aria-pressed', flags[f] ? 'true' : 'false');
+      s.addEventListener('click', () => {
+        flags[f] = !flags[f];
+        s.setAttribute('aria-pressed', flags[f] ? 'true' : 'false');
+        save();
+      });
+    });
+
+    // --- RESOURCES CRUD ---
+    const resList = document.getElementById('resList');
+    function paintRes() {
+      resList.innerHTML = '';
+      cfg.resources.forEach((r, i) => {
+        const row = document.createElement('div');
+        row.className = 'adm__listrow';
+        row.innerHTML = `
+          <input data-k="title" placeholder="Title" value="${r.title||''}"/>
+          <input data-k="url"   placeholder="https://"   value="${r.url||''}"/>
+          <input data-k="category" placeholder="category" value="${r.category||''}"/>
+          <button class="adm__btn adm__btn--danger" type="button">×</button>`;
+        row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { r[inp.dataset.k] = inp.value; save(); }));
+        row.querySelector('button').addEventListener('click', () => { cfg.resources.splice(i,1); save(); paintRes(); });
+        resList.appendChild(row);
+      });
+    }
+    paintRes();
+    document.getElementById('addRes').addEventListener('click', () => { cfg.resources.push({title:'',url:'',category:'money'}); save(); paintRes(); });
+
+    // --- VIDEOS CRUD ---
+    const vidList = document.getElementById('vidList');
+    function paintVid() {
+      vidList.innerHTML = '';
+      cfg.videos.forEach((v, i) => {
+        const row = document.createElement('div');
+        row.className = 'adm__listrow';
+        row.innerHTML = `
+          <input data-k="title" placeholder="Title" value="${v.title||''}"/>
+          <input data-k="id" placeholder="YouTube ID" value="${v.id||''}"/>
+          <input data-k="description" placeholder="Description" value="${v.description||''}"/>
+          <button class="adm__btn adm__btn--danger" type="button">×</button>`;
+        row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { v[inp.dataset.k] = inp.value; save(); }));
+        row.querySelector('button').addEventListener('click', () => { cfg.videos.splice(i,1); save(); paintVid(); });
+        vidList.appendChild(row);
+      });
+    }
+    paintVid();
+    document.getElementById('addVid').addEventListener('click', () => { cfg.videos.push({title:'',id:'',description:''}); save(); paintVid(); });
+
+    // --- PEOPLE CRUD ---
+    const peopleList = document.getElementById('peopleList');
+    function paintPeople() {
+      peopleList.innerHTML = '';
+      cfg.people.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'adm__listrow';
+        row.innerHTML = `
+          <input data-k="name" placeholder="Name" value="${p.name||''}"/>
+          <input data-k="role" placeholder="Role" value="${p.role||''}"/>
+          <input data-k="sourceUrl" placeholder="Source URL" value="${p.sourceUrl||''}"/>
+          <button class="adm__btn adm__btn--danger" type="button">×</button>`;
+        row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { p[inp.dataset.k] = inp.value; save(); }));
+        row.querySelector('button').addEventListener('click', () => { cfg.people.splice(i,1); save(); paintPeople(); });
+        peopleList.appendChild(row);
+      });
+    }
+    paintPeople();
+    document.getElementById('addPerson').addEventListener('click', () => { cfg.people.push({name:'',role:'',sourceUrl:''}); save(); paintPeople(); });
+
+    // --- DEPLOY copy ---
+    document.getElementById('copyDeploy').addEventListener('click', () => {
+      navigator.clipboard.writeText('setup.bat\ndeploy.bat "your message"\nnetlify-deploy.bat\npush-to-github.bat').then(() => {
+        const b = document.getElementById('copyDeploy');
+        const t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(()=>b.textContent=t, 1400);
+      });
+    });
+
+    // --- CLEAR SW ---
+    document.getElementById('clearSW').addEventListener('click', async () => {
+      if (!confirm('Unregister service worker and clear all caches?')) return;
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+        const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k)));
+        alert('Done — refresh any open site tabs.');
+      } catch (e) { alert('Failed: ' + e.message); }
+    });
+
+    // --- EXPORT ---
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'admin-overrides.json';
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+
+    // --- RESET ---
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (!confirm('Wipe ALL admin overrides on this device?')) return;
+      localStorage.removeItem(KEY); location.reload();
+    });
+  }
+
+  // Auto-show lock on load
+  lockPass.focus();
+})();
+</script>
+</body>
+</html>

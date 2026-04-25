@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0E0E0E" />
+<title>Watch &amp; Listen · The Last Mile inside the site</title>
+<meta name="description" content="Watch official TLM videos, listen to The Last Mile Radio (Spotify + SoundCloud + RSS), browse episodes — all in one page." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TLM Finance" />
+  <meta name="application-name" content="TLM Finance" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="MobileOptimized" content="width" />
+  <meta name="HandheldFriendly" content="true" />
+  <meta name="msapplication-TileColor" content="#0E0E0E" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <link rel="dns-prefetch" href="https://i.ytimg.com" />
+  <link rel="dns-prefetch" href="https://www.youtube-nocookie.com" />
+  <link rel="dns-prefetch" href="https://open.spotify.com" />
+  <link rel="dns-prefetch" href="https://text.pollinations.ai" />
+  <link rel="preconnect"   href="https://i.ytimg.com" crossorigin />
+  <link rel="manifest" href="./manifest.json" />
+<link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
+<link rel="stylesheet" href="./src/styles/globals.css" />
+<link rel="stylesheet" href="./src/styles/print.css" media="print" />
+</head>
+<body class="has-bottom-nav">
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="nav" role="banner">
+  <div class="nav__inner">
+    <a class="brand" href="./index.html" aria-label="The Last Mile · Finance home">
+      <picture>
+        <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
+        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="220" height="64" style="height:56px;width:auto"/>
+      </picture>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="./index.html#planner">Plan</a>
+      <a href="./learn.html">Learn</a>
+      <a href="./hub.html">Hub</a>
+      <a href="./feed.html">Feed</a>
+      <a href="./watch.html" aria-current="page">Watch</a>
+      <a href="./media.html">Media</a>
+    </nav>
+    <div class="nav__cta">
+      <a class="btn btn--primary btn--sm" href="./index.html#planner">Build My Plan</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero" style="padding:80px 0 60px" aria-labelledby="w-title">
+  <div class="hero__horizon" aria-hidden="true"></div>
+  <div class="hero__sun" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <div>
+      <span class="eyebrow eyebrow--light">Watch &amp; Listen</span>
+      <h1 id="w-title">The Last Mile, <span class="gold-text">on every channel</span>.</h1>
+      <p class="lede">Official TLM videos and TLM Radio — embedded right here. No bouncing between tabs. Click any tile to load the player; nothing tracks you until you press play.</p>
+    </div>
+    <div class="card" style="background:rgba(255,255,255,.05);color:#fff;border-color:rgba(255,255,255,.15)">
+      <h3 style="color:#fff;margin-top:0">All in one place</h3>
+      <p style="line-height:1.9;color:rgba(255,255,255,.85);margin:0">
+        📺 <strong>YouTube</strong> · 6 featured videos<br>
+        🎧 <strong>Spotify Radio</strong> · full archive<br>
+        ☁︎ <strong>SoundCloud</strong> · alt stream<br>
+        📡 <strong>RSS</strong> · any podcast app<br>
+        📻 <strong>SiriusXM</strong> · Saturdays @ 12pm ET
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO GRID -->
+<section class="section" aria-labelledby="vids">
+  <div class="container">
+    <span class="eyebrow">Watch — featured videos</span>
+    <h2 id="vids">From the official channel.</h2>
+    <p class="muted">Click any tile. The player loads inline; click the title to jump to the video on YouTube.</p>
+    <div class="grid grid--3 mt-3" id="ytGrid"></div>
+    <p class="mt-3"><a href="https://www.youtube.com/@TheLastMile/videos" target="_blank" rel="noopener">Browse the full @TheLastMile channel →</a></p>
+  </div>
+</section>
+
+<!-- AUDIO PLAYERS -->
+<section class="section section--charcoal" aria-labelledby="listen">
+  <div class="container">
+    <span class="eyebrow eyebrow--light">Listen — TLM Radio</span>
+    <h2 id="listen">Spotify and SoundCloud, embedded.</h2>
+    <div class="grid grid--2 mt-3">
+      <div id="spotifyMount" class="card" style="cursor:pointer;min-height:200px;background:linear-gradient(180deg,#1DB954 0%,#0E7A3A 100%);color:#fff;display:grid;place-items:center;text-align:center">
+        <div style="padding:40px 20px"><div style="font-size:3rem">▶︎</div><h3 style="color:#fff;margin:8px 0 4px">Spotify · The Last Mile Radio</h3><p style="color:rgba(255,255,255,.85);margin:0">Tap to load the Spotify player</p></div>
+      </div>
+      <div id="scMount" class="card" style="cursor:pointer;min-height:200px;background:linear-gradient(180deg,#FF7700 0%,#cc4400 100%);color:#fff;display:grid;place-items:center;text-align:center">
+        <div style="padding:40px 20px"><div style="font-size:2.4rem">☁︎</div><h3 style="color:#fff;margin:8px 0 4px">SoundCloud · TLM Radio</h3><p style="color:rgba(255,255,255,.9);margin:0">Tap to load the SoundCloud player</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EPISODE BROWSER -->
+<section class="section" aria-labelledby="eps">
+  <div class="container">
+    <span class="eyebrow">Recent episodes</span>
+    <h2 id="eps">Voices from the road.</h2>
+    <p class="muted">Episodes pulled from <a href="https://thelastmileradio.org/" target="_blank" rel="noopener">thelastmileradio.org</a>. Open on the source for full audio.</p>
+    <div class="grid grid--2 mt-3" id="epList"></div>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <p class="disclaimer">Audio &amp; video belong to The Last Mile and the official platforms (YouTube, Spotify, SoundCloud, RSS hosts). This page provides convenient embeds; nothing is hosted here.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="container"><p>© <span id="year"></span> The Last Mile · Finance — Watch.</p></div>
+</footer>
+
+<nav class="bottom-nav" aria-label="Mobile primary">
+  <a href="./index.html#planner">Plan</a>
+  <a href="./learn.html">Learn</a>
+  <a href="./hub.html">Hub</a>
+  <a href="./watch.html" aria-current="page">Watch</a>
+  <a href="./media.html">Media</a>
+</nav>
+
+<script type="module">
+  const r = await fetch('./src/data/media.json'); const m = await r.json();
+
+  // Real video tiles
+  const ytGrid = document.getElementById('ytGrid');
+  (m.videos || []).forEach(v => {
+    const tile = document.createElement('div');
+    tile.className = 'yt-card';
+    tile.tabIndex = 0; tile.setAttribute('role', 'button');
+    tile.setAttribute('aria-label', `Play "${v.title}" on the official channel`);
+    const thumb = `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`;
+    tile.innerHTML = `
+      <div class="yt-card__poster" style="background-image:url('${thumb}');background-size:cover;background-position:center">
+        <div class="yt-card__play" aria-hidden="true"></div>
+      </div>
+      <div class="yt-card__title">${v.title}</div>`;
+    const activate = () => {
+      const url = `https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1&autoplay=1`;
+      tile.innerHTML = `<iframe src="${url}" title="${v.title.replace(/"/g, '&quot;')}"
+                       allow="autoplay; encrypted-media; picture-in-picture; web-share"
+                       allowfullscreen referrerpolicy="strict-origin-when-cross-origin" loading="lazy"></iframe>`;
+    };
+    tile.addEventListener('click', activate);
+    tile.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
+    ytGrid.appendChild(tile);
+  });
+
+  // Spotify
+  document.getElementById('spotifyMount').addEventListener('click', () => {
+    const host = document.getElementById('spotifyMount');
+    host.style.background = '#000'; host.style.minHeight = '352px';
+    host.innerHTML = `<iframe style="border-radius:14px" src="${m.official.spotify.embedUrl}" width="100%" height="352" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+  });
+  // SoundCloud
+  document.getElementById('scMount').addEventListener('click', () => {
+    const host = document.getElementById('scMount');
+    host.style.background = '#000'; host.style.minHeight = '300px';
+    host.innerHTML = `<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="${m.official.soundcloud.embedUrl}"></iframe>`;
+  });
+
+  // Episodes
+  const list = document.getElementById('epList');
+  m.radioEpisodes.forEach(ep => {
+    const slug = (ep.title || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    const url = `https://thelastmileradio.org/podcast/episode-${ep.n}-${slug}/`;
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="flex" style="margin-bottom:10px">
+        <span class="tag tag--gold">EP ${ep.n}</span>
+        ${ep.date ? `<span class="tag tag--ghost">${ep.date}</span>` : ''}
+        ${ep.duration ? `<span class="tag tag--ghost">${ep.duration}</span>` : ''}
+      </div>
+      <h3 style="margin:0 0 6px">${ep.title}</h3>
+      <p>${ep.summary || ''}</p>
+      <a class="btn btn--dark btn--sm" href="${url}" target="_blank" rel="noopener">Open episode ↗</a>`;
+    list.appendChild(card);
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+<script src="./src/admin-overrides.js"></script>
+<script src="./src/chatbot.js" defer></script>
+</body>
+</html>

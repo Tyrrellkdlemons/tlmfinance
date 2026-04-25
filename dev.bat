@@ -1,7 +1,7 @@
 @echo off
-REM Paving the Road - local dev server
+REM TLM Finance - local dev server (http://localhost:8080)
 cd /d "%~dp0"
-title Paving the Road - dev http://localhost:8080
+title TLM Finance - dev http://localhost:8080
 where node >nul 2>nul && (
   call npx -y serve@latest -l 8080 .
 ) || (

@@ -6,7 +6,22 @@
 <meta name="theme-color" content="#0E0E0E" />
 <title>Feed · Everything TLM in one place</title>
 <meta name="description" content="A unified feed combining The Last Mile's official site, YouTube, LinkedIn, Instagram, Facebook, X, Spotify, SoundCloud, and The Last Mile Radio." />
-<link rel="manifest" href="./manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TLM Finance" />
+  <meta name="application-name" content="TLM Finance" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="MobileOptimized" content="width" />
+  <meta name="HandheldFriendly" content="true" />
+  <meta name="msapplication-TileColor" content="#0E0E0E" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <link rel="dns-prefetch" href="https://i.ytimg.com" />
+  <link rel="dns-prefetch" href="https://www.youtube-nocookie.com" />
+  <link rel="dns-prefetch" href="https://open.spotify.com" />
+  <link rel="dns-prefetch" href="https://text.pollinations.ai" />
+  <link rel="preconnect"   href="https://i.ytimg.com" crossorigin />
+  <link rel="manifest" href="./manifest.json" />
 <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
 <link rel="stylesheet" href="./src/styles/globals.css" />
 <link rel="stylesheet" href="./src/styles/print.css" media="print" />
@@ -19,13 +34,13 @@
     <a class="brand" href="./index.html" aria-label="The Last Mile · Finance home">
       <picture>
         <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
-        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="190" height="48" style="height:48px;width:auto"/>
+        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="220" height="64" style="height:56px;width:auto"/>
       </picture>
     </a>
     <nav class="nav__links" aria-label="Primary">
       <a href="./index.html#planner">Plan</a>
       <a href="./learn.html">Learn</a>
-      <a href="./index.html#resources">Resources</a>
+      <a href="./hub.html">Hub</a>
       <a href="./feed.html" aria-current="page">Feed</a>
       <a href="./radio.html">Radio</a>
       <a href="./media.html">Media</a>
@@ -204,5 +219,7 @@
 
   document.getElementById('year').textContent = new Date().getFullYear();
 </script>
+<script src="./src/admin-overrides.js"></script>
+<script src="./src/chatbot.js" defer></script>
 </body>
 </html>

@@ -105,21 +105,25 @@ function animateCount(elNode, target, suffix = '') {
   requestAnimationFrame(step);
 }
 (function startCounters() {
-  if (!document.getElementById('counter-alumni')) return;
+  const a = document.getElementById('counter-alumni');
+  if (!a) return;
+  let fired = false;
   const fire = () => {
+    if (fired) return;
+    fired = true;
     animateCount(document.getElementById('counter-alumni'),  1000);
     animateCount(document.getElementById('counter-employed'), 75, '%');
     animateCount(document.getElementById('counter-recid'),    8, '%');
   };
-  // wait for hero to be in view-ish, but fire after 1s as a fallback
-  if ('IntersectionObserver' in window) {
-    const t = document.querySelector('.hero');
-    const io = new IntersectionObserver((entries, obs) => {
-      entries.forEach(e => { if (e.isIntersecting) { fire(); obs.disconnect(); } });
-    }, { threshold: 0.2 });
-    if (t) io.observe(t);
-    setTimeout(fire, 1200);
-  } else fire();
+  // Three layers of insurance: fire on load, on raf, and on intersection.
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    requestAnimationFrame(() => setTimeout(fire, 200));
+  } else {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(fire, 200), { once: true });
+    window.addEventListener('load', () => setTimeout(fire, 200), { once: true });
+  }
+  // Belt-and-suspenders: also try after 800ms no matter what.
+  setTimeout(fire, 800);
 })();
 
 /* =====================================================================
@@ -519,88 +523,200 @@ function toast(msg) {
         // Tall figure · suit shoulders
         '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="62" r="28" fill="#DAA520" opacity=".88"/><path d="M40 240 Q60 130 100 130 Q140 130 160 240Z" fill="#DAA520" opacity=".82"/><path d="M82 130 q18 -10 36 0 l-2 14 q-16 -8 -32 0z" fill="#0E0E0E"/></svg>',
         // Wide figure · short hair
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="64" r="30" fill="#F5C84F" opacity=".88"/><path d="M28 240 Q56 124 100 124 Q144 124 172 240Z" fill="#F5C84F" opacity=".78"/><circle cx="100" cy="50" r="18" fill="#0E0E0E" opacity=".22"/></svg>',
-        // Long-hair figure
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="66" r="26" fill="#DAA520" opacity=".88"/><path d="M70 60 q30 -36 60 0 q4 30 -4 50 q-26 -10 -52 0 q-8 -20 -4 -50z" fill="#0E0E0E" opacity=".24"/><path d="M40 240 Q62 132 100 132 Q138 132 160 240Z" fill="#DAA520" opacity=".82"/></svg>',
-        // Cap figure
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="68" r="26" fill="#F5C84F" opacity=".9"/><path d="M64 56 q36 -22 72 0 v8 H64z" fill="#0E0E0E" opacity=".4"/><path d="M44 240 Q62 132 100 132 Q138 132 156 240Z" fill="#F5C84F" opacity=".8"/></svg>',
-        // Glasses figure
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="64" r="28" fill="#DAA520" opacity=".9"/><circle cx="90" cy="64" r="6" fill="#0E0E0E"/><circle cx="110" cy="64" r="6" fill="#0E0E0E"/><path d="M40 240 Q60 130 100 130 Q140 130 160 240Z" fill="#DAA520" opacity=".82"/></svg>',
-        // Slim figure
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="62" r="24" fill="#F5C84F" opacity=".85"/><path d="M52 240 Q70 134 100 134 Q130 134 148 240Z" fill="#F5C84F" opacity=".78"/></svg>'
-      ];
-      // Featured order: place co-founders + ED first, then alumni
-      const order = [
-        { ...people[0], featured: true,  chip: 'Co-Founder',     sil: SILS[0] },
-        { ...people[1], featured: true,  chip: 'Co-Founder',     sil: SILS[2] },
-        { ...people[2], featured: false, chip: 'Executive Dir.', sil: SILS[4] },
-        { ...people[3], featured: false, chip: 'VP · Alumna',    sil: SILS[3] },
-        { ...people[4], featured: false, chip: 'Alumna',         sil: SILS[1] }
-      ];
-      // Add a "Founders" wide tile at the end
-      order.push({
-        name: 'Founders & community',
-        role: 'Started in 2010 at San Quentin',
-        summary: 'A nonprofit movement building education, reentry, and employment pipelines across the U.S.',
-        sourceUrl: 'https://thelastmile.org/about/',
-        chip: 'TLM Story',
-        sil: SILS[5],
-        wide: true
-      });
+        '<svg viewBox="0 0 200 240" aria-hidden=
+/* =====================================================================
+   ADVANCED PLAN GENERATOR — produces a 72h / 30 / 60 / 90 / 180 / 365
+   day plan from a few inputs. Saves into the same plan store so it
+   prints / exports identically to the rest of the planner.
+   ===================================================================== */
+(function () {
+  if (window.__tlmAdvancedLoaded) return;
+  window.__tlmAdvancedLoaded = true;
+  const $ = (s, r=document) => r.querySelector(s);
 
-      order.forEach(p => {
-        const c = el('article', { className: 'builder' + (p.featured ? ' builder--featured' : '') });
-        c.innerHTML = `
-          <div class="builder__portrait">${p.sil}</div>
-          <span class="builder__chip">${p.chip}</span>
-          <div class="builder__body">
-            <h3 class="builder__name">${p.name}</h3>
-            <div class="builder__role">${p.role}</div>
-            <p class="builder__quote">${p.summary || ''}</p>
-            <a class="builder__src" href="${p.sourceUrl}" target="_blank" rel="noopener">Source ↗</a>
-          </div>
-        `;
-        buildersGrid.appendChild(c);
-      });
+  const TEMPLATES = {
+    job: {
+      "first72Hours": [
+        "Update resume — include TLM/inside training, certifications, and the timeline gap framed as growth",
+        "Set up LinkedIn — headline = your skill, summary = your story in your words",
+        "Apply to 3 fair-chance employers today (CareerOneStop > Reentry)",
+        "Get government photo ID + Social Security card if missing"
+      ],
+      "thirtyDayPlan": [
+        "Apply to 5 jobs/week — track in a sheet (company, role, contact, status)",
+        "Visit local American Job Center for free resume review + interview prep",
+        "Complete one free certificate — Google IT Support / AI Essentials / FDIC Money Smart",
+        "Open a Bank On certified checking account (joinbankon.org)"
+      ],
+      "sixtyDayPlan": [
+        "Aim for 2 first interviews — practice STAR answers on Big Interview or with TLM Helper",
+        "Negotiate scheduling around any parole/probation appointments before signing offers",
+        "Direct-deposit setup — split: 80% checking, 10% savings, 10% emergency"
+      ],
+      "ninetyDayPlan": [
+        "Land a role or convert apprenticeship to full-time",
+        "Lock in transportation + childcare backup",
+        "Start credit-builder loan ($25–$50/mo on Self.inc or local credit union)"
+      ],
+      "halfYearPlan": [
+        "Hit $1,000 emergency fund",
+        "Earn one stackable credential (Coursera Google Cybersecurity, CompTIA, or AWS Cloud Practitioner)",
+        "Pay off highest-APR debt first; keep paying minimums on others"
+      ],
+      "yearPlan": [
+        "Earn promotion or change to higher-paying role",
+        "File taxes via VITA — claim EITC if eligible",
+        "Have 3 months of essential expenses saved",
+        "Begin investing $50/month in a low-cost index fund (Fidelity ZERO, Vanguard VTI)"
+      ]
+    },
+    school: {
+      "first72Hours": [
+        "Order school transcripts (high school, prior college)",
+        "Email Project Rebound at the nearest CSU campus or your local community college reentry office",
+        "Create FAFSA account at studentaid.gov — Pell Grant is restored for justice-impacted students"
+      ],
+      "thirtyDayPlan": [
+        "Submit FAFSA",
+        "Apply to 2 schools — community college + a 4-year transfer target",
+        "Complete one Khan Academy diagnostic in math + reading to know your starting level",
+        "Visit campus (or virtual tour) for the reentry/Project Rebound office"
+      ],
+      "sixtyDayPlan": [
+        "Enroll for next term",
+        "Apply for scholarships specifically for formerly incarcerated students (Beyond the Bars, Restoring Promise, BTNRC)",
+        "Buy/rent textbooks via Library Genesis legal alts, Open Stax, library reserve"
+      ],
+      "ninetyDayPlan": [
+        "Attend orientation",
+        "Build a 4-semester course plan with the academic advisor",
+        "Find a study buddy + commit to 8h/week study time"
+      ],
+      "halfYearPlan": [
+        "Maintain 3.0+ GPA",
+        "Apply for federal work-study or campus job",
+        "Earn one CLEP or Sophia credit to accelerate"
+      ],
+      "yearPlan": [
+        "30+ college credits earned",
+        "Declare major; meet faculty in your field",
+        "Apply for one summer internship or research assistantship"
+      ]
+    },
+    business: {
+      "first72Hours": [
+        "Validate your idea — text 10 people in your target audience and ask if they'd pay for it",
+        "Reserve domain + Instagram handle if relevant",
+        "Open a free Square / Stripe / Shopify Lite account"
+      ],
+      "thirtyDayPlan": [
+        "Apply for an EIN (free, IRS, online, 10 minutes)",
+        "Register the business in your state (LLC ~ $50–$500 depending on state)",
+        "Make 3 sales — even at a loss to learn the funnel",
+        "Open a separate business bank account (LendingClub Tailored Checking is free)"
+      ],
+      "sixtyDayPlan": [
+        "Apply for a Kiva microloan ($1k–$15k at 0% if approved)",
+        "Connect with Defy Ventures CEO of Your New Life",
+        "Hit $500 in revenue"
+      ],
+      "ninetyDayPlan": [
+        "Get to $1,500/mo gross",
+        "Build a simple website (free with Carrd, Bolt.new, or Hostinger)",
+        "Set up bookkeeping in Wave (free)"
+      ],
+      "halfYearPlan": [
+        "Hit $5,000/mo gross or break even",
+        "Hire your first contractor",
+        "Quarterly tax payments started"
+      ],
+      "yearPlan": [
+        "$10k–$50k+ annual revenue",
+        "Apply for SBA microloan or Hello Alice grant for growth",
+        "Sign first commercial lease or move from home base if appropriate"
+      ]
+    },
+    health: {
+      "first72Hours": [
+        "Refill prescriptions (call provider day 1) — most have a 30-day grace at release",
+        "Schedule a primary-care visit",
+        "Save crisis numbers: 988 (mental health), SAMHSA 1-800-662-4357"
+      ],
+      "thirtyDayPlan": [
+        "Apply for Medicaid (state portal — most reentry states have streamlined enrollment)",
+        "Find a sliding-scale clinic (HRSA find-a-clinic)",
+        "Schedule dental + vision exams (often free at FQHCs)"
+      ],
+      "sixtyDayPlan": ["Build a daily routine — sleep, food, movement, sunlight", "Identify one accountability partner"],
+      "ninetyDayPlan": ["Annual physical complete", "Mental-health support in place (group, therapy, peer)"],
+      "halfYearPlan": ["Six months of consistent self-care", "Reduce or quit any substance use plan with provider"],
+      "yearPlan": ["Stable health baseline", "Help one other returning citizen with their health plan"]
     }
+  };
 
-  } catch (e) {
-    console.error('Static render failed', e);
+  function buildPlan(persona, opts) {
+    const tpl = TEMPLATES[persona] || TEMPLATES.job;
+    const customize = (arr) => arr.map(s =>
+      s
+        .replace(/\$1,000/g, opts.savings ? `$${opts.savings.toLocaleString()}` : "$1,000")
+        .replace(/your skill/g, opts.skill || "your skill")
+        .replace(/your city/g, opts.city || "your city")
+    );
+    return {
+      first72Hours:    customize(tpl.first72Hours),
+      thirtyDayPlan:   customize(tpl.thirtyDayPlan),
+      sixtyDayPlan:    customize(tpl.sixtyDayPlan),
+      ninetyDayPlan:   customize(tpl.ninetyDayPlan),
+      halfYearPlan:    customize(tpl.halfYearPlan || []),
+      yearPlan:        customize(tpl.yearPlan || [])
+    };
   }
+
+  function inject() {
+    const stepHost = $('#plannerStep')?.parentElement;
+    if (!stepHost) return;
+    if ($('#advBtn')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'mt-3';
+    wrap.innerHTML = `
+      <button id="advBtn" class="btn btn--primary btn--sm" type="button">⚡ Generate advanced future plan</button>
+    `;
+    stepHost.appendChild(wrap);
+
+    $('#advBtn').addEventListener('click', () => {
+      const persona = prompt("Main goal? Type one of: job, school, business, health", "job") || "job";
+      const skill   = prompt("Your strongest skill or interest?", "") || "";
+      const city    = prompt("City or region?", "") || "";
+      const savings = parseInt(prompt("3-month emergency fund target ($)?", "1000")) || 1000;
+
+      const plan = buildPlan(persona.trim().toLowerCase(), { skill, city, savings });
+      try {
+        const raw = localStorage.getItem('paving-the-road:plan:v1');
+        const state = raw ? JSON.parse(raw) : {};
+        Object.keys(plan).forEach(k => {
+          state[k] = Array.from(new Set([...(state[k] || []), ...plan[k]]));
+        });
+        state.updatedAt = new Date().toISOString();
+        localStorage.setItem('paving-the-road:plan:v1', JSON.stringify(state));
+      } catch {}
+      // gentle reload so the UI repaints with the new tasks
+      const sum = `Generated! Added:\n• ${plan.first72Hours.length} tasks for 72h\n• ${plan.thirtyDayPlan.length} tasks for 30 days\n• ${plan.sixtyDayPlan.length} for 60 days\n• ${plan.ninetyDayPlan.length} for 90 days\n• ${plan.halfYearPlan.length} for 6 months\n• ${plan.yearPlan.length} for 1 year`;
+      alert(sum + "\n\nReloading the planner so you see them.");
+      location.hash = "#planner"; location.reload();
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject);
+  else inject();
 })();
 
-/* =====================================================================
-   CONFETTI (only on completion)
-   ===================================================================== */
-function fireConfetti() {
+/* Pointer glow on hero */
+(function pointerGlow() {
+  const hero = document.querySelector('.hero'); if (!hero) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const c = $('#confetti'); if (!c) return;
-  const ctx = c.getContext('2d');
-  c.width = innerWidth; c.height = innerHeight;
-  const N = 90;
-  const bits = Array.from({ length: N }, () => ({
-    x: innerWidth / 2 + (Math.random() - 0.5) * 100,
-    y: innerHeight / 2,
-    vx: (Math.random() - 0.5) * 8,
-    vy: -Math.random() * 9 - 2,
-    s: Math.random() * 6 + 3,
-    color: Math.random() > .5 ? '#DAA520' : (Math.random() > .5 ? '#FFFFFF' : '#F5C84F'),
-    life: 0
-  }));
-  let raf, t0 = performance.now();
-  function frame(now) {
-    const dt = (now - t0) / 16; t0 = now;
-    ctx.clearRect(0, 0, c.width, c.height);
-    bits.forEach(b => {
-      b.vy += 0.22 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.life += dt;
-      ctx.fillStyle = b.color; ctx.globalAlpha = Math.max(0, 1 - b.life / 80);
-      ctx.fillRect(b.x, b.y, b.s, b.s);
-    });
-    if (bits.every(b => b.y > innerHeight + 40)) { ctx.clearRect(0,0,c.width,c.height); return; }
-    raf = requestAnimationFrame(frame);
-  }
-  raf = requestAnimationFrame(frame);
-}
-
-/* ---------- Boot ---------- */
-renderQuiz(); renderSteps(); renderStep(); renderSummary(); renderQuizOutput();
+  hero.addEventListener('pointermove', (e) => {
+    const r = hero.getBoundingClientRect();
+    hero.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+})();
