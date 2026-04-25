@@ -1906,8 +1906,6 @@ html, body { overscroll-behavior-y: contain; }
   .fp-wizard, .fp-wizard__panel, .fp-wizard__bar, .fp-step, .fp-confetti span, .fp-dial__readout, .fp-persona, .fp-persona.is-selected::after, .fp-suggest button { animation: none !important; transition: none !important; }
   .fp-wizard__panel { transform: none; }
 }
-izard__panel { transform: none; }
-}
 
 /* ==========================================================================
    BUILDER CARDS — refreshed: monogram avatars, role tag, source link.
@@ -2015,8 +2013,6 @@ izard__panel { transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .builder__avatar, .builder__src, .builder__src svg { transition: none !important; }
   .builder:hover .builder__avatar { transform: none; }
-}
-lder__avatar { transform: none; }
 }
 
 /* ==========================================================================
