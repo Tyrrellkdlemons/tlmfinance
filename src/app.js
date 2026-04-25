@@ -516,25 +516,41 @@ function toast(msg) {
       paint();
     }
 
-    // Builders wall — bigger, cinematic, individualized silhouettes
+    // Builders wall — polished cards with monogram avatars, role tag, and source link
     const buildersGrid = $('#buildersGrid');
     if (buildersGrid) {
-      const SILS = [
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="62" r="28" fill="#DAA520" opacity=".88"/><path d="M40 240 Q60 130 100 130 Q140 130 160 240Z" fill="#DAA520" opacity=".82"/><path d="M82 130 q18 -10 36 0 l-2 14 q-16 -8 -32 0z" fill="#0E0E0E"/></svg>',
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="60" r="30" fill="#F5C84F" opacity=".9"/><path d="M30 240 Q56 122 100 122 Q144 122 170 240Z" fill="#F5C84F" opacity=".82"/><rect x="80" y="124" width="40" height="14" fill="#0E0E0E" opacity=".8"/></svg>',
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="64" r="26" fill="#DAA520" opacity=".88"/><path d="M44 240 Q62 130 100 130 Q138 130 156 240Z" fill="#DAA520" opacity=".78"/><path d="M86 130 q14 -8 28 0 l-2 12 q-12 -6 -24 0z" fill="#0E0E0E"/></svg>',
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="58" r="32" fill="#FFD970" opacity=".9"/><path d="M28 240 Q54 120 100 120 Q146 120 172 240Z" fill="#FFD970" opacity=".82"/><circle cx="100" cy="50" r="36" fill="#0E0E0E" opacity=".18"/></svg>',
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="62" r="28" fill="#DAA520" opacity=".88"/><path d="M38 240 Q60 128 100 128 Q140 128 162 240Z" fill="#DAA520" opacity=".8"/><path d="M84 128 q16 -10 32 0 l-2 14 q-14 -8 -28 0z" fill="#0E0E0E"/></svg>',
-        '<svg viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="60" r="30" fill="#B8860B" opacity=".9"/><path d="M34 240 Q58 124 100 124 Q142 124 166 240Z" fill="#B8860B" opacity=".82"/><rect x="78" y="126" width="44" height="12" fill="#0E0E0E" opacity=".7"/></svg>'
-      ];
-      (people || []).slice(0, 6).forEach((p, i) => {
+      const ACCENTS = {
+        warm:   { from: '#FFD970', to: '#DAA520' },
+        deep:   { from: '#DAA520', to: '#7A5A0F' },
+        bright: { from: '#FFE08A', to: '#B8860B' }
+      };
+      (people || []).slice(0, 6).forEach((p) => {
+        const accent = ACCENTS[p.accent] || ACCENTS.warm;
+        const initials = (p.initials || (p.name || 'TLM').split(/\s+/).map(s => s[0]).slice(0, 2).join('')).toUpperCase();
         const card = el('article', { className: 'builder' });
+        card.setAttribute('role', 'article');
+        if (p.alt) card.setAttribute('aria-label', p.alt);
         card.innerHTML =
-          '<div class="builder__sil" aria-hidden="true">' + SILS[i % SILS.length] + '</div>' +
+          '<div class="builder__avatar" aria-hidden="true">' +
+            '<svg viewBox="0 0 200 200">' +
+              '<defs>' +
+                '<radialGradient id="bgrad-' + initials + '" cx="50%" cy="35%" r="70%">' +
+                  '<stop offset="0%"  stop-color="' + accent.from + '"/>' +
+                  '<stop offset="100%" stop-color="' + accent.to + '"/>' +
+                '</radialGradient>' +
+              '</defs>' +
+              '<circle cx="100" cy="100" r="92" fill="url(#bgrad-' + initials + ')"/>' +
+              '<circle cx="100" cy="100" r="92" fill="none" stroke="rgba(14,14,14,.18)" stroke-width="2"/>' +
+              '<text x="100" y="118" text-anchor="middle" font-family="Inter, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" ' +
+                'font-size="78" font-weight="900" fill="#0E0E0E" letter-spacing="-2">' + initials + '</text>' +
+            '</svg>' +
+          '</div>' +
+          (p.tag ? '<span class="builder__tag">' + p.tag + '</span>' : '') +
           '<h3 class="builder__name">' + (p.name || 'Builder') + '</h3>' +
-          '<p class="builder__role muted">' + (p.role || '') + '</p>' +
-          (p.story ? '<p class="builder__story">' + p.story + '</p>' : '') +
-          (p.url ? '<a class="btn btn--ghost btn--sm" href="' + p.url + '" target="_blank" rel="noopener">Read more →</a>' : '');
+          '<p class="builder__role">' + (p.role || '') + '</p>' +
+          (p.summary ? '<p class="builder__story">' + p.summary + '</p>' : '') +
+          (p.sourceUrl ? '<a class="builder__src" href="' + p.sourceUrl + '" target="_blank" rel="noopener">' +
+            'Source · The Last Mile <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>' : '');
         buildersGrid.appendChild(card);
       });
     }

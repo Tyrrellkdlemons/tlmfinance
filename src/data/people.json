@@ -1,52 +1,62 @@
 [
   {
     "name": "Chris Redlitz",
+    "initials": "CR",
     "role": "Co-Founder",
+    "tag": "Founder",
     "summary": "Tech entrepreneur and Managing Partner of Transmedia Capital; co-founded the KickLabs accelerator. With Beverly Parenti, launched The Last Mile inside San Quentin in 2010.",
-    "imageUrl": "",
-    "imagePermission": "needs-permission",
-    "imagePlaceholder": "Photo placeholder — image use requires permission via the TLM press kit.",
+    "accent": "warm",
     "sourceUrl": "https://thelastmile.org/about/team/",
-    "alt": "Silhouette placeholder for Chris Redlitz, Co-Founder of The Last Mile."
+    "alt": "Avatar with monogram CR for Chris Redlitz, Co-Founder of The Last Mile."
   },
   {
     "name": "Beverly Parenti",
+    "initials": "BP",
     "role": "Co-Founder",
+    "tag": "Founder",
     "summary": "Serial entrepreneur focused on advancing innovative technologies. Co-founded The Last Mile in 2010 to bring education and tech training inside San Quentin.",
-    "imageUrl": "",
-    "imagePermission": "needs-permission",
-    "imagePlaceholder": "Photo placeholder — image use requires permission via the TLM press kit.",
+    "accent": "warm",
     "sourceUrl": "https://thelastmile.org/about/team/",
-    "alt": "Silhouette placeholder for Beverly Parenti, Co-Founder of The Last Mile."
+    "alt": "Avatar with monogram BP for Beverly Parenti, Co-Founder of The Last Mile."
   },
   {
     "name": "Kevin McCracken",
+    "initials": "KM",
     "role": "Executive Director",
-    "summary": "Returned citizen and longtime advocate for second-chance employment. Offered the Executive Director role in 2024 by Chris Redlitz and Beverly Parenti.",
-    "imageUrl": "",
-    "imagePermission": "needs-permission",
-    "imagePlaceholder": "Photo placeholder — image use requires permission via the TLM press kit.",
-    "sourceUrl": "https://nonprofitquarterly.org/education-not-incarceration-an-interview-with-kevin-mccracken/",
-    "alt": "Silhouette placeholder for Kevin McCracken, Executive Director of The Last Mile."
+    "tag": "Leadership",
+    "summary": "Returned citizen and longtime advocate for second-chance employment. Stepped into the Executive Director role in 2024 — the first formerly-incarcerated leader of TLM.",
+    "accent": "deep",
+    "sourceUrl": "https://thelastmile.org/new-executive-leadership-and-an-exciting-road-ahead/",
+    "alt": "Avatar with monogram KM for Kevin McCracken, Executive Director of The Last Mile."
   },
   {
-    "name": "Molly Kelly",
-    "role": "Alumna · Vice President, The Last Mile",
-    "summary": "Completed a 12-month software-engineering program at Indiana Women's Prison through TLM, then took on a leadership role inside the organization. Her path from incarceration to VP is a flagship reentry-success story.",
-    "imageUrl": "",
-    "imagePermission": "needs-permission",
-    "imagePlaceholder": "Photo placeholder — alumni photos require explicit consent.",
-    "sourceUrl": "https://thelastmile.org/the-last-mile-in-2026/",
-    "alt": "Silhouette placeholder for Molly Kelly, TLM alumna and VP."
+    "name": "Tulio Cardozo",
+    "initials": "TC",
+    "role": "Staff Infrastructure Engineer · Alumnus",
+    "tag": "Alumni → Staff",
+    "summary": "Founding graduate of TLM's Entrepreneurship Program. Now a Staff Infrastructure Engineer supporting TLM's learning services, proprietary network, and devices across three time zones.",
+    "accent": "bright",
+    "sourceUrl": "https://thelastmile.org/about/alumni/",
+    "alt": "Avatar with monogram TC for Tulio Cardozo, Staff Infrastructure Engineer at The Last Mile."
   },
   {
-    "name": "Billie Edison",
+    "name": "Alysha Eppard",
+    "initials": "AE",
     "role": "Alumna · Indiana Pacers",
-    "summary": "TLM alum now employed with the Indiana Pacers. One of many TLM graduates building careers across major employers like the Pacers, Google, Microsoft, Amazon, Apple, and Meta.",
-    "imageUrl": "",
-    "imagePermission": "needs-permission",
-    "imagePlaceholder": "Photo placeholder — alumni photos require explicit consent.",
+    "tag": "Alumni → Pacers",
+    "summary": "Walked out of prison in September 2024 and now builds web features for the Indiana Pacers — through TLM's training and a fair-chance hiring partnership.",
+    "accent": "bright",
     "sourceUrl": "https://thelastmile.org/the-last-mile-in-2026/",
-    "alt": "Silhouette placeholder for Billie Edison, TLM alumna."
+    "alt": "Avatar with monogram AE for Alysha Eppard, TLM alumna at the Indiana Pacers."
+  },
+  {
+    "name": "Ken Oliver",
+    "initials": "KO",
+    "role": "Board of Directors",
+    "tag": "Board",
+    "summary": "VP of Checkr.org and Executive Director of the Checkr Foundation. Joined TLM's Board of Directors in July 2023 to scale fair-chance employment nationwide.",
+    "accent": "deep",
+    "sourceUrl": "https://thelastmile.org/the-last-mile-announces-ken-oliver-to-the-board-of-directors/",
+    "alt": "Avatar with monogram KO for Ken Oliver, TLM Board of Directors and Checkr.org VP."
   }
 ]
