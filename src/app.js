@@ -881,6 +881,18 @@ function toast(msg) {
     w.document.open(); w.document.write(html); w.document.close();
   }
 
+  // ---- Wizard auto-save / resume helpers (persist across sessions) ----
+  const FP_STORE = 'tlm:fpWiz:v1';
+  function loadFp()  { try { return JSON.parse(localStorage.getItem(FP_STORE) || '{}'); } catch { return {}; } }
+  function saveFp(d, step, completed) {
+    try {
+      localStorage.setItem(FP_STORE, JSON.stringify(Object.assign({}, d, {
+        step, completed: !!completed, updatedAt: Date.now()
+      })));
+    } catch {}
+  }
+  function clearFp() { try { localStorage.removeItem(FP_STORE); } catch {} }
+
   function inject() {
     const stepHost = $('#plannerStep')?.parentElement;
     if (!stepHost) return;
@@ -893,6 +905,43 @@ function toast(msg) {
     stepHost.appendChild(wrap);
 
     $('#advBtn').addEventListener('click', () => openFuturePlanWizard());
+    // Wire the panel's "Open full planner" button to launch the wizard too
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'openAdvancedFromPanel') {
+        e.preventDefault();
+        openFuturePlanWizard();
+      }
+    });
+    // Expose for any other entry point
+    window.__tlmOpenFuturePlan = openFuturePlanWizard;
+
+    // Resume nudge — once per session, if there's an in-progress wizard,
+    // ask the user if they want to pick it back up.
+    setTimeout(() => {
+      const saved = loadFp();
+      if (!saved || !saved.persona) return;
+      if (saved.completed) return;
+      if (sessionStorage.getItem('tlm:fpWiz:nudged')) return;
+      try { sessionStorage.setItem('tlm:fpWiz:nudged', '1'); } catch {}
+      const nudge = document.createElement('div');
+      nudge.className = 'fp-resume-nudge';
+      nudge.innerHTML =
+        '<div class="fp-resume-nudge__body">' +
+          '<strong>Pick your plan back up?</strong>' +
+          '<span>You\'re on step ' + (saved.step || 1) + ' of your full planner.</span>' +
+        '</div>' +
+        '<button type="button" class="btn btn--primary btn--sm" data-fp-resume>Resume →</button>' +
+        '<button type="button" class="fp-resume-nudge__close" aria-label="Dismiss">×</button>';
+      document.body.appendChild(nudge);
+      requestAnimationFrame(() => nudge.classList.add('is-in'));
+      nudge.querySelector('[data-fp-resume]').addEventListener('click', () => {
+        nudge.remove();
+        openFuturePlanWizard();
+      });
+      nudge.querySelector('.fp-resume-nudge__close').addEventListener('click', () => nudge.remove());
+      // auto-hide after 14s if untouched
+      setTimeout(() => nudge.remove(), 14000);
+    }, 8000);
 
     function openFuturePlanWizard() {
       if (document.getElementById('fpWizard')) return;
@@ -902,12 +951,31 @@ function toast(msg) {
         { id: 'business', icon: '💼',       title: 'Business', tag: 'Start something',  desc: 'EIN, LLC, microloan, first sales, books in Wave.' },
         { id: 'health',   icon: '⚕️',       title: 'Health',   tag: 'Body & mind first',desc: 'Refill meds, Medicaid, sliding-scale clinic, peer support.' },
       ];
+      const SKILLS = ['Coding', 'Sales', 'Welding', 'Design', 'Food service', 'Driving', 'Music', 'Construction', 'Trades', 'Writing', 'Customer service', 'Warehouse'];
+      const REGIONS = ['California', 'Texas', 'New York', 'Florida', 'Illinois', 'Georgia', 'Michigan', 'Pennsylvania', 'Ohio', 'Other / national'];
+      const EXTRAS = [
+        { id: 'banking',  label: 'Open a bank account',     icon: '🏦' },
+        { id: 'docs',     label: 'Replace ID & SS card',    icon: '🪪' },
+        { id: 'housing',  label: 'Stable housing',          icon: '🏠' },
+        { id: 'transit',  label: 'Daily transportation',    icon: '🚌' },
+        { id: 'family',   label: 'Reconnect with family',   icon: '🤝' },
+        { id: 'savings',  label: 'Build emergency fund',    icon: '💰' },
+        { id: 'credit',   label: 'Build credit',            icon: '💳' },
+        { id: 'tech',     label: 'Tech skills (AI, code)',  icon: '🤖' }
+      ];
+      const PACES = [
+        { id: 'easy',       icon: '🌱', label: 'Take it easy',  desc: 'Health & stability first.' },
+        { id: 'standard',   icon: '⚙️',  label: 'Standard',      desc: 'Steady balanced pace.' },
+        { id: 'aggressive', icon: '🚀',  label: 'Aggressive',    desc: 'Move fast, big goals.' }
+      ];
+
       const wiz = document.createElement('div');
       wiz.id = 'fpWizard';
       wiz.className = 'fp-wizard';
       wiz.setAttribute('role', 'dialog');
       wiz.setAttribute('aria-modal', 'true');
       wiz.setAttribute('aria-labelledby', 'fpWizTitle');
+
       const personaCards = PERSONAS.map(p =>
         '<button class="fp-persona" type="button" data-persona="' + p.id + '">' +
           '<span class="fp-persona__icon" aria-hidden="true">' + p.icon + '</span>' +
@@ -916,49 +984,63 @@ function toast(msg) {
           '<span class="fp-persona__desc">' + p.desc + '</span>' +
         '</button>'
       ).join('');
+      const skillChips  = SKILLS.map(s  => '<button type="button" class="fp-chip" data-skill="' + s + '">' + s + '</button>').join('');
+      const regionChips = REGIONS.map(r => '<button type="button" class="fp-chip" data-region="' + r + '">' + r + '</button>').join('');
+      const extrasChips = EXTRAS.map(x  => '<button type="button" class="fp-chip fp-chip--multi" data-extra="' + x.id + '"><span aria-hidden="true">' + x.icon + '</span> ' + x.label + '</button>').join('');
+      const paceCards   = PACES.map(p   => '<button type="button" class="fp-pace" data-pace="' + p.id + '"><span class="fp-pace__icon" aria-hidden="true">' + p.icon + '</span><span class="fp-pace__label">' + p.label + '</span><span class="fp-pace__desc">' + p.desc + '</span></button>').join('');
+
       wiz.innerHTML =
         '<div class="fp-wizard__scrim" data-fp-close></div>' +
         '<div class="fp-wizard__panel" role="document">' +
           '<button class="fp-wizard__close" type="button" aria-label="Close" data-fp-close>×</button>' +
           '<div class="fp-wizard__progress" aria-hidden="true"><span class="fp-wizard__bar"></span></div>' +
           '<div class="fp-wizard__steps">' +
+
             '<section class="fp-step is-active" data-step="1">' +
-              '<p class="fp-eyebrow">Step 1 of 4</p>' +
+              '<p class="fp-eyebrow">Step 1 of 5</p>' +
               '<h2 id="fpWizTitle">Pick the focus that fits you right now.</h2>' +
               '<p class="fp-sub">We\'ll build a 72-hour, 30/60/90-day, 6-month and 1-year plan around it. Change anything later.</p>' +
               '<div class="fp-personas">' + personaCards + '</div>' +
             '</section>' +
+
             '<section class="fp-step" data-step="2">' +
-              '<p class="fp-eyebrow">Step 2 of 4</p>' +
-              '<h2>What\'s your strongest skill or interest?</h2>' +
-              '<p class="fp-sub">A keyword is fine — we\'ll weave it into your plan.</p>' +
-              '<input class="fp-input" id="fpSkill" type="text" placeholder="e.g. coding, sales, hands-on trades" autocomplete="off" />' +
-              '<div class="fp-suggest" id="fpSkillSuggest">' +
-                ['code','sales','welding','design','food service','driving','music','construction']
-                  .map(s => '<button type="button">' + s + '</button>').join('') +
-              '</div>' +
+              '<p class="fp-eyebrow">Step 2 of 5 · Optional</p>' +
+              '<h2>What\'s your strongest skill?</h2>' +
+              '<p class="fp-sub">Tap one — or skip and add your own.</p>' +
+              '<div class="fp-chips" id="fpSkillChips">' + skillChips + '</div>' +
+              '<input class="fp-input" id="fpSkill" type="text" placeholder="Or type your own (optional)" autocomplete="off" />' +
             '</section>' +
+
             '<section class="fp-step" data-step="3">' +
-              '<p class="fp-eyebrow">Step 3 of 4</p>' +
-              '<h2>What city or region?</h2>' +
-              '<p class="fp-sub">We tune resource references to where you\'re rebuilding. Skip if you\'d rather not say.</p>' +
-              '<input class="fp-input" id="fpCity" type="text" placeholder="e.g. Los Angeles, Bay Area, Atlanta" autocomplete="off" />' +
+              '<p class="fp-eyebrow">Step 3 of 5 · Optional</p>' +
+              '<h2>Where are you rebuilding?</h2>' +
+              '<p class="fp-sub">Tap your state, then add a city if you want.</p>' +
+              '<div class="fp-chips" id="fpRegionChips">' + regionChips + '</div>' +
+              '<input class="fp-input" id="fpCity" type="text" placeholder="City or neighborhood (optional)" autocomplete="off" />' +
+              '<details class="fp-more"><summary>+ More options</summary>' +
+                '<p class="fp-sub" style="margin-top:14px">Anything else worth covering in your plan?</p>' +
+                '<div class="fp-chips" id="fpExtrasChips">' + extrasChips + '</div>' +
+              '</details>' +
             '</section>' +
+
             '<section class="fp-step" data-step="4">' +
-              '<p class="fp-eyebrow">Step 4 of 4</p>' +
-              '<h2>3-month emergency fund target.</h2>' +
-              '<p class="fp-sub">Drag the dial — we set milestones to match.</p>' +
+              '<p class="fp-eyebrow">Step 4 of 5</p>' +
+              '<h2>Pace + emergency fund.</h2>' +
+              '<p class="fp-sub">Pick your pace, then drag the dial for your 3-month savings target.</p>' +
+              '<div class="fp-paces" id="fpPaces">' + paceCards + '</div>' +
               '<div class="fp-dial">' +
                 '<input class="fp-range" id="fpSavings" type="range" min="500" max="10000" step="100" value="1000" />' +
                 '<div class="fp-dial__readout"><span id="fpSavingsAmt">$1,000</span></div>' +
                 '<div class="fp-dial__ticks" aria-hidden="true"><span>$500</span><span>$2.5k</span><span>$5k</span><span>$7.5k</span><span>$10k</span></div>' +
               '</div>' +
             '</section>' +
+
             '<section class="fp-step" data-step="5">' +
               '<p class="fp-eyebrow">Almost there</p>' +
               '<h2>Here\'s your custom plan.</h2>' +
               '<div class="fp-preview" id="fpPreview"></div>' +
             '</section>' +
+
             '<section class="fp-step" data-step="6">' +
               '<p class="fp-eyebrow">Done</p>' +
               '<h2>Plan saved to this device.</h2>' +
@@ -969,6 +1051,7 @@ function toast(msg) {
                 '<span></span><span></span><span></span><span></span><span></span>' +
               '</div>' +
             '</section>' +
+
           '</div>' +
           '<footer class="fp-wizard__nav">' +
             '<button class="btn btn--dark btn--sm" type="button" data-fp-pdf hidden>⬇ Download PDF</button>' +
@@ -979,8 +1062,18 @@ function toast(msg) {
       document.body.appendChild(wiz);
       requestAnimationFrame(() => wiz.classList.add('is-open'));
 
-      const data = { persona: '', skill: '', city: '', savings: 1000 };
-      let step = 1;
+      // Restore prior progress if any
+      const restored = loadFp();
+      const data = {
+        persona: restored.persona || '',
+        skill:   restored.skill   || '',
+        city:    restored.city    || '',
+        region:  restored.region  || '',
+        extras:  Array.isArray(restored.extras) ? restored.extras : [],
+        pace:    restored.pace    || 'standard',
+        savings: typeof restored.savings === 'number' ? restored.savings : 1000
+      };
+      let step = (restored.step && !restored.completed) ? Math.min(restored.step, 5) : 1;
       const TOTAL = 6;
       const W = (s) => wiz.querySelector(s);
       const Wa = (s) => Array.from(wiz.querySelectorAll(s));
@@ -1002,6 +1095,8 @@ function toast(msg) {
         if (pdf) pdf.hidden = !(step === 5 || step === TOTAL);
         if (step === 5) renderPreview();
         if (step === TOTAL) fireWizConfetti(wiz);
+        // Persist on every step transition so the user can resume
+        saveFp(data, step, step === TOTAL);
         setTimeout(() => {
           const live = W('.fp-step.is-active');
           const focusable = live && live.querySelector('input, button:not([data-fp-close])');
@@ -1009,35 +1104,117 @@ function toast(msg) {
         }, 60);
       }
 
+      // ----- Persona -----
       Wa('.fp-persona').forEach(b => {
         b.addEventListener('click', () => {
           Wa('.fp-persona').forEach(x => x.classList.remove('is-selected'));
           b.classList.add('is-selected');
           data.persona = b.dataset.persona;
           W('[data-fp-next]').disabled = false;
+          saveFp(data, step);
         });
+        if (data.persona && b.dataset.persona === data.persona) b.classList.add('is-selected');
       });
 
-      Wa('#fpSkillSuggest button').forEach(b => {
-        b.addEventListener('click', () => { W('#fpSkill').value = b.textContent.trim(); });
+      // ----- Skill chips + free text -----
+      Wa('#fpSkillChips .fp-chip').forEach(b => {
+        b.addEventListener('click', () => {
+          Wa('#fpSkillChips .fp-chip').forEach(x => x.classList.remove('is-selected'));
+          b.classList.add('is-selected');
+          data.skill = b.dataset.skill;
+          W('#fpSkill').value = data.skill;
+          saveFp(data, step);
+        });
+        if (data.skill && b.dataset.skill === data.skill) b.classList.add('is-selected');
+      });
+      W('#fpSkill').value = data.skill || '';
+      W('#fpSkill').addEventListener('input', () => {
+        data.skill = W('#fpSkill').value.trim();
+        // typing custom skill clears chip selection
+        Wa('#fpSkillChips .fp-chip').forEach(x => x.classList.remove('is-selected'));
+        saveFp(data, step);
       });
 
+      // ----- Region chips + city free text + extras -----
+      Wa('#fpRegionChips .fp-chip').forEach(b => {
+        b.addEventListener('click', () => {
+          Wa('#fpRegionChips .fp-chip').forEach(x => x.classList.remove('is-selected'));
+          b.classList.add('is-selected');
+          data.region = b.dataset.region;
+          saveFp(data, step);
+        });
+        if (data.region && b.dataset.region === data.region) b.classList.add('is-selected');
+      });
+      W('#fpCity').value = data.city || '';
+      W('#fpCity').addEventListener('input', () => {
+        data.city = W('#fpCity').value.trim();
+        saveFp(data, step);
+      });
+
+      Wa('#fpExtrasChips .fp-chip').forEach(b => {
+        b.addEventListener('click', () => {
+          const id = b.dataset.extra;
+          const i = data.extras.indexOf(id);
+          if (i >= 0) { data.extras.splice(i, 1); b.classList.remove('is-selected'); }
+          else        { data.extras.push(id);     b.classList.add('is-selected'); }
+          saveFp(data, step);
+        });
+        if (data.extras.includes(b.dataset.extra)) b.classList.add('is-selected');
+      });
+
+      // ----- Pace -----
+      Wa('#fpPaces .fp-pace').forEach(b => {
+        b.addEventListener('click', () => {
+          Wa('#fpPaces .fp-pace').forEach(x => x.classList.remove('is-selected'));
+          b.classList.add('is-selected');
+          data.pace = b.dataset.pace;
+          saveFp(data, step);
+        });
+        if (data.pace && b.dataset.pace === data.pace) b.classList.add('is-selected');
+      });
+
+      // ----- Savings dial -----
       const range = W('#fpSavings');
       const readout = W('#fpSavingsAmt');
+      range.value = data.savings || 1000;
       function updateAmt() {
         const v = parseInt(range.value, 10) || 0;
+        data.savings = v;
         readout.textContent = '$' + v.toLocaleString();
         const pct = (v - 500) / (10000 - 500);
         range.style.background = 'linear-gradient(90deg, #DAA520 0%, #FFD970 ' + (pct*100) + '%, rgba(255,255,255,.12) ' + (pct*100) + '%, rgba(255,255,255,.12) 100%)';
+        saveFp(data, step);
       }
       range.addEventListener('input', updateAmt);
       updateAmt();
+
+      function combinedCity() {
+        // Merge free-text city with chip-selected region for the plan engine
+        const c = (W('#fpCity').value || '').trim();
+        if (c && data.region) return c + ', ' + data.region;
+        return c || data.region || '';
+      }
 
       function renderPreview() {
         data.skill   = (W('#fpSkill').value || '').trim();
         data.city    = (W('#fpCity').value || '').trim();
         data.savings = parseInt(W('#fpSavings').value, 10) || 1000;
-        const plan = buildPlan(data.persona, { skill: data.skill, city: data.city, savings: data.savings });
+        const plan = buildPlan(data.persona, { skill: data.skill, city: combinedCity(), savings: data.savings });
+        // Pace + extras: prepend extras-driven tasks to first 72h to reflect the user's choices
+        if (data.extras && data.extras.length) {
+          const extraMap = {
+            banking:  'Open a Bank On certified checking account (joinbankon.org)',
+            docs:     'Replace ID + Social Security card (ssa.gov/number-card, DMV)',
+            housing:  'Confirm housing for tonight + next 7 nights · call 211 if unstable',
+            transit:  'Pick a daily transit plan and a backup ride contact',
+            family:   'Reconnect with one supportive person today',
+            savings:  'Auto-transfer $10/week from checking → savings',
+            credit:   'Open a secured / credit-builder card (Self.inc or local CU)',
+            tech:     'Take one free AI / coding course (Google AI Essentials, Khan Academy)'
+          };
+          const adds = data.extras.map(e => extraMap[e]).filter(Boolean);
+          plan.first72Hours = Array.from(new Set([].concat(adds, plan.first72Hours)));
+        }
         const sections = [
           ['First 72 hours', plan.first72Hours],
           ['30 days',        plan.thirtyDayPlan],
@@ -1058,13 +1235,23 @@ function toast(msg) {
                    '<ul>' + items + '</ul>' +
                  '</div>';
         }).join('');
+        const paceLabel = ({ easy:'Take it easy', standard:'Standard', aggressive:'Aggressive' })[data.pace] || 'Standard';
         W('#fpPreview').innerHTML =
+          '<div class="fp-preview__chips">' +
+            '<span class="fp-preview__chip">Pace · ' + paceLabel + '</span>' +
+            (data.skill  ? '<span class="fp-preview__chip">Skill · ' + data.skill + '</span>'   : '') +
+            (data.region ? '<span class="fp-preview__chip">Region · ' + data.region + '</span>' : '') +
+            (data.city   ? '<span class="fp-preview__chip">City · '   + data.city   + '</span>' : '') +
+            (data.extras && data.extras.length ? '<span class="fp-preview__chip">+' + data.extras.length + ' extras</span>' : '') +
+          '</div>' +
           '<p class="fp-preview__total"><strong>' + total + '</strong> personalized tasks across 6 horizons.</p>' +
           '<div class="fp-preview__grid">' + cols + '</div>';
+        // expose for PDF
+        wiz.__lastPlan = plan;
       }
 
       function applyPlan() {
-        const plan = buildPlan(data.persona, { skill: data.skill, city: data.city, savings: data.savings });
+        const plan = wiz.__lastPlan || buildPlan(data.persona, { skill: data.skill, city: combinedCity(), savings: data.savings });
         try {
           const raw = localStorage.getItem('paving-the-road:plan:v1');
           const stored = raw ? JSON.parse(raw) : {};
@@ -1074,6 +1261,8 @@ function toast(msg) {
           stored.updatedAt = new Date().toISOString();
           localStorage.setItem('paving-the-road:plan:v1', JSON.stringify(stored));
         } catch (e) {}
+        // mark wizard as completed so the resume nudge stops appearing
+        saveFp(data, TOTAL, true);
       }
 
       W('[data-fp-back]').addEventListener('click', () => setStep(step - 1));
@@ -1088,7 +1277,7 @@ function toast(msg) {
         data.skill   = (W('#fpSkill').value || '').trim();
         data.city    = (W('#fpCity').value || '').trim();
         data.savings = parseInt(W('#fpSavings').value, 10) || 1000;
-        const plan = buildPlan(data.persona, { skill: data.skill, city: data.city, savings: data.savings });
+        const plan = wiz.__lastPlan || buildPlan(data.persona, { skill: data.skill, city: combinedCity(), savings: data.savings });
         downloadAdvancedPlanPDF(plan, data);
       });
       Wa('[data-fp-close]').forEach(el => el.addEventListener('click', () => closeWiz(false)));
@@ -1111,7 +1300,8 @@ function toast(msg) {
         });
       }
 
-      setStep(1);
+      // Resume to the saved step, or start fresh if nothing useful is stored
+      setStep(step || 1);
     }
   }
 
@@ -1250,16 +1440,8 @@ function toast(msg) {
     return;
   }
 
-  // Mobile-only — never show the "Install app" CTA on the desktop site.
-  // We treat anything wider than 919px as desktop and bail early. We also
-  // require either a touch-capable device or a known mobile UA so a narrow
-  // desktop window doesn't accidentally trigger the prompt.
+  // Show the "Install app" CTA on both mobile and desktop.
   const ua = navigator.userAgent || '';
-  const isMobileUA = /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-  const isNarrow   = matchMedia('(max-width: 919px)').matches;
-  const hasTouch   = 'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
-  const isMobile   = isNarrow && (isMobileUA || hasTouch);
-  if (!isMobile) return;
 
   // Skip if user dismissed within last 7 days
   try {
