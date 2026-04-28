@@ -317,12 +317,26 @@ p { margin: 0 0 1em; color: var(--ink-soft); }
 .callout--info { border-left-color: var(--tlm-info); }
 .callout--ok { border-left-color: var(--tlm-success); }
 
-/* MOBILE BOTTOM NAV */
-.bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); z-index: 80; padding-bottom: var(--safe-bottom); }
-@media (prefers-color-scheme: dark) { .bottom-nav { background: rgba(15,15,15,.92); } }
-.bottom-nav a, .bottom-nav button { display: grid; place-items: center; gap: 2px; padding: 10px 4px; color: var(--ink-soft); text-decoration: none; font-size: .68rem; font-weight: 700; }
+/* MOBILE BOTTOM NAV — always dark charcoal pill on mobile (not theme-flippable) */
+.bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  background: rgba(14,14,14,.96);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-top: 1px solid rgba(218,165,32,.22);
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  z-index: 80; padding-bottom: var(--safe-bottom);
+  box-shadow: 0 -10px 30px -10px rgba(0,0,0,.55);
+}
+.bottom-nav a, .bottom-nav button {
+  display: grid; place-items: center; gap: 2px;
+  padding: 10px 4px;
+  color: rgba(255,255,255,.78);
+  text-decoration: none; font-size: .68rem; font-weight: 700;
+}
 .bottom-nav svg { width: 20px; height: 20px; }
-.bottom-nav a[aria-current="page"] { color: var(--tlm-charcoal); }
+.bottom-nav a:hover { color: #FFD970; }
+.bottom-nav a[aria-current="page"] { color: var(--tlm-gold); }
 .bottom-nav a[aria-current="page"]::after { content: ""; position: absolute; height: 3px; width: 32px; background: var(--tlm-gold); border-radius: 4px; margin-top: 36px; }
 @media (min-width: 920px) { .bottom-nav { display: none; } }
 body.has-bottom-nav { padding-bottom: 76px; }
@@ -1143,8 +1157,6 @@ html, body { overscroll-behavior-y: contain; }
 @media (prefers-reduced-motion: reduce) {
   .pwa-install-cta { animation: none; }
 }
--install-cta { animation: none; }
-}
 
 /* ==========================================================================
    CINEMA — additive animation pass for the road piece + sitewide. Every
@@ -1532,8 +1544,6 @@ html, body { overscroll-behavior-y: contain; }
 /* Forced colors: don't paint glow effects */
 @media (forced-colors: active) {
   .road__corona, .road__embers span, .gold-text { animation: none; }
-}
-, .gold-text { animation: none; }
 }
 
 /* ==========================================================================
@@ -2109,3 +2119,176 @@ html, body { overscroll-behavior-y: contain; }
   .builder__name { font-size: 1.25rem !important; }
   .builder__story { font-size: .9rem !important; max-width: 100%; }
 }
+
+/* ==========================================================================
+   CARD + STAT SYMMETRY PASS — uniform structure across all card grids:
+   • equal heights · top breathing room · bottom-pinned actions / sources
+   • topic + resource cards align CTA buttons at the bottom-left
+   • stat cards align source link at the bottom of each tile
+   ========================================================================== */
+
+/* Make every grid that holds .card stretch children to equal heights */
+.grid { align-items: stretch; }
+.grid > .card { height: 100%; }
+
+/* Card becomes a flex column so we can pin the action to the bottom */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 30px;            /* extra top breathing room (Screenshot 1 ask) */
+}
+.card > p { margin: 0 0 .35em; }
+.card > h3 { margin-bottom: 4px; }
+.card > .tag,
+.card > .tag--gold,
+.card > .flex:first-child { margin-bottom: 4px; align-self: flex-start; }
+
+/* The yellow CTA / "Visit resource" / source links inside cards drop to the bottom */
+.card > .btn,
+.card > a.btn,
+.card > a[href][target="_blank"]:last-of-type:not(.tag):not(.btn):not(.card__meta):not([style*="color:var(--tlm-gold)"]) {
+  margin-top: auto;
+  align-self: flex-start;
+}
+/* Resource hub: meta line sticks to the very bottom under the button */
+.card > .card__meta { margin-top: 8px; }
+
+/* Add a soft separator before the bottom action so cards feel structured */
+.card > .btn,
+.card > a.btn {
+  position: relative;
+  margin-top: auto !important;
+}
+
+/* Spacer line above the bottom CTA — subtle, only inside grid cards */
+.grid--3 > .card > .btn::before,
+.grid--3 > .card > a.btn::before { content: none; }
+
+/* STATS — flex column for matching heights and bottom-aligned source link */
+.grid--3 > .stat,
+.grid > .stat { display: flex; flex-direction: column; gap: 10px; height: 100%; padding-top: 28px; }
+.stat__num { margin-top: 4px; }
+.stat__src { margin-top: auto; padding-top: 12px; }
+
+/* JUMP-TO-A-TOPIC list (Learn hero card) — cleaner, gentler look */
+.card[aria-label="Topic shortcuts"] ul,
+.card nav[aria-label="Topic shortcuts"] ul { list-style: none; padding: 0; margin: 0; }
+
+.card[aria-label="Topic shortcuts"] li,
+nav[aria-label="Topic shortcuts"] li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  transition: background .18s ease, transform .18s ease;
+}
+.card[aria-label="Topic shortcuts"] li:hover,
+nav[aria-label="Topic shortcuts"] li:hover {
+  background: rgba(218, 165, 32, .08);
+  transform: translateX(2px);
+}
+
+.card[aria-label="Topic shortcuts"] a,
+nav[aria-label="Topic shortcuts"] a {
+  text-decoration: none !important;
+  color: var(--tlm-gold) !important;
+  font-weight: 600;
+  letter-spacing: .005em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  padding: 4px 0;
+  border-radius: 6px;
+  position: relative;
+}
+.card[aria-label="Topic shortcuts"] a::after,
+nav[aria-label="Topic shortcuts"] a::after {
+  content: "→";
+  margin-left: auto;
+  opacity: .35;
+  transform: translateX(0);
+  transition: opacity .18s ease, transform .18s ease;
+  font-weight: 800;
+}
+.card[aria-label="Topic shortcuts"] a:hover,
+nav[aria-label="Topic shortcuts"] a:hover {
+  color: var(--tlm-gold-2) !important;
+}
+.card[aria-label="Topic shortcuts"] a:hover::after,
+nav[aria-label="Topic shortcuts"] a:hover::after {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* PWA install prompt — mobile only.
+   Hide the install CTA on the desktop site even if the browser fires
+   beforeinstallprompt; pair this with the JS gate. */
+@media (min-width: 920px) {
+  .pwa-install-cta { display: none !important; }
+}
+
+/* Make the bottom-nav obviously visible on mobile and lock it to the
+   dark charcoal style — independent of system light/dark theme */
+@media (max-width: 919px) {
+  .bottom-nav {
+    display: grid !important;
+    background: rgba(14,14,14,.96) !important;
+    border-top: 1px solid rgba(218,165,32,.22) !important;
+    box-shadow: 0 -10px 30px -10px rgba(0,0,0,.55) !important;
+  }
+  .bottom-nav a, .bottom-nav button { color: rgba(255,255,255,.78) !important; }
+  .bottom-nav a:hover { color: #FFD970 !important; }
+  .bottom-nav a[aria-current="page"] { color: #FFD970 !important; }
+  .bottom-nav svg { color: inherit; stroke: currentColor; }
+  body.has-bottom-nav { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important; }
+}
+
+/* Resource grid CTA polish — left-aligned, consistent height, no overlap */
+#resourceGrid .card { padding-top: 28px; }
+#resourceGrid .card .btn--dark { align-self: flex-start; }
+
+/* Quiz output ("Your starter 72-hour plan") — make the download row breathe */
+#quizOutput .card { gap: 14px; }
+.quiz-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.quiz-actions .btn { margin-top: 0 !important; }
+
+/* Future plan wizard — make persona buttons & dropdown look better */
+.fp-personas { gap: 12px; }
+.fp-persona { transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+.fp-persona:hover { transform: translateY(-2px); border-color: rgba(218,165,32,.55); }
+.fp-persona.is-selected {
+  background: linear-gradient(180deg, rgba(218,165,32,.18) 0%, rgba(218,165,32,.06) 100%);
+  border-color: #DAA520;
+  box-shadow: 0 0 0 2px rgba(218,165,32,.45), 0 18px 36px -18px rgba(218,165,32,.55);
+}
+
+/* Dropdown / select polish in the wizard if any future select is added */
+.fp-input,
+.fp-wizard select {
+  width: 100%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(218,165,32,.35);
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.fp-input:focus,
+.fp-wizard select:focus {
+  outline: none;
+  border-color: #FFD970;
+  background: rgba(255,255,255,.10);
+  box-shadow: 0 0 0 3px rgba(218,165,32,.30);
+}
+
+/* PDF-download button slot in the wizard footer */
+.fp-wizard__nav .btn--dark { margin-right: auto; }

@@ -189,24 +189,38 @@ function renderQuiz() {
   });
 }
 
+// Map of which tasks belong to which selected need — keep available so we
+// can rebuild the "only checked" list on every regeneration / PDF export.
+const NEED_TASKS = {
+  money:   ['Open a checking account or activate prepaid card', 'Pull free credit report at AnnualCreditReport.com', 'List your one-time release funds and first paycheck date'],
+  docs:    ['Locate or request birth certificate', 'Replace Social Security card at ssa.gov/number-card', 'Apply for state ID at the DMV'],
+  job:     ['Update resume with TLM/work-while-incarcerated experience', 'Visit a CareerOneStop / American Job Center', 'Apply to 3 fair-chance employers in week 1'],
+  housing: ['Confirm housing for tonight + next 7 nights', 'Call 211 if housing is unstable', 'Save HUD rental-assistance contact'],
+  edu:     ['Visit Project Rebound or campus reentry center', 'Request transcripts; ask about FAFSA / Cal Grant', 'List 1 short course you can finish in 90 days'],
+  transit: ['Pick a daily transit plan and budget', 'Apply to Lifeline for phone/internet', 'Save a backup ride contact'],
+  health:  ['Continue medications — call provider on day 1', 'Save 988 + SAMHSA helpline numbers', 'Schedule a primary-care visit'],
+  family:  ['Reconnect with one supportive person today', 'Set a weekly check-in time', 'Talk through expectations & boundaries']
+};
+
+function tasksFromCheckedNeeds() {
+  const tasks = [];
+  (state.plan.needs || []).forEach(n => (NEED_TASKS[n] || []).forEach(t => tasks.push(t)));
+  return tasks;
+}
+
 function generate72() {
-  const tasks = new Set(state.plan.first72Hours || []);
-  const map = {
-    money:   ['Open a checking account or activate prepaid card', 'Pull free credit report at AnnualCreditReport.com', 'List your one-time release funds and first paycheck date'],
-    docs:    ['Locate or request birth certificate', 'Replace Social Security card at ssa.gov/number-card', 'Apply for state ID at the DMV'],
-    job:     ['Update resume with TLM/work-while-incarcerated experience', 'Visit a CareerOneStop / American Job Center', 'Apply to 3 fair-chance employers in week 1'],
-    housing: ['Confirm housing for tonight + next 7 nights', 'Call 211 if housing is unstable', 'Save HUD rental-assistance contact'],
-    edu:     ['Visit Project Rebound or campus reentry center', 'Request transcripts; ask about FAFSA / Cal Grant', 'List 1 short course you can finish in 90 days'],
-    transit: ['Pick a daily transit plan and budget', 'Apply to Lifeline for phone/internet', 'Save a backup ride contact'],
-    health:  ['Continue medications — call provider on day 1', 'Save 988 + SAMHSA helpline numbers', 'Schedule a primary-care visit'],
-    family:  ['Reconnect with one supportive person today', 'Set a weekly check-in time', 'Talk through expectations & boundaries']
-  };
-  (state.plan.needs || []).forEach(n => (map[n] || []).forEach(t => tasks.add(t)));
-  state.plan.first72Hours = Array.from(tasks);
+  if (!(state.plan.needs || []).length) {
+    toast('Pick at least one need above first.');
+    return;
+  }
+  // ONLY include items for needs the user actually checked. Replace, don't
+  // accumulate, so unchecking a need removes its tasks on regeneration.
+  state.plan.first72Hours = tasksFromCheckedNeeds();
   persist();
   renderQuizOutput();
   fireConfetti();
 }
+
 function renderQuizOutput() {
   const out = $('#quizOutput'); if (!out) return;
   if (!state.plan.first72Hours.length) { out.innerHTML = ''; return; }
@@ -217,8 +231,91 @@ function renderQuizOutput() {
   ul.style.cssText = 'padding-left:20px;line-height:1.7;color:var(--ink-soft)';
   state.plan.first72Hours.forEach(t => ul.appendChild(el('li', { textContent: t })));
   card.appendChild(ul);
+
+  // Action row — Download PDF / Save to phone / Print
+  const row = el('div', { className: 'quiz-actions' });
+  const dlBtn = el('button', { type: 'button', className: 'btn btn--primary btn--sm', textContent: '⬇ Download PDF' });
+  dlBtn.addEventListener('click', () => downloadStarterPlanPDF(state.plan.first72Hours, state.plan.needs));
+  const printBtn = el('button', { type: 'button', className: 'btn btn--ghost btn--sm', textContent: 'Print' });
+  printBtn.addEventListener('click', () => downloadStarterPlanPDF(state.plan.first72Hours, state.plan.needs, true));
+  row.append(dlBtn, printBtn);
+  card.appendChild(row);
+
   out.appendChild(card);
 }
+
+/* Build a clean, printable HTML window and trigger the OS print/Save-as-PDF
+   sheet. On iOS Safari and Android Chrome this opens the share/print
+   menu where users pick "Save to Files" or "Print → Save as PDF" — no
+   library required. */
+function downloadStarterPlanPDF(tasks, needs, autoPrint = true) {
+  const safe = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const labelMap = { money:'Money plan', docs:'ID & documents', job:'Job path', housing:'Housing', edu:'Education', transit:'Transportation', health:'Health & meds', family:'Family support' };
+  const checked = (needs || []).map(n => labelMap[n] || n).join(' · ');
+  const today = new Date().toLocaleDateString();
+  const items = tasks.map(t => `<li>${safe(t)}</li>`).join('');
+
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>My 72-hour plan — The Last Mile · Finance</title>
+<style>
+  @page { margin: 18mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif; color: #0E0E0E; background: #fff; margin: 0; padding: 28px; line-height: 1.55; }
+  .head { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #DAA520; padding-bottom: 14px; margin-bottom: 22px; }
+  .brand { font-weight: 900; font-size: 1.1rem; letter-spacing: .02em; }
+  .brand span { color: #8C6810; }
+  h1 { font-size: 1.6rem; margin: 0 0 6px; }
+  .meta { color: #6B6B6B; font-size: .9rem; margin: 0 0 22px; }
+  .chips { margin: 0 0 18px; }
+  .chip { display: inline-block; background: #FFEFD0; color: #8C6810; padding: 4px 10px; border-radius: 999px; font-size: .8rem; font-weight: 700; margin: 0 6px 6px 0; }
+  ol { padding-left: 22px; }
+  ol li { margin: 0 0 10px; padding-left: 6px; }
+  .footer { margin-top: 36px; padding-top: 14px; border-top: 1px solid #E8E2D8; color: #6B6B6B; font-size: .82rem; }
+  @media print {
+    body { padding: 0; }
+    .noprint { display: none !important; }
+  }
+  .actions { margin: 0 0 18px; }
+  .btn { display: inline-block; background: #0E0E0E; color: #DAA520; padding: 10px 16px; border-radius: 999px; text-decoration: none; font-weight: 700; border: 0; cursor: pointer; }
+</style></head><body>
+  <div class="head">
+    <div class="brand">The Last Mile · <span>Finance</span></div>
+    <div class="meta">${today}</div>
+  </div>
+  <h1>Your starter 72-hour plan</h1>
+  <p class="meta">Personalized from the items you checked. Print this page or save as PDF on your phone.</p>
+  ${checked ? `<div class="chips"><strong>Focused on:</strong><br/>${(needs || []).map(n => `<span class="chip">${safe(labelMap[n] || n)}</span>`).join('')}</div>` : ''}
+  <div class="actions noprint">
+    <button class="btn" onclick="window.print()">⬇ Save as PDF / Print</button>
+  </div>
+  <ol>${items || '<li>No items selected — go back and pick the needs that apply to you.</li>'}</ol>
+  <div class="footer">
+    Educational information, not legal or financial advice. Generated by The Last Mile · Finance — tlmfinance.netlify.app
+  </div>
+  <script>
+    ${autoPrint ? 'window.addEventListener("load", function(){ setTimeout(function(){ window.print(); }, 350); });' : ''}
+  </script>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) {
+    // popup blocked — fall back to data: URL download so phones still get a file
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `tlm-72hour-plan-${new Date().toISOString().slice(0,10)}.html`;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 0);
+    toast('Plan saved — open the file and use Print → Save as PDF.');
+    return;
+  }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+// expose for the advanced wizard so it can reuse the same printable pipeline
+window.__tlmDownloadPlanPDF = downloadStarterPlanPDF;
+
 $('#generate72')?.addEventListener('click', generate72);
 
 /* =====================================================================
@@ -706,6 +803,84 @@ function toast(msg) {
     };
   }
 
+  function downloadAdvancedPlanPDF(plan, data) {
+    const safe = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    const today = new Date().toLocaleDateString();
+    const personas = { job: 'Job', school: 'School', business: 'Business', health: 'Health' };
+    const personaLabel = personas[data.persona] || 'Reentry plan';
+    const sections = [
+      ['First 72 hours', plan.first72Hours],
+      ['30 days',        plan.thirtyDayPlan],
+      ['60 days',        plan.sixtyDayPlan],
+      ['90 days',        plan.ninetyDayPlan],
+      ['6 months',       plan.halfYearPlan],
+      ['1 year',         plan.yearPlan]
+    ].filter(s => (s[1] || []).length);
+
+    const sectionHtml = sections.map(([title, list]) => `
+      <section class="sec">
+        <h2>${safe(title)}</h2>
+        <ol>${list.map(t => `<li>${safe(t)}</li>`).join('')}</ol>
+      </section>
+    `).join('');
+
+    const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>${safe(personaLabel)} plan — The Last Mile · Finance</title>
+<style>
+  @page { margin: 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif; color: #0E0E0E; background: #fff; margin: 0; padding: 28px; line-height: 1.55; }
+  .head { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #DAA520; padding-bottom: 14px; margin-bottom: 22px; }
+  .brand { font-weight: 900; font-size: 1.1rem; }
+  .brand span { color: #8C6810; }
+  h1 { font-size: 1.7rem; margin: 0 0 6px; }
+  .meta { color: #6B6B6B; font-size: .9rem; }
+  .chips { margin: 6px 0 22px; }
+  .chip { display: inline-block; background: #FFEFD0; color: #8C6810; padding: 4px 10px; border-radius: 999px; font-size: .8rem; font-weight: 700; margin: 0 6px 6px 0; }
+  .sec { break-inside: avoid; margin: 0 0 18px; padding: 14px 16px; border: 1px solid #E8E2D8; border-left: 4px solid #DAA520; border-radius: 8px; background: #FFFBF0; }
+  .sec h2 { margin: 0 0 8px; color: #8C6810; font-size: 1.05rem; letter-spacing: .04em; text-transform: uppercase; }
+  ol { padding-left: 22px; margin: 0; }
+  ol li { margin: 0 0 8px; padding-left: 4px; }
+  .footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid #E8E2D8; color: #6B6B6B; font-size: .82rem; }
+  .actions { margin: 0 0 18px; }
+  .btn { display: inline-block; background: #0E0E0E; color: #DAA520; padding: 10px 16px; border-radius: 999px; font-weight: 700; border: 0; cursor: pointer; }
+  @media print { body { padding: 0; } .noprint { display: none !important; } }
+</style></head><body>
+  <div class="head">
+    <div class="brand">The Last Mile · <span>Finance</span></div>
+    <div class="meta">${today}</div>
+  </div>
+  <h1>${safe(personaLabel)} — your full reentry plan</h1>
+  <p class="meta">A structured 72-hour to 1-year plan personalized to your goals.</p>
+  <div class="chips">
+    ${data.skill ? `<span class="chip">Skill · ${safe(data.skill)}</span>` : ''}
+    ${data.city ? `<span class="chip">City · ${safe(data.city)}</span>` : ''}
+    ${data.savings ? `<span class="chip">Emergency target · $${Number(data.savings).toLocaleString()}</span>` : ''}
+  </div>
+  <div class="actions noprint">
+    <button class="btn" onclick="window.print()">⬇ Save as PDF / Print</button>
+  </div>
+  ${sectionHtml || '<p>No tasks generated yet — go back and pick a focus.</p>'}
+  <div class="footer">
+    Educational information, not legal or financial advice. Generated by The Last Mile · Finance — tlmfinance.netlify.app
+  </div>
+  <script>window.addEventListener("load", function(){ setTimeout(function(){ window.print(); }, 350); });</script>
+</body></html>`;
+
+    const w = window.open('', '_blank');
+    if (!w) {
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `tlm-plan-${data.persona || 'reentry'}-${new Date().toISOString().slice(0,10)}.html`;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 0);
+      return;
+    }
+    w.document.open(); w.document.write(html); w.document.close();
+  }
+
   function inject() {
     const stepHost = $('#plannerStep')?.parentElement;
     if (!stepHost) return;
@@ -796,6 +971,7 @@ function toast(msg) {
             '</section>' +
           '</div>' +
           '<footer class="fp-wizard__nav">' +
+            '<button class="btn btn--dark btn--sm" type="button" data-fp-pdf hidden>⬇ Download PDF</button>' +
             '<button class="btn btn--ghost btn--sm" type="button" data-fp-back>← Back</button>' +
             '<button class="btn btn--primary btn--sm" type="button" data-fp-next>Next →</button>' +
           '</footer>' +
@@ -816,11 +992,14 @@ function toast(msg) {
         W('.fp-wizard__bar').style.width = pct + '%';
         const back = W('[data-fp-back]');
         const next = W('[data-fp-next]');
+        const pdf  = W('[data-fp-pdf]');
         back.disabled = step === 1 || step === TOTAL;
         if (step === TOTAL) next.textContent = 'Close';
         else if (step === 5) next.textContent = 'Save my plan ✓';
         else next.textContent = 'Next →';
         next.disabled = (step === 1 && !data.persona);
+        // Show "Download PDF" on the preview step (5) and the done step (6)
+        if (pdf) pdf.hidden = !(step === 5 || step === TOTAL);
         if (step === 5) renderPreview();
         if (step === TOTAL) fireWizConfetti(wiz);
         setTimeout(() => {
@@ -903,6 +1082,14 @@ function toast(msg) {
         if (step === 5) { applyPlan(); setStep(6); return; }
         if (step === TOTAL) { closeWiz(true); return; }
         setStep(step + 1);
+      });
+      // Download a structured PDF of the full advanced plan
+      W('[data-fp-pdf]').addEventListener('click', () => {
+        data.skill   = (W('#fpSkill').value || '').trim();
+        data.city    = (W('#fpCity').value || '').trim();
+        data.savings = parseInt(W('#fpSavings').value, 10) || 1000;
+        const plan = buildPlan(data.persona, { skill: data.skill, city: data.city, savings: data.savings });
+        downloadAdvancedPlanPDF(plan, data);
       });
       Wa('[data-fp-close]').forEach(el => el.addEventListener('click', () => closeWiz(false)));
       function escListener(e) { if (e.key === 'Escape') closeWiz(false); }
@@ -1063,6 +1250,17 @@ function toast(msg) {
     return;
   }
 
+  // Mobile-only — never show the "Install app" CTA on the desktop site.
+  // We treat anything wider than 919px as desktop and bail early. We also
+  // require either a touch-capable device or a known mobile UA so a narrow
+  // desktop window doesn't accidentally trigger the prompt.
+  const ua = navigator.userAgent || '';
+  const isMobileUA = /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isNarrow   = matchMedia('(max-width: 919px)').matches;
+  const hasTouch   = 'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
+  const isMobile   = isNarrow && (isMobileUA || hasTouch);
+  if (!isMobile) return;
+
   // Skip if user dismissed within last 7 days
   try {
     const dismissed = parseInt(localStorage.getItem('tlm:pwa:dismissed') || '0', 10);
@@ -1114,7 +1312,6 @@ function toast(msg) {
   }
 
   // iOS Safari has no beforeinstallprompt; show CTA after first interaction
-  const ua = navigator.userAgent;
   const isIOS = /iPhone|iPad|iPod/.test(ua) && !/(CriOS|FxiOS)/.test(ua);
   if (isIOS) {
     window.addEventListener('load', () => setTimeout(showCTA, 4000), { once: true });
