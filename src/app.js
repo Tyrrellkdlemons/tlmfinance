@@ -523,11 +523,36 @@ function renderSummary() {
   });
 }
 
-$('#btnPrint')?.addEventListener('click', printPlan);
-$('#btnPrintMobile')?.addEventListener('click', printPlan);
-$('#btnExportJSON')?.addEventListener('click', () => exportJSON(state.plan));
-$('#btnExportCSV')?.addEventListener('click', () => exportCSV(state.plan));
-$('#btnSavePhone')?.addEventListener('click', () => {
+// --- Auth-gated save flow -----------------------------------------------
+// Saving / exporting / sharing the plan triggers a non-blocking sign-in
+// prompt the FIRST time only. Users who skip can still save locally —
+// signing in just syncs across devices and unlocks the admin user list.
+async function ensureSignedInForSave(reason) {
+  if (!window.TLMAuth) return true;                 // auth.js not loaded yet
+  if (window.TLMAuth.getUser()) return true;        // already signed in
+  const u = await window.TLMAuth.requireSignIn({ reason });
+  if (u && window.TLMAuth.logEvent) window.TLMAuth.logEvent('plan-saved', { plan_size: JSON.stringify(state.plan).length });
+  return true;                                      // proceed either way (signed-in OR skipped)
+}
+
+$('#btnPrint')?.addEventListener('click', async () => {
+  await ensureSignedInForSave('Sign in to keep your plan synced before printing.');
+  printPlan();
+});
+$('#btnPrintMobile')?.addEventListener('click', async () => {
+  await ensureSignedInForSave('Sign in to keep your plan synced before printing.');
+  printPlan();
+});
+$('#btnExportJSON')?.addEventListener('click', async () => {
+  await ensureSignedInForSave('Sign in to save your plan across devices before exporting.');
+  exportJSON(state.plan);
+});
+$('#btnExportCSV')?.addEventListener('click', async () => {
+  await ensureSignedInForSave('Sign in to save your plan across devices before exporting.');
+  exportCSV(state.plan);
+});
+$('#btnSavePhone')?.addEventListener('click', async () => {
+  await ensureSignedInForSave('Sign in to save your plan to your phone — and pick it back up later.');
   if (navigator.share) shareOrCopy(state.plan, 'share'); else printPlan();
 });
 $('#btnShare')?.addEventListener('click', async () => {

@@ -15,6 +15,10 @@
   node_bundler = "esbuild"
   external_node_modules = ["@neondatabase/serverless"]
 
+# Weekly newsletter — every Monday at 14:00 UTC (07:00 PT / 10:00 ET)
+[functions.newsletter]
+  schedule = "0 14 * * 1"
+
 # Friendly slugs
 [[redirects]]
   from = "/plan"

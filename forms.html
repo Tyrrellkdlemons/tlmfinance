@@ -1,0 +1,28 @@
+<!doctype html>
+<!--
+  forms.html — Netlify Forms detection target.
+  Netlify scans static HTML at deploy-time for forms with `data-netlify="true"`.
+  Because the contact gate is rendered dynamically by JS, Netlify's bot won't
+  see it. Mirroring the same form here (with the same name and field names)
+  is the documented workaround. This page is hidden from the sitemap and
+  carries no UI — it exists only so Netlify registers the form on deploy.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Form registration — The Last Mile · Finance</title>
+</head>
+<body>
+  <form name="tlm-contacts" data-netlify="true" netlify-honeypot="company-website" hidden>
+    <input type="text"  name="company-website" />
+    <input type="email" name="email" />
+    <input type="tel"   name="phone" />
+    <input type="checkbox" name="subscribed" />
+    <input type="text"  name="notify_email" />
+    <input type="text"  name="notify_phone" />
+    <input type="text"  name="page" />
+    <input type="text"  name="ts" />
+  </form>
+</body>
+</html>

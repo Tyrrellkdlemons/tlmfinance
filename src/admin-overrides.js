@@ -1,18 +1,21 @@
 /**
  * admin-overrides.js — runs early on every page.
- *  1. Applies admin panel overrides from localStorage (brand, hero, stats…).
- *  2. Adds three ways to open the admin panel:
- *       a) Triple-click anywhere on the brand wordmark
- *       b) Keyboard shortcut: Ctrl/Cmd + Shift + A
- *       c) Long-press (1.4s) on the brand on touch devices
- *       d) URL hash: append #admin to any page
+ *  1. Applies admin panel overrides from localStorage (brand, hero, stats,
+ *     hidden pages, feature toggles).
+ *  2. Three discreet ways to open the admin panel:
+ *       a) Click the brand logo 7 times within 3 seconds
+ *       b) Type the secret string "TLMadmin" anywhere on the page
+ *       c) Konami code: ↑ ↑ ↓ ↓ ← → ← → b a
+ *     (plus legacy URL hash #admin and Ctrl/Cmd+Shift+A still work)
+ *  3. Page-hide enforcement — if admin marked the current page hidden,
+ *     redirect to the home page (admin can always view).
  *
  * Storage key: tlm:admin:v1
  */
 (function adminAccess() {
   const goAdmin = () => { location.href = './admin.html'; };
 
-  // d) Hash trigger
+  // Legacy hash trigger
   if (location.hash === '#admin') goAdmin();
 
   // Wait for DOM
@@ -20,22 +23,20 @@
     ? fn() : document.addEventListener('DOMContentLoaded', fn);
 
   ready(() => {
-    // a) Triple-click on the brand
+    // a) 7 clicks on the brand within 3 seconds
     const brand = document.querySelector('.brand');
     if (brand) {
       let clicks = 0, timer = null;
       brand.addEventListener('click', (e) => {
         clicks++;
         clearTimeout(timer);
-        if (clicks >= 3) { e.preventDefault(); clicks = 0; goAdmin(); return; }
-        timer = setTimeout(() => { clicks = 0; }, 600);
+        if (clicks >= 7) { e.preventDefault(); clicks = 0; goAdmin(); return; }
+        timer = setTimeout(() => { clicks = 0; }, 3000);
       });
 
-      // c) Long-press (1.4s) for touch
+      // Long-press (1.4s) for touch — kept as backup
       let pressTimer = null;
-      const start = (e) => {
-        pressTimer = setTimeout(() => { goAdmin(); }, 1400);
-      };
+      const start = () => { pressTimer = setTimeout(() => goAdmin(), 1400); };
       const cancel = () => { clearTimeout(pressTimer); pressTimer = null; };
       brand.addEventListener('touchstart', start, { passive: true });
       brand.addEventListener('touchend', cancel);
@@ -43,14 +44,51 @@
       brand.addEventListener('touchcancel', cancel);
     }
 
-    // b) Keyboard shortcut
+    // b) Type "TLMadmin" anywhere — global keystroke listener
+    const SECRET = 'TLMadmin';
+    let buf = '';
     document.addEventListener('keydown', (e) => {
-      const mod = e.ctrlKey || e.metaKey;
-      if (mod && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
-        e.preventDefault(); goAdmin();
+      // ignore when typing in form fields
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (e.key && e.key.length === 1) {
+        buf = (buf + e.key).slice(-SECRET.length);
+        if (buf === SECRET) { buf = ''; goAdmin(); }
       }
     });
+
+    // c) Konami code: ↑ ↑ ↓ ↓ ← → ← → b a
+    const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    let kBuf = [];
+    document.addEventListener('keydown', (e) => {
+      kBuf.push(e.key); if (kBuf.length > KONAMI.length) kBuf.shift();
+      if (kBuf.length === KONAMI.length && kBuf.every((k,i) => k === KONAMI[i])) {
+        kBuf = []; goAdmin();
+      }
+    });
+
+    // Legacy keyboard shortcut still works
+    document.addEventListener('keydown', (e) => {
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.shiftKey && (e.key === 'A' || e.key === 'a')) { e.preventDefault(); goAdmin(); }
+    });
   });
+})();
+
+// Page-hide enforcement — admin can hide any non-admin page.
+(function pageHide() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('tlm:admin:v1') || '{}');
+    const hidden = Array.isArray(cfg.hiddenPages) ? cfg.hiddenPages : [];
+    const file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    if (file === 'admin.html') return;
+    if (hidden.map(s => String(s).toLowerCase()).includes(file)) {
+      // Allow admin override via ?adminview=1 query
+      if (!location.search.includes('adminview=1')) {
+        location.replace('./index.html');
+      }
+    }
+  } catch {}
 })();
 
 (function () {

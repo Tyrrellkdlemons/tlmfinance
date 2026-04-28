@@ -136,7 +136,11 @@
     <button data-tab="resources">Resources</button>
     <button data-tab="videos">Videos &amp; Radio</button>
     <button data-tab="people">People / Builders</button>
+    <h4>Users</h4>
+    <button data-tab="users">Sign-ins &amp; subscribers</button>
+    <button data-tab="auditlog">Audit log</button>
     <h4>System</h4>
+    <button data-tab="pages">Pages &amp; visibility</button>
     <button data-tab="features">Feature toggles</button>
     <button data-tab="privacy">Privacy &amp; legal</button>
     <button data-tab="deploy">Deploy</button>
@@ -272,6 +276,86 @@ push-to-github.bat   <em># GitHub-only push</em></pre>
         <p>Site: <a href="https://tlmfinance.netlify.app" target="_blank" rel="noopener" style="color:#DAA520">tlmfinance.netlify.app</a></p>
         <p>Repo: <a href="https://github.com/Tyrrellkdlemons/tlmfinance" target="_blank" rel="noopener" style="color:#DAA520">github.com/Tyrrellkdlemons/tlmfinance</a></p>
         <p>Netlify dashboard: <a href="https://app.netlify.com/projects/tlmfinance" target="_blank" rel="noopener" style="color:#DAA520">app.netlify.com/projects/tlmfinance</a></p>
+      </div>
+    </section>
+
+    <!-- Users / sign-ins -->
+    <section class="adm__view" data-view="users">
+      <div class="adm__panel">
+        <h2>Sign-ins &amp; subscribers</h2>
+        <p class="muted" style="font-size:.85rem;margin-bottom:14px">Pulled from Supabase if configured (live across devices), or from this device's local fallback otherwise. Newsletter checkbox is the user's opt-in flag.</p>
+        <div class="adm__row" style="margin-bottom:12px">
+          <input id="userSearch" placeholder="Search by email, name, provider…" style="background:#1A1A1A;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;font:inherit"/>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="adm__btn adm__btn--ghost" id="refreshUsers">Refresh</button>
+            <button class="adm__btn adm__btn--ghost" id="exportUsers">Export CSV</button>
+          </div>
+        </div>
+        <div id="userTableWrap" style="max-height:480px;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:.88rem;color:#fff">
+            <thead style="background:rgba(218,165,32,.10);color:#FFD970;text-align:left;position:sticky;top:0">
+              <tr>
+                <th style="padding:10px 12px">Email / Phone</th>
+                <th style="padding:10px 12px">Name</th>
+                <th style="padding:10px 12px">Provider</th>
+                <th style="padding:10px 12px">Newsletter</th>
+                <th style="padding:10px 12px">First seen</th>
+                <th style="padding:10px 12px">Last seen</th>
+                <th style="padding:10px 12px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+          </table>
+        </div>
+        <p class="muted" id="userMeta" style="font-size:.78rem;margin-top:10px"></p>
+      </div>
+    </section>
+
+    <!-- Audit log -->
+    <section class="adm__view" data-view="auditlog">
+      <div class="adm__panel">
+        <h2>Audit log</h2>
+        <p class="muted" style="font-size:.85rem">Recent events: sign-ins, sign-ups, plan saves, page visits flagged hidden. Last 200 entries.</p>
+        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+          <select id="logFilter" style="background:#1A1A1A;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:9px 12px">
+            <option value="">All events</option>
+            <option value="signin">Sign-ins</option>
+            <option value="signup">Sign-ups</option>
+            <option value="signout">Sign-outs</option>
+            <option value="plan-saved">Plan saved</option>
+          </select>
+          <button class="adm__btn adm__btn--ghost" id="refreshLog">Refresh</button>
+          <button class="adm__btn adm__btn--ghost" id="exportLog">Export JSON</button>
+          <button class="adm__btn adm__btn--danger" id="clearLog">Clear log</button>
+        </div>
+        <div id="logTableWrap" style="max-height:480px;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:.86rem;color:#fff">
+            <thead style="background:rgba(218,165,32,.10);color:#FFD970;text-align:left;position:sticky;top:0">
+              <tr>
+                <th style="padding:10px 12px">When</th>
+                <th style="padding:10px 12px">Event</th>
+                <th style="padding:10px 12px">Page</th>
+                <th style="padding:10px 12px">Details</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pages / visibility -->
+    <section class="adm__view" data-view="pages">
+      <div class="adm__panel">
+        <h2>Page visibility</h2>
+        <p class="muted" style="font-size:.85rem">Toggle off to hide a page from visitors. Hidden pages auto-redirect to home (admin can still see via <code>?adminview=1</code>).</p>
+        <div id="pageList"></div>
+      </div>
+      <div class="adm__panel">
+        <h2>Quick site tweaks</h2>
+        <div class="adm__toggle"><div class="adm__toggle__txt">Force contact gate (the old blocking modal)<small>Off by default. On = visitors must enter email/phone before using the site.</small></div><button class="adm__switch" data-flag="forceContactGate" aria-pressed="false"></button></div>
+        <div class="adm__toggle"><div class="adm__toggle__txt">Hide install-app prompt<small>Skip the "Install app" floating CTA on every page.</small></div><button class="adm__switch" data-flag="hideInstall" aria-pressed="false"></button></div>
+        <div class="adm__toggle"><div class="adm__toggle__txt">Hide bottom nav (mobile)<small>Frees the bottom area on small screens.</small></div><button class="adm__switch" data-flag="hideBottomNav" aria-pressed="false"></button></div>
       </div>
     </section>
 
@@ -469,6 +553,161 @@ push-to-github.bat   <em># GitHub-only push</em></pre>
       a.href = URL.createObjectURL(blob); a.download = 'admin-overrides.json';
       document.body.appendChild(a); a.click(); a.remove();
     });
+
+    // --- USERS / SIGN-INS ---
+    cfg.hiddenPages = cfg.hiddenPages || [];
+    const TLM_PAGES = ['index.html','learn.html','hub.html','feed.html','radio.html','watch.html','media.html'];
+    const userBody = document.getElementById('userTableBody');
+    const userMeta = document.getElementById('userMeta');
+    let userCache = [];
+
+    async function loadUsers() {
+      // Try Supabase if configured
+      const sbUrl = window.__TLM_CONFIG?.supabaseUrl;
+      const sbKey = window.__TLM_CONFIG?.supabaseAnonKey;
+      let rows = [];
+      let source = 'local fallback';
+      if (sbUrl && sbKey) {
+        try {
+          const m = await import('https://esm.sh/@supabase/supabase-js@2.45.4');
+          const sb = m.createClient(sbUrl, sbKey);
+          const { data: subs } = await sb.from('tlm_subscribers').select('*').order('last_seen', { ascending: false });
+          if (Array.isArray(subs) && subs.length) {
+            rows = subs.map(s => ({
+              email: s.email, phone: s.phone || '', name: s.name || (s.email||'').split('@')[0],
+              provider: s.provider || 'email', subscribed: !!s.subscribed,
+              created: s.created_at, last: s.last_seen
+            }));
+            source = `Supabase (${rows.length})`;
+          }
+        } catch (e) { console.warn('Supabase pull failed', e); }
+      }
+      // Always merge in local subscribers so the admin sees everything captured here
+      try {
+        const local = JSON.parse(localStorage.getItem('tlm:subs') || '[]');
+        local.forEach(l => {
+          if (!rows.find(r => r.email === l.email)) {
+            rows.push({ email: l.email, phone: '', name: (l.email||'').split('@')[0],
+                        provider: 'local', subscribed: !!l.subscribed,
+                        created: new Date(l.ts || Date.now()).toISOString(),
+                        last: new Date(l.ts || Date.now()).toISOString() });
+          }
+        });
+      } catch {}
+      // Plus the current logged-in user (if any) on this device
+      try {
+        const me = JSON.parse(localStorage.getItem('tlm:auth:v1') || 'null');
+        if (me && !rows.find(r => r.email === me.email)) {
+          rows.push({ email: me.email, phone: '', name: me.name, provider: me.provider || 'email',
+                      subscribed: false, created: me.created, last: me.last });
+        }
+      } catch {}
+      userCache = rows;
+      paintUsers(rows);
+      userMeta.textContent = `Source: ${source}. Showing ${rows.length} record${rows.length === 1 ? '' : 's'}.`;
+    }
+    function paintUsers(rows) {
+      userBody.innerHTML = '';
+      if (!rows.length) {
+        userBody.innerHTML = '<tr><td colspan="7" style="padding:18px;color:rgba(255,255,255,.5);text-align:center">No users yet.</td></tr>';
+        return;
+      }
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.style.borderTop = '1px solid rgba(255,255,255,.06)';
+        tr.innerHTML = `
+          <td style="padding:8px 12px">${escapeHtml(r.email || r.phone || '—')}</td>
+          <td style="padding:8px 12px">${escapeHtml(r.name || '—')}</td>
+          <td style="padding:8px 12px"><span style="background:rgba(218,165,32,.15);color:#FFD970;padding:2px 8px;border-radius:999px;font-size:.74rem;font-weight:700">${escapeHtml(r.provider||'—')}</span></td>
+          <td style="padding:8px 12px">${r.subscribed ? '<span style="color:#7DD8A6">Yes</span>' : '<span style="color:rgba(255,255,255,.45)">No</span>'}</td>
+          <td style="padding:8px 12px">${r.created ? new Date(r.created).toLocaleDateString() : '—'}</td>
+          <td style="padding:8px 12px">${r.last ? new Date(r.last).toLocaleDateString() : '—'}</td>
+          <td style="padding:8px 12px"><a href="mailto:${encodeURIComponent(r.email||'')}" style="color:#FFD970;text-decoration:none;font-weight:700">Email</a></td>`;
+        userBody.appendChild(tr);
+      });
+    }
+    function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+    document.getElementById('userSearch').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      paintUsers(!q ? userCache : userCache.filter(r =>
+        [r.email, r.name, r.provider, r.phone].some(v => (v || '').toLowerCase().includes(q))
+      ));
+    });
+    document.getElementById('refreshUsers').addEventListener('click', loadUsers);
+    document.getElementById('exportUsers').addEventListener('click', () => {
+      const header = ['email','phone','name','provider','subscribed','created','last'];
+      const lines = [header.join(',')].concat(userCache.map(r =>
+        header.map(k => `"${String(r[k] == null ? '' : r[k]).replace(/"/g,'""')}"`).join(',')
+      ));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'tlm-users-' + new Date().toISOString().slice(0,10) + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+    loadUsers();
+
+    // --- AUDIT LOG ---
+    const logBody = document.getElementById('logTableBody');
+    function loadLog() {
+      let arr = [];
+      try { arr = JSON.parse(localStorage.getItem('tlm:auth:log') || '[]'); } catch {}
+      const filter = document.getElementById('logFilter').value;
+      const rows = filter ? arr.filter(e => e.kind === filter) : arr;
+      logBody.innerHTML = '';
+      if (!rows.length) {
+        logBody.innerHTML = '<tr><td colspan="4" style="padding:18px;color:rgba(255,255,255,.5);text-align:center">No events.</td></tr>';
+        return;
+      }
+      rows.forEach(e => {
+        const tr = document.createElement('tr');
+        tr.style.borderTop = '1px solid rgba(255,255,255,.06)';
+        tr.innerHTML = `
+          <td style="padding:8px 12px;white-space:nowrap;color:rgba(255,255,255,.7)">${new Date(e.ts).toLocaleString()}</td>
+          <td style="padding:8px 12px"><span style="background:rgba(218,165,32,.15);color:#FFD970;padding:2px 8px;border-radius:999px;font-size:.74rem;font-weight:700">${escapeHtml(e.kind)}</span></td>
+          <td style="padding:8px 12px;font-family:Menlo,monospace;font-size:.78rem;color:rgba(255,255,255,.65)">${escapeHtml(e.page||'/')}</td>
+          <td style="padding:8px 12px;font-family:Menlo,monospace;font-size:.74rem;color:rgba(255,255,255,.65)">${escapeHtml(JSON.stringify(e.meta||{}))}</td>`;
+        logBody.appendChild(tr);
+      });
+    }
+    document.getElementById('logFilter').addEventListener('change', loadLog);
+    document.getElementById('refreshLog').addEventListener('click', loadLog);
+    document.getElementById('clearLog').addEventListener('click', () => {
+      if (!confirm('Clear all audit-log entries on this device?')) return;
+      localStorage.removeItem('tlm:auth:log'); loadLog();
+    });
+    document.getElementById('exportLog').addEventListener('click', () => {
+      const arr = JSON.parse(localStorage.getItem('tlm:auth:log') || '[]');
+      const blob = new Blob([JSON.stringify(arr, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'tlm-audit-' + new Date().toISOString().slice(0,10) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+    loadLog();
+
+    // --- PAGE VISIBILITY ---
+    const pageList = document.getElementById('pageList');
+    function paintPages() {
+      pageList.innerHTML = '';
+      TLM_PAGES.forEach(p => {
+        const isHidden = (cfg.hiddenPages || []).includes(p);
+        const row = document.createElement('div');
+        row.className = 'adm__toggle';
+        row.innerHTML = `
+          <div class="adm__toggle__txt">
+            <strong>${p}</strong>
+            <small>${isHidden ? 'Hidden — visitors are redirected to home.' : 'Visible — anyone can reach it.'}</small>
+          </div>
+          <button class="adm__switch" aria-pressed="${!isHidden}"></button>`;
+        row.querySelector('button').addEventListener('click', () => {
+          const set = new Set(cfg.hiddenPages || []);
+          if (set.has(p)) set.delete(p); else set.add(p);
+          cfg.hiddenPages = Array.from(set);
+          save(); paintPages();
+        });
+        pageList.appendChild(row);
+      });
+    }
+    paintPages();
 
     // --- RESET ---
     document.getElementById('resetBtn').addEventListener('click', () => {

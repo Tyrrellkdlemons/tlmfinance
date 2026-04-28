@@ -53,7 +53,7 @@ async function callOpenRouter(model, messages, key, signal) {
   return { text, model };
 }
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "POST only" }) };
   }

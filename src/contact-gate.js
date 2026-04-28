@@ -19,6 +19,11 @@
   if (window.__tlmGateLoaded) return;
   window.__tlmGateLoaded = true;
 
+  // SUPERSEDED — site no longer requires gating to be used. Auth is now
+  // requested only when the user wants to save their plan (see auth.js).
+  // Keeping this file in place so older deploys don't 404; bail early.
+  if (!window.__TLM_CONFIG || !window.__TLM_CONFIG.forceContactGate) return;
+
   // Already gave us their info before — never show again.
   try {
     if (localStorage.getItem("tlm:contact:v1")) return;
