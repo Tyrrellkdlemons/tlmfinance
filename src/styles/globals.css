@@ -2178,56 +2178,139 @@ html, body { overscroll-behavior-y: contain; }
 .stat__num { margin-top: 4px; }
 .stat__src { margin-top: auto; padding-top: 12px; }
 
-/* JUMP-TO-A-TOPIC list (Learn hero card) — cleaner, gentler look */
-.card[aria-label="Topic shortcuts"] ul,
-.card nav[aria-label="Topic shortcuts"] ul { list-style: none; padding: 0; margin: 0; }
+/* JUMP-TO list (any nav card whose aria-label ends in "shortcuts") —
+   cleaner look, no underline, animated arrow, soft gold-tint hover row,
+   and an emoji bubble that lights up on hover.
+   Targets: Topic shortcuts (Learn), Hub shortcuts (Hub), and any future. */
+.card[aria-label$="shortcuts"] ul,
+nav[aria-label$="shortcuts"] ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  line-height: 1.4 !important;
+}
 
-.card[aria-label="Topic shortcuts"] li,
-nav[aria-label="Topic shortcuts"] li {
+.card[aria-label$="shortcuts"] li,
+nav[aria-label$="shortcuts"] li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 8px;
-  border-radius: 10px;
-  transition: background .18s ease, transform .18s ease;
-}
-.card[aria-label="Topic shortcuts"] li:hover,
-nav[aria-label="Topic shortcuts"] li:hover {
-  background: rgba(218, 165, 32, .08);
-  transform: translateX(2px);
+  gap: 12px;
+  padding: 10px 12px;
+  margin: 2px 0;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  position: relative;
+  font-size: 0;                 /* collapse the leading whitespace/emoji
+                                   text node so spacing comes from gap only */
+  transition: background .22s ease, transform .22s ease,
+              border-color .22s ease, box-shadow .22s ease;
 }
 
-.card[aria-label="Topic shortcuts"] a,
-nav[aria-label="Topic shortcuts"] a {
+/* The first text node in each <li> is the emoji — wrap it in a soft
+   gold-tinted bubble using a pseudo overlay technique:
+   we set font-size:0 on the li, then bump font-size back up on the link
+   only. The emoji char becomes a "::first-letter" target on the li. */
+.card[aria-label$="shortcuts"] li::first-letter,
+nav[aria-label$="shortcuts"] li::first-letter {
+  font-size: 1.05rem;
+  display: inline-block;
+  padding: 6px 8px;
+  margin-right: 4px;
+  border-radius: 10px;
+  background: rgba(218, 165, 32, .12);
+  border: 1px solid rgba(218, 165, 32, .28);
+  line-height: 1;
+  transition: background .22s ease, border-color .22s ease, transform .22s ease;
+}
+
+.card[aria-label$="shortcuts"] li:hover,
+nav[aria-label$="shortcuts"] li:hover {
+  background: linear-gradient(90deg, rgba(218,165,32,.14) 0%, rgba(218,165,32,.04) 100%);
+  border-color: rgba(218, 165, 32, .35);
+  transform: translateX(3px);
+  box-shadow: 0 6px 18px -10px rgba(218, 165, 32, .55);
+}
+.card[aria-label$="shortcuts"] li:hover::first-letter,
+nav[aria-label$="shortcuts"] li:hover::first-letter {
+  background: rgba(218, 165, 32, .26);
+  border-color: rgba(218, 165, 32, .55);
+  transform: scale(1.06);
+}
+
+.card[aria-label$="shortcuts"] a,
+nav[aria-label$="shortcuts"] a {
   text-decoration: none !important;
   color: var(--tlm-gold) !important;
-  font-weight: 600;
+  font-size: .97rem;
+  font-weight: 700;
   letter-spacing: .005em;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   flex: 1 1 auto;
-  padding: 4px 0;
+  padding: 2px 0;
   border-radius: 6px;
   position: relative;
+  outline: none;
 }
-.card[aria-label="Topic shortcuts"] a::after,
-nav[aria-label="Topic shortcuts"] a::after {
+.card[aria-label$="shortcuts"] a::after,
+nav[aria-label$="shortcuts"] a::after {
   content: "→";
   margin-left: auto;
   opacity: .35;
   transform: translateX(0);
-  transition: opacity .18s ease, transform .18s ease;
-  font-weight: 800;
+  transition: opacity .22s ease, transform .22s ease, color .22s ease;
+  font-weight: 900;
+  font-size: 1rem;
 }
-.card[aria-label="Topic shortcuts"] a:hover,
-nav[aria-label="Topic shortcuts"] a:hover {
-  color: var(--tlm-gold-2) !important;
+.card[aria-label$="shortcuts"] li:hover a,
+nav[aria-label$="shortcuts"] li:hover a {
+  color: #FFE9B3 !important;
 }
-.card[aria-label="Topic shortcuts"] a:hover::after,
-nav[aria-label="Topic shortcuts"] a:hover::after {
+.card[aria-label$="shortcuts"] li:hover a::after,
+nav[aria-label$="shortcuts"] li:hover a::after {
   opacity: 1;
-  transform: translateX(4px);
+  transform: translateX(6px);
+  color: #FFD970;
+}
+.card[aria-label$="shortcuts"] a:focus-visible,
+nav[aria-label$="shortcuts"] a:focus-visible {
+  box-shadow: 0 0 0 2px #FFD970;
+}
+
+/* Card title spacing for the hero shortcut card */
+.card[aria-label$="shortcuts"] h3,
+nav[aria-label$="shortcuts"] h3 {
+  margin-bottom: 10px !important;
+  letter-spacing: -.01em;
+}
+
+/* Subtle staggered reveal on first paint */
+@media (prefers-reduced-motion: no-preference) {
+  .card[aria-label$="shortcuts"] li,
+  nav[aria-label$="shortcuts"] li {
+    animation: shortcut-row-in .55s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .card[aria-label$="shortcuts"] li:nth-child(1),
+  nav[aria-label$="shortcuts"] li:nth-child(1) { animation-delay: .04s; }
+  .card[aria-label$="shortcuts"] li:nth-child(2),
+  nav[aria-label$="shortcuts"] li:nth-child(2) { animation-delay: .10s; }
+  .card[aria-label$="shortcuts"] li:nth-child(3),
+  nav[aria-label$="shortcuts"] li:nth-child(3) { animation-delay: .16s; }
+  .card[aria-label$="shortcuts"] li:nth-child(4),
+  nav[aria-label$="shortcuts"] li:nth-child(4) { animation-delay: .22s; }
+  .card[aria-label$="shortcuts"] li:nth-child(5),
+  nav[aria-label$="shortcuts"] li:nth-child(5) { animation-delay: .28s; }
+  .card[aria-label$="shortcuts"] li:nth-child(6),
+  nav[aria-label$="shortcuts"] li:nth-child(6) { animation-delay: .34s; }
+  .card[aria-label$="shortcuts"] li:nth-child(7),
+  nav[aria-label$="shortcuts"] li:nth-child(7) { animation-delay: .40s; }
+  .card[aria-label$="shortcuts"] li:nth-child(8),
+  nav[aria-label$="shortcuts"] li:nth-child(8) { animation-delay: .46s; }
+  @keyframes shortcut-row-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
 }
 
 /* PWA install prompt — visible on both mobile and desktop. */
