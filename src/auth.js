@@ -331,4 +331,179 @@
 
   // ---------- expose ----------
   window.TLMAuth = { requireSignIn, openSignIn, signOut, getUser, onChange, trackSubscribe, logEvent };
+
+  // ---------- visible nav portal ----------
+  // Drop a "Sign in" pill into the top nav and a matching one into the
+  // bottom mobile nav. When signed in, swap to a user avatar dropdown.
+  const portalCss = `
+  .tlm-portal{display:inline-flex;align-items:center;gap:8px;margin-left:10px;position:relative}
+  .tlm-portal__btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--ink,#0E0E0E);color:var(--ink,#0E0E0E);background:transparent;font-weight:700;font-size:.88rem;cursor:pointer;transition:transform .15s ease,background .2s ease,color .2s ease,border-color .2s ease}
+  .tlm-portal__btn:hover{background:var(--tlm-gold,#DAA520);color:var(--tlm-charcoal,#0E0E0E);border-color:var(--tlm-gold,#DAA520);transform:translateY(-1px)}
+  .tlm-portal__btn--primary{background:var(--tlm-gold,#DAA520);color:var(--tlm-charcoal,#0E0E0E);border-color:var(--tlm-gold,#DAA520)}
+  .tlm-portal__btn--primary:hover{box-shadow:0 0 0 2px #FFD970,0 14px 30px -10px rgba(218,165,32,.55)}
+  .tlm-portal__avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#FFD970,#DAA520);color:#0E0E0E;font-weight:900;font-size:.78rem;border:1.5px solid #DAA520}
+  .tlm-portal__menu{position:absolute;right:0;top:calc(100% + 8px);min-width:240px;background:#0E0E0E;color:#fff;border:1px solid rgba(218,165,32,.4);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 1px rgba(218,165,32,.25);padding:10px;display:none;z-index:90}
+  .tlm-portal__menu.is-open{display:block;animation:tlmPortalIn .22s cubic-bezier(.2,.7,.2,1)}
+  @keyframes tlmPortalIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .tlm-portal__head{padding:8px 10px 12px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:6px}
+  .tlm-portal__name{font-weight:800;color:#FFD970;letter-spacing:-.005em}
+  .tlm-portal__email{font-size:.78rem;color:rgba(255,255,255,.6);word-break:break-all}
+  .tlm-portal__menu button,.tlm-portal__menu a{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border-radius:10px;background:transparent;color:#fff;border:0;text-decoration:none;font:inherit;font-weight:600;font-size:.88rem;cursor:pointer;text-align:left;transition:background .15s ease,color .15s ease}
+  .tlm-portal__menu button:hover,.tlm-portal__menu a:hover{background:rgba(218,165,32,.14);color:#FFD970}
+  .tlm-portal__menu .tlm-portal__danger:hover{background:rgba(178,58,31,.20);color:#FFB3A0}
+  .tlm-portal__chip{display:inline-flex;align-items:center;gap:4px;font-size:.66rem;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(218,165,32,.18);color:#FFD970;letter-spacing:.04em;text-transform:uppercase;margin-left:8px}
+  /* Mobile: hide top portal label, keep avatar; bottom-nav gets a 6th cell */
+  @media (max-width:919px){
+    .tlm-portal__label{display:none}
+    .tlm-portal__btn{padding:7px 10px}
+  }
+  .bottom-nav .tlm-portal-mobile{display:grid;place-items:center;gap:2px;padding:10px 4px;color:rgba(255,255,255,.78);font-size:.68rem;font-weight:700;background:transparent;border:0;cursor:pointer;min-height:56px}
+  .bottom-nav .tlm-portal-mobile:hover{color:#FFD970}
+  `;
+  if (!document.getElementById("tlm-portal-css")) {
+    const ps = document.createElement("style"); ps.id = "tlm-portal-css"; ps.textContent = portalCss;
+    document.head.appendChild(ps);
+  }
+
+  function initials(name, email) {
+    const src = (name || (email || "").split("@")[0] || "?").trim();
+    const parts = src.split(/\s+/).slice(0, 2);
+    return parts.map(p => p[0] || "").join("").toUpperCase() || "?";
+  }
+
+  function mountPortal() {
+    if (document.getElementById("tlmPortal")) return;
+    const navCta = document.querySelector(".nav__cta");
+    if (!navCta) return;
+    const portal = document.createElement("div");
+    portal.id = "tlmPortal";
+    portal.className = "tlm-portal";
+    navCta.appendChild(portal);
+    render(portal);
+
+    // Bottom-nav portal cell (mobile)
+    const bnav = document.querySelector(".bottom-nav");
+    if (bnav && !document.getElementById("tlmPortalMobile")) {
+      // Switch grid to 6 columns to make room
+      bnav.style.gridTemplateColumns = "repeat(6, 1fr)";
+      const m = document.createElement("button");
+      m.id = "tlmPortalMobile";
+      m.type = "button";
+      m.className = "tlm-portal-mobile";
+      m.setAttribute("aria-label", "Account");
+      m.innerHTML = `
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+          <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span data-portal-label>Account</span>`;
+      m.addEventListener("click", () => {
+        if (user) {
+          // open the desktop menu visibility on mobile click
+          portal.querySelector(".tlm-portal__menu")?.classList.toggle("is-open");
+        } else {
+          openSignIn();
+        }
+      });
+      bnav.appendChild(m);
+    }
+  }
+
+  function render(portal) {
+    portal.innerHTML = "";
+    if (!user) {
+      const signIn = document.createElement("button");
+      signIn.type = "button";
+      signIn.className = "tlm-portal__btn";
+      signIn.innerHTML = `
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="tlm-portal__label">Sign in</span>`;
+      signIn.addEventListener("click", () => openSignIn());
+
+      const create = document.createElement("button");
+      create.type = "button";
+      create.className = "tlm-portal__btn tlm-portal__btn--primary";
+      create.innerHTML = `<span class="tlm-portal__label">Create account</span>`;
+      create.addEventListener("click", () => openSignIn({ reason: "Create a free account to save your plan." }));
+
+      portal.appendChild(signIn);
+      portal.appendChild(create);
+      // Mobile bottom-nav label
+      const mlabel = document.querySelector("#tlmPortalMobile [data-portal-label]");
+      if (mlabel) mlabel.textContent = "Sign in";
+      return;
+    }
+
+    // Signed-in state — avatar + dropdown
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "tlm-portal__btn";
+    trigger.setAttribute("aria-haspopup", "menu");
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.innerHTML = `
+      ${user.avatar
+        ? `<img src="${user.avatar}" alt="" style="width:28px;height:28px;border-radius:50%"/>`
+        : `<span class="tlm-portal__avatar">${initials(user.name, user.email)}</span>`}
+      <span class="tlm-portal__label">${(user.name || user.email || "").toString().split(/\s+/)[0] || "Me"}</span>`;
+    portal.appendChild(trigger);
+
+    const menu = document.createElement("div");
+    menu.className = "tlm-portal__menu";
+    menu.setAttribute("role", "menu");
+    menu.innerHTML = `
+      <div class="tlm-portal__head">
+        <div class="tlm-portal__name">${user.name || (user.email || "").split("@")[0]}<span class="tlm-portal__chip">${user.provider || "email"}</span></div>
+        <div class="tlm-portal__email">${user.email || ""}</div>
+      </div>
+      <a href="./index.html#planner" role="menuitem">📋 My plan</a>
+      <a href="./hub.html" role="menuitem">🧭 Resources hub</a>
+      <button type="button" data-action="newsletter" role="menuitem">📰 Newsletter preferences</button>
+      <button type="button" data-action="signout" class="tlm-portal__danger" role="menuitem">↪ Sign out</button>
+    `;
+    portal.appendChild(menu);
+
+    const toggleMenu = (force) => {
+      const open = force != null ? force : !menu.classList.contains("is-open");
+      menu.classList.toggle("is-open", open);
+      trigger.setAttribute("aria-expanded", String(open));
+    };
+    trigger.addEventListener("click", (e) => { e.stopPropagation(); toggleMenu(); });
+    document.addEventListener("click", (e) => {
+      if (!portal.contains(e.target)) toggleMenu(false);
+    });
+
+    menu.querySelector('[data-action="signout"]').addEventListener("click", async () => {
+      toggleMenu(false);
+      await signOut();
+    });
+    menu.querySelector('[data-action="newsletter"]').addEventListener("click", () => {
+      toggleMenu(false);
+      const wantOn = confirm(
+        "Newsletter preferences\n\n" +
+        "OK = subscribe to the weekly TLM newsletter\n" +
+        "Cancel = unsubscribe"
+      );
+      trackSubscribe(user.email, wantOn);
+      logEvent("newsletter-pref", { subscribed: wantOn });
+      alert(wantOn ? "Subscribed. We'll send a digest each Monday." : "Unsubscribed.");
+    });
+
+    // Mobile bottom-nav label (initial)
+    const mlabel = document.querySelector("#tlmPortalMobile [data-portal-label]");
+    if (mlabel) mlabel.textContent = (user.name || "Me").toString().split(/\s+/)[0];
+  }
+
+  // Mount once DOM is ready and re-render on every auth change
+  function bootPortal() {
+    mountPortal();
+    onChange(() => {
+      const portal = document.getElementById("tlmPortal");
+      if (portal) render(portal);
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootPortal);
+  else bootPortal();
 })();
