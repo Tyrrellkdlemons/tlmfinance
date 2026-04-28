@@ -32,9 +32,43 @@
     "If you don't know something, say so honestly. Suggest the user check the Resources page or the Hub on this site."
   ].join(" ");
 
-  // ---------- relays (no-key public LLM endpoints) ----------
-  // Each relay returns plain text. Order = priority. We try each until one succeeds.
+  // ---------- relays ----------
+  // Priority 1: our Netlify function (proxies to OpenRouter so the key stays
+  // server-side). It rotates 10 open / cheap LLMs for speed + redundancy.
+  // Priority 2-N: no-key public Pollinations endpoints as last-resort fallback
+  // so the bot still works when the proxy or key is unavailable.
+  const OPEN_MODELS = [
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "google/gemini-2.0-flash-exp:free",
+    "meta-llama/llama-3.2-3b-instruct:free",
+    "qwen/qwen-2.5-72b-instruct:free",
+    "mistralai/mistral-7b-instruct:free",
+    "google/gemma-2-9b-it:free",
+    "microsoft/phi-3-medium-128k-instruct:free",
+    "nousresearch/hermes-3-llama-3.1-405b:free",
+    "openchat/openchat-7b:free",
+    "deepseek/deepseek-chat-v3-0324:free"
+  ];
   const RELAYS = [
+    // Single proxy entry — the function rotates through OPEN_MODELS server-side.
+    {
+      name: "tlm-proxy",
+      build: (messages) => ({
+        url: "/.netlify/functions/chat",
+        init: {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+            models: OPEN_MODELS
+          })
+        }
+      }),
+      parse: async (res) => {
+        const data = await res.json().catch(() => ({}));
+        return (data && (data.text || data.reply) || "").trim();
+      }
+    },
     {
       name: "pollinations",
       build: (messages) => {
@@ -209,7 +243,18 @@ For everything else (money plan, credit, AI, crypto, careers, study) — ask awa
   // First message + suggestion chips
   pushMsg("bot", "Hi — I'm TLM Helper. I can explain how the site works, help build a money plan, simplify banking/credit/crypto/AI, or coach you through your 72-hour, 30, 60, and 90-day plan. What's on your mind?");
 
-  ["Where do I start?", "Open a bank account fast", "What's a good first credit move?", "Can AI help me write a resume?", "Should I buy crypto?"].forEach(t => {
+  [
+    "Where do I start?",
+    "Open a bank account fast",
+    "Build credit from zero",
+    "Write me a resume",
+    "Find fair-chance jobs",
+    "Is crypto safe for beginners?",
+    "What's my 72-hour plan?",
+    "How do I dispute my credit report?",
+    "AI tools I can actually use",
+    "Help me pick a side hustle"
+  ].forEach(t => {
     const c = document.createElement("button");
     c.type = "button"; c.className = "tlm-chat__chip"; c.textContent = t;
     c.addEventListener("click", () => { els.input.value = t; els.form.requestSubmit(); });
