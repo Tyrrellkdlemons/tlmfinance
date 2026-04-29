@@ -1,0 +1,71 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8"/>
+<title>Generate TLM 1024x1024 PNG</title>
+<style>
+  body{font-family:-apple-system,Segoe UI,Inter,sans-serif;background:#0E0E0E;color:#fff;display:grid;place-items:center;min-height:100dvh;margin:0;padding:24px}
+  .card{background:#1A1A1A;border:1px solid rgba(218,165,32,.4);border-radius:16px;padding:24px;text-align:center;max-width:560px}
+  canvas{width:280px;height:280px;border-radius:24px;border:1px solid rgba(218,165,32,.4);background:#0A0A0A;margin:14px auto;display:block}
+  .btn{background:#DAA520;color:#0E0E0E;padding:12px 22px;border-radius:999px;font-weight:800;border:0;cursor:pointer;font-size:1rem}
+  .btn:hover{background:#FFD970}
+  p{color:rgba(255,255,255,.75);line-height:1.55}
+  small{color:rgba(255,255,255,.55)}
+</style>
+</head><body>
+<div class="card">
+  <h1 style="color:#FFD970;margin-top:0">TLM App Icon · 1024×1024</h1>
+  <p>Click the button to download a 1024×1024 PNG suitable for the Facebook / Apple / Google app icon slots.</p>
+  <canvas id="c" width="1024" height="1024" aria-label="Preview"></canvas>
+  <button class="btn" id="dl">⬇ Download tlm-icon-1024.png</button>
+  <p><small>Or right-click the canvas above → Save image as. The image is rendered in-browser; nothing leaves this page.</small></p>
+</div>
+
+<script>
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+
+// Render the same SVG inline so the PNG is identical to the .svg file.
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1A1A1A"/><stop offset="100%" stop-color="#0A0A0A"/></linearGradient>
+  <radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FFE08A" stop-opacity="1"/><stop offset="55%" stop-color="#DAA520" stop-opacity=".8"/><stop offset="100%" stop-color="#DAA520" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFD970"/><stop offset="55%" stop-color="#DAA520"/><stop offset="100%" stop-color="#8C6810"/></linearGradient>
+  <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1A1A1A"/><stop offset="100%" stop-color="#3A2E15"/></linearGradient>
+</defs>
+<rect width="1024" height="1024" fill="url(#bg)"/>
+<circle cx="512" cy="500" r="400" fill="url(#sun)" opacity="0.7"/>
+<ellipse cx="512" cy="660" rx="520" ry="36" fill="#DAA520" opacity=".22"/>
+<circle cx="512" cy="640" r="180" fill="url(#gold)"/>
+<polygon points="362,640 662,640 1024,1024 0,1024" fill="url(#road)"/>
+<g fill="#DAA520">
+  <rect x="500" y="666" width="24" height="56" rx="4"/>
+  <rect x="492" y="746" width="40" height="60" rx="4"/>
+  <rect x="482" y="832" width="60" height="64" rx="4"/>
+  <rect x="468" y="920" width="88" height="72" rx="6"/>
+</g>
+<g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, Arial, sans-serif" font-weight="900">
+  <text x="512" y="320" text-anchor="middle" font-size="220" fill="url(#gold)" letter-spacing="-12">TLM</text>
+  <text x="512" y="430" text-anchor="middle" font-size="60" fill="#FFD970" letter-spacing="14" font-weight="700">FINANCE</text>
+</g>
+<rect x="20" y="20" width="984" height="984" rx="180" ry="180" fill="none" stroke="#DAA520" stroke-width="3" opacity="0.45"/>
+</svg>`;
+
+const img = new Image();
+img.onload = () => {
+  ctx.fillStyle = '#0A0A0A';
+  ctx.fillRect(0, 0, 1024, 1024);
+  ctx.drawImage(img, 0, 0, 1024, 1024);
+};
+img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+
+document.getElementById('dl').addEventListener('click', () => {
+  cv.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'tlm-icon-1024.png';
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }, 'image/png');
+});
+</script>
+</body></html>
