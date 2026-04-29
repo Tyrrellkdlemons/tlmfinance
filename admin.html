@@ -377,18 +377,49 @@ push-to-github.bat   <em># GitHub-only push</em></pre>
 
 <script>
 (function () {
-  const KEY       = 'tlm:admin:v1';
-  const PASS_KEY  = 'tlm:admin:pass';
-  const TOKEN_KEY = 'tlm:admin:token';
-  const TOKEN_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
+  const KEY        = 'tlm:admin:v1';
+  const PASS_KEY   = 'tlm:admin:pass';      // legacy plaintext (auto-migrated)
+  const HASH_KEY   = 'tlm:admin:passHash';  // SHA-256 hex of the passcode + salt
+  const SALT_KEY   = 'tlm:admin:salt';      // per-install salt (generated once)
+  const TOKEN_KEY  = 'tlm:admin:token';
+  const FAIL_KEY   = 'tlm:admin:failures';  // brute-force lockout
+  const TOKEN_TTL  = 30 * 24 * 60 * 60 * 1000; // 30 days
+  const MAX_FAILS  = 5;
+  const LOCKOUT_MS = 5 * 60 * 1000; // 5-minute lockout after 5 wrong tries
+
+  // SHA-256 → hex string. Falls back to a tiny custom hash on legacy browsers.
+  async function sha256(text) {
+    if (window.crypto && crypto.subtle && crypto.subtle.digest) {
+      const buf = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+    // legacy fallback (very weak, but better than plaintext)
+    let h = 0; for (let i = 0; i < text.length; i++) h = ((h << 5) - h + text.charCodeAt(i)) | 0;
+    return 'fb' + (h >>> 0).toString(16);
+  }
+  function getOrMakeSalt() {
+    let s = localStorage.getItem(SALT_KEY);
+    if (s) return s;
+    s = (crypto.randomUUID && crypto.randomUUID()) || (Date.now() + ':' + Math.random());
+    localStorage.setItem(SALT_KEY, s);
+    return s;
+  }
+  async function hashPass(v) { return sha256(getOrMakeSalt() + ':' + v); }
 
   // --- LOCK ---
   const lock = document.getElementById('lock');
   const shell = document.getElementById('shell');
   const lockBtn = document.getElementById('lockBtn');
   const lockPass = document.getElementById('lockPass');
+
+  function getFailures() { try { return JSON.parse(localStorage.getItem(FAIL_KEY) || '{"count":0,"lockedUntil":0}'); } catch { return { count:0, lockedUntil:0 }; } }
+  function setFailures(o) { localStorage.setItem(FAIL_KEY, JSON.stringify(o)); }
+  function isLockedOut() { const f = getFailures(); return f.lockedUntil && Date.now() < f.lockedUntil; }
+  function failuresLeft() { return Math.max(0, MAX_FAILS - getFailures().count); }
+
   function unlocked() {
-    // Persist a 30-day session token so user doesn't re-enter the pass each visit
+    setFailures({ count: 0, lockedUntil: 0 });
     try {
       const tok = (crypto.randomUUID && crypto.randomUUID()) || (Date.now() + ':' + Math.random());
       localStorage.setItem(TOKEN_KEY, JSON.stringify({ tok, exp: Date.now() + TOKEN_TTL }));
@@ -404,13 +435,56 @@ push-to-github.bat   <em># GitHub-only push</em></pre>
     } catch {}
     return false;
   }
-  function tryUnlock() {
-    const stored = localStorage.getItem(PASS_KEY);
+  // Migrate legacy plaintext PASS_KEY → salted hash on next unlock attempt
+  async function migrateLegacy(plaintextEntered) {
+    const legacy = localStorage.getItem(PASS_KEY);
+    if (!legacy) return null;
+    if (legacy === plaintextEntered) {
+      const h = await hashPass(plaintextEntered);
+      localStorage.setItem(HASH_KEY, h);
+      localStorage.removeItem(PASS_KEY);
+      return true; // matched legacy + migrated
+    }
+    return false;
+  }
+  async function tryUnlock() {
+    if (isLockedOut()) {
+      const mins = Math.ceil((getFailures().lockedUntil - Date.now()) / 60000);
+      lockPass.value = '';
+      lockPass.placeholder = `Locked — wait ${mins} min`;
+      return;
+    }
     const v = lockPass.value.trim();
     if (!v) return;
-    if (!stored) { localStorage.setItem(PASS_KEY, v); unlocked(); return; }
-    if (stored === v) { unlocked(); }
-    else { lockPass.value = ''; lockPass.placeholder = 'Wrong passcode — try again'; }
+    const stored = localStorage.getItem(HASH_KEY);
+    // Brand-new install: first passcode entered becomes the password (hashed).
+    if (!stored && !localStorage.getItem(PASS_KEY)) {
+      const h = await hashPass(v);
+      localStorage.setItem(HASH_KEY, h);
+      unlocked();
+      return;
+    }
+    // Migrate from legacy plaintext if present
+    const migrated = await migrateLegacy(v);
+    if (migrated === true) { unlocked(); return; }
+    // Hash the entered value and compare
+    const entered = await hashPass(v);
+    if (entered === stored) { unlocked(); return; }
+    // Wrong → record failure + maybe lock out
+    const f = getFailures();
+    f.count = (f.count || 0) + 1;
+    if (f.count >= MAX_FAILS) {
+      f.lockedUntil = Date.now() + LOCKOUT_MS;
+      f.count = 0;
+    }
+    setFailures(f);
+    lockPass.value = '';
+    if (f.lockedUntil) {
+      const mins = Math.ceil((f.lockedUntil - Date.now()) / 60000);
+      lockPass.placeholder = `Too many tries — locked ${mins} min`;
+    } else {
+      lockPass.placeholder = `Wrong — ${failuresLeft()} tr${failuresLeft() === 1 ? 'y' : 'ies'} left`;
+    }
   }
   lockBtn.addEventListener('click', tryUnlock);
   lockPass.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
@@ -556,7 +630,11 @@ push-to-github.bat   <em># GitHub-only push</em></pre>
 
     // --- USERS / SIGN-INS ---
     cfg.hiddenPages = cfg.hiddenPages || [];
-    const TLM_PAGES = ['index.html','learn.html','hub.html','feed.html','radio.html','watch.html','media.html'];
+    const TLM_PAGES = [
+      'index.html', 'planner.html', 'plan.html',
+      'learn.html', 'hub.html', 'feed.html', 'radio.html', 'watch.html', 'media.html',
+      'privacy.html', 'terms.html', 'data-deletion.html'
+    ];
     const userBody = document.getElementById('userTableBody');
     const userMeta = document.getElementById('userMeta');
     let userCache = [];

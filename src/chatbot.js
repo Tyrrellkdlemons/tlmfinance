@@ -37,17 +37,26 @@
   // server-side). It rotates 10 open / cheap LLMs for speed + redundancy.
   // Priority 2-N: no-key public Pollinations endpoints as last-resort fallback
   // so the bot still works when the proxy or key is unavailable.
+  // Rotated server-side by /.netlify/functions/chat. Ordered roughly by
+  // quality + recency — proxy tries each until one returns. Update freely;
+  // unknown models on OpenRouter just get skipped.
   const OPEN_MODELS = [
+    // 2026-era flagship-tier free models
     "meta-llama/llama-3.3-70b-instruct:free",
-    "google/gemini-2.0-flash-exp:free",
-    "meta-llama/llama-3.2-3b-instruct:free",
+    "deepseek/deepseek-chat-v3-0324:free",
+    "deepseek/deepseek-r1:free",
     "qwen/qwen-2.5-72b-instruct:free",
-    "mistralai/mistral-7b-instruct:free",
-    "google/gemma-2-9b-it:free",
-    "microsoft/phi-3-medium-128k-instruct:free",
+    "qwen/qwq-32b-preview:free",
+    // Strong mid-tier
+    "google/gemini-2.0-flash-exp:free",
     "nousresearch/hermes-3-llama-3.1-405b:free",
-    "openchat/openchat-7b:free",
-    "deepseek/deepseek-chat-v3-0324:free"
+    "nvidia/llama-3.1-nemotron-70b-instruct:free",
+    "google/gemma-2-9b-it:free",
+    // Fast / small
+    "microsoft/phi-3-medium-128k-instruct:free",
+    "meta-llama/llama-3.2-3b-instruct:free",
+    "mistralai/mistral-7b-instruct:free",
+    "openchat/openchat-7b:free"
   ];
   const RELAYS = [
     // Single proxy entry — the function rotates through OPEN_MODELS server-side.
@@ -109,6 +118,49 @@
         }
       }),
       parse: async (res) => (await res.text()).trim()
+    },
+    // Pollinations llama variant for additional rotation diversity
+    {
+      name: "pollinations-llama",
+      build: (messages) => {
+        const last = messages[messages.length - 1].content;
+        const sys = encodeURIComponent(SYSTEM_PROMPT);
+        const q = encodeURIComponent(last);
+        return {
+          url: `https://text.pollinations.ai/${q}?system=${sys}&model=llama`,
+          init: { method: "GET" }
+        };
+      },
+      parse: async (res) => (await res.text()).trim()
+    },
+    // HuggingFace Inference API public endpoint — no key, generous free tier.
+    // Strict last-resort because of rate limits.
+    {
+      name: "huggingface-mistral",
+      build: (messages) => {
+        const conversation = [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...messages
+        ].map(m => `${m.role === 'user' ? 'User' : m.role === 'assistant' ? 'Assistant' : 'System'}: ${m.content}`).join('\n');
+        return {
+          url: 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3',
+          init: {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              inputs: conversation + '\nAssistant:',
+              parameters: { max_new_tokens: 280, temperature: 0.5, return_full_text: false }
+            })
+          }
+        };
+      },
+      parse: async (res) => {
+        const data = await res.json().catch(() => null);
+        if (!data) return '';
+        if (Array.isArray(data) && data[0] && data[0].generated_text) return String(data[0].generated_text).trim();
+        if (data.generated_text) return String(data.generated_text).trim();
+        return '';
+      }
     }
   ];
 

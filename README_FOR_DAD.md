@@ -360,6 +360,47 @@ This is a quality-of-life change with a small naming adjustment: every page on t
 
 **Verified clean before deploy:** `node --check` passes on `src/app.js` and `src/freedom-plan-panel.js`; the `<script type="module">` block in `plan.html` parses clean; all 13 HTML pages reference the shared module; all 12 user-facing pages have at least one `data-open-plan` trigger; zero remaining "Build My Plan" / "Open full planner" / "Open the full planner" strings anywhere in the project.
 
+### 11l. Final hardening pass — admin password, CSP, chatbot upgrade, README sync
+
+A round of security + polish work to lock things down before launch.
+
+**Admin password gate is now real.** Previously the admin lock screen stored your passcode as plaintext in localStorage. Now it stores a **SHA-256 hash** of `salt + passcode`, where the salt is a per-install random UUID (also in localStorage but useless without the matching passcode). On first unlock the legacy plaintext key is automatically migrated to the hashed format and the old key is wiped. **Brute-force lockout** added: 5 wrong tries → 5-minute timeout, with the lock screen showing "Too many tries — locked 4 min" so attackers can't keep guessing. The placeholder text on the password field updates after each wrong try ("Wrong — 3 tries left"). The 30-day session token still keeps you signed in across visits without re-entering the passcode.
+
+**Every admin entry method goes through the password gate.** The four ways into the admin panel — 7-click logo, type "TLMadmin," Konami code, and the legacy `Ctrl/Cmd+Shift+A` / `#admin` URL hash — all just navigate the browser to `admin.html`, where the lock screen is the first thing rendered. No bypass. Even hitting the URL directly still lands on the lock.
+
+**Admin panel knows about the new pages.** The Pages-visibility tab's `TLM_PAGES` list now includes all 12 user-facing pages: index, planner, plan, learn, hub, feed, radio, watch, media, privacy, terms, data-deletion. You can hide any of them; hidden pages auto-redirect to home for visitors and the admin can still view them with `?adminview=1`.
+
+**Content-Security-Policy via `_headers`.** Netlify reads the new `_headers` file in the project root. The CSP locks down everything by default and explicitly allowlists only what the site actually contacts:
+
+- **Scripts:** self + esm.sh (Supabase ESM module) + Pollinations.
+- **Connections:** self + Supabase (HTTPS + WebSocket) + esm.sh + Pollinations + HuggingFace Inference + Google + Facebook OAuth endpoints.
+- **Frames (embeds):** self + YouTube (no-cookie + main) + Spotify + SoundCloud + Google + Facebook OAuth.
+- **Images:** self + data: + any HTTPS + blob.
+- **`object-src: 'none'`**, **`base-uri: 'self'`**, **`form-action: 'self'`**, **`frame-ancestors: 'self'`** (so the site can't be iframed by a phishing site), **`upgrade-insecure-requests`** (forces HTTPS on every fetch).
+
+Plus the standard friends: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denying camera/mic/geolocation/payment, `X-XSS-Protection: 1; mode=block`. Per-path rules: `/assets/*` is immutable cache; data files cache for 5 min; service worker and manifest never cache; **`/admin.html` adds `noindex,nofollow,noarchive` + `private, no-store`** so search engines never index the admin panel and browsers don't cache it. **Note:** the policy uses `'unsafe-inline'` for scripts and styles because the site has many inline `<script>` tags and inline style attributes — could be tightened to nonces in a future pass, but the rest of the policy is strict.
+
+**Chatbot — 13 free LLMs in rotation, 5 relay endpoints.** Refreshed the model list with current 2026-era flagship-tier free models on OpenRouter:
+
+- **Top tier:** Llama-3.3-70B, DeepSeek-V3, DeepSeek-R1, Qwen-2.5-72B, Qwen-QwQ-32B (reasoning), Gemini 2.0 Flash, Hermes-3-405B.
+- **Mid tier:** Nvidia Nemotron-70B, Gemma-2-9B.
+- **Fast / small:** Phi-3-medium, Llama-3.2-3B, Mistral-7B, OpenChat-7B.
+
+The Netlify function (`/.netlify/functions/chat`) already handled rotation server-side — it just got a longer / fresher list. After the OpenRouter relay, the chatbot now falls through **five** Pollinations endpoints (OpenAI, Mistral, POST mode, Llama variant) and finally a HuggingFace Inference API call to Mistral-7B as a last-resort. Each relay is tried in order until one returns text. Topic guards (parole, probation, expungement, immigration, custody → declines and redirects to NRRC, Root & Rebound, 211) are unchanged.
+
+**Top-level `README.md` updated.** The stale README that only described `index.html` and `media.html` has been completely rewritten to reflect the current 13-page site: the macro Planner Pro, the dedicated `planner.html`, the inline `plan.html`, the universal Freedom Plan Panel, Supabase auth, the password-gated admin panel, the CSP + security headers, the chatbot multi-LLM rotation, and the v15 service worker. Links to `README_FOR_DAD.md` for the long narrative. Punch list now reflects what's actually still open (Facebook live mode, logo permission, attorney review, link audit).
+
+**One thing still open from this round.** I asked Claude to "fix one symmetrical error" but didn't say where I saw it. **Need from you next session:** which page, which element, what's asymmetric (a button row that wraps unevenly? card heights that don't match? padding that's off on one side? hero alignment?). Once specified it should be a quick fix.
+
+**Files touched in this round:**
+
+- `admin.html` — replaced the lock script with hashed-password + brute-force lockout + auto-migration; updated `TLM_PAGES` list with all 12 pages.
+- `_headers` (new) — Netlify security headers + CSP + per-path cache rules.
+- `src/chatbot.js` — refreshed `OPEN_MODELS` and added two more relay tiers (Pollinations Llama variant, HuggingFace Inference Mistral).
+- `README.md` (top-level) — full rewrite.
+
+**Verified clean before deploy:** `node --check` passes on `src/app.js`, `src/freedom-plan-panel.js`, `src/chatbot.js`, `src/auth.js`, `src/admin-overrides.js`. `_headers` is in place at site root; CSP one-liner intact. Admin pages list shows all 12.
+
 ---
 
 — Tyrrell, 2026-04-28

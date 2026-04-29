@@ -1,0 +1,26 @@
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  X-XSS-Protection: 1; mode=block
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh https://text.pollinations.ai; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://esm.sh https://text.pollinations.ai https://api-inference.huggingface.co https://accounts.google.com https://www.facebook.com https://graph.facebook.com; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://open.spotify.com https://w.soundcloud.com https://accounts.google.com https://www.facebook.com; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
+
+# Long-cache static assets — bust on filename change
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/src/data/*
+  Cache-Control: public, max-age=300
+
+# Service worker — never cache the SW itself or the manifest
+/service-worker.js
+  Cache-Control: no-cache
+
+/manifest.json
+  Cache-Control: no-cache
+
+# Admin panel — disallow indexing & frame embedding
+/admin.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: private, no-store
