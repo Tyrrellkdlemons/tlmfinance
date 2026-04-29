@@ -328,6 +328,38 @@ What changed where:
 - TLM logo / portraits still placeholder.
 - Legal disclaimer still needs attorney review.
 
+### 11k. Freedom Plan Panel works everywhere now + naming cleanup
+
+This is a quality-of-life change with a small naming adjustment: every page on the site can now pop up the **Freedom Plan Panel** as a bottom sheet, the wording on the two main CTAs got more accurate, and the Advanced Wizard button always does something useful.
+
+**Names that changed (consistent everywhere now):**
+
+- **"Build My Plan"** → **"Generate planner"** — that's the gold pill button in the top-right of every page. Tap it and the Freedom Plan Panel slides up from the bottom. Quick quiz, 72-hour starter plan.
+- **"Open the full planner"** → **"Open the customizable plan"** — that's the deep planner page (`/planner.html`) with the chips, templates, plan-health score, and cloud-sync. Same destination, just a clearer label for what it actually is.
+- **"Build My Plan" / "Open my plan"** sprinkled across older copy → all consolidated to one of the two names above.
+
+**The Freedom Plan Panel pops up from the bottom on every page.** Until now it lived only on `index.html` — clicking "Build My Plan" anywhere else navigated home and then opened it. Now it's a self-injecting bottom-sheet that's available **everywhere**: home, planner, plan, hub, learn, watch, feed, radio, media, privacy, terms, data-deletion. Even compliance pages got a "Generate planner" button in the top-right so the path to start a plan is one tap from anywhere.
+
+**How that works under the hood:** `src/freedom-plan-panel.js` is a single ~270-line script that loads on every page. The first time the user clicks any `data-open-plan` button, it injects the panel markup if it isn't already in the DOM, wires up the quiz, and shows the slide-up sheet. On `index.html` (where the panel was already in the markup) it deferentially hands off to `app.js` so we don't double-fire anything. On every other page it owns the whole quiz lifecycle: rendering needs cards, generating the 72-hour starter plan, downloading/printing the PDF, and showing the upgrade banner that points to the customizable plan. Same `localStorage` key as the macro planner, so anything you start in the bottom sheet shows up automatically when you open `/planner.html` later.
+
+**Auto-open from URL hash.** Any page can deep-link straight into the panel by appending `#fpp` to its URL — useful for emails, social posts, or bookmarks. (The same trick works for `#wizard` on `/planner.html` to jump straight into the Advanced Wizard.)
+
+**Advanced Wizard button now always does something.** The "Advanced wizard" button in the panel's button row used to error out on pages where `app.js` wasn't loaded (which was most pages). Now: if the wizard's `openFuturePlanWizard()` function is loaded → call it directly; otherwise → navigate to `./planner.html#wizard` and `app.js` auto-opens the wizard there. Either way, the click goes somewhere useful.
+
+**Universal screen-reader behavior preserved.** The bottom sheet has `role="dialog"` + `aria-modal="false"` + `aria-labelledby` + `aria-hidden` toggles so assistive tech announces it correctly. ESC closes it. Focus moves into the panel on open. Same accessibility level as the auth modal.
+
+**Service-worker cache bumped to v15.** Added `./src/freedom-plan-panel.js` to the SHELL pre-cache list so the bottom sheet works offline on every page. The version bump evicts old caches on next visit.
+
+**Files touched in this round:**
+
+- `src/freedom-plan-panel.js` (new, ~270 lines) — the shared bottom-sheet module.
+- `src/app.js` — added `#wizard` URL hash auto-open + relabeled the upgrade banner copy.
+- `index.html` — repaired (file had been truncated mid-tag again with trailing null bytes); now properly closes with all seven script tags including the new panel module.
+- `planner.html`, `plan.html`, `hub.html`, `learn.html`, `watch.html`, `feed.html`, `radio.html`, `media.html`, `privacy.html`, `terms.html`, `data-deletion.html`, `admin.html` — all load the shared module; all the user-facing pages got a top-right "Generate planner" `data-open-plan` button.
+- `service-worker.js` — bumped to `v15`, added the new module to SHELL.
+
+**Verified clean before deploy:** `node --check` passes on `src/app.js` and `src/freedom-plan-panel.js`; the `<script type="module">` block in `plan.html` parses clean; all 13 HTML pages reference the shared module; all 12 user-facing pages have at least one `data-open-plan` trigger; zero remaining "Build My Plan" / "Open full planner" / "Open the full planner" strings anywhere in the project.
+
 ---
 
 — Tyrrell, 2026-04-28

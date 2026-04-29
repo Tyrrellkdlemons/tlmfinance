@@ -241,14 +241,14 @@ function renderQuizOutput() {
   row.append(dlBtn, printBtn);
   card.appendChild(row);
 
-  // CTA — suggest the full 90-day planner (the macro core feature)
+  // CTA — suggest the customizable plan (the macro core feature)
   const upgrade = el('div', { className: 'fp-upgrade' });
   upgrade.innerHTML = `
     <div class="fp-upgrade__body">
       <strong>Take this further.</strong>
-      <span>Open the full <em>90-day planner</em> — income, expenses, debts, goals, documents, and a live plan-health score. Your 72-hour starter carries over automatically.</span>
+      <span>Open the <em>customizable plan</em> — income, expenses, debts, goals, documents, and a live plan-health score. Your 72-hour starter carries over automatically.</span>
     </div>
-    <a class="btn btn--primary btn--sm" href="./planner.html">Open the full planner →</a>
+    <a class="btn btn--primary btn--sm" href="./planner.html">Open the customizable plan →</a>
   `;
   card.appendChild(upgrade);
 
@@ -1519,6 +1519,13 @@ function toast(msg) {
     });
     // Expose for any other entry point
     window.__tlmOpenFuturePlan = openFuturePlanWizard;
+
+    // Auto-open the advanced wizard if the page was opened with #wizard
+    // (used by the shared Freedom Plan Panel on pages that don't load app.js
+    // — its "Advanced wizard" button navigates to ./planner.html#wizard.)
+    if (location.hash === '#wizard') {
+      setTimeout(() => { try { openFuturePlanWizard(); } catch {} }, 200);
+    }
 
     // Resume nudge — once per session, if there's an in-progress wizard,
     // ask the user if they want to pick it back up.

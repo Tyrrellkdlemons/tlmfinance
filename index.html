@@ -71,7 +71,7 @@
       <a href="./media.html">Media</a>
     </nav>
     <div class="nav__cta">
-      <button class="btn btn--primary btn--sm" data-open-plan>Build My Plan <span class="arrow">→</span></button>
+      <button class="btn btn--primary btn--sm" data-open-plan>Generate planner <span class="arrow">→</span></button>
     </div>
   </div>
 </header>
@@ -318,7 +318,7 @@
       <div class="planner-cta__main">
         <div class="planner-cta__copy">
           <span class="planner-cta__eyebrow">90-day macro plan · the deep one</span>
-          <h3 class="planner-cta__title">Open the full planner</h3>
+          <h3 class="planner-cta__title">Open the customizable plan</h3>
           <p>7 quick steps · ~50 smart suggestion chips · 4 quick-start templates · plan health score · cloud sync. Auto-saves as you go.</p>
           <ul class="planner-cta__bullets">
             <li><span aria-hidden="true">💰</span> Income, benefits, expenses, debts, goals</li>
@@ -327,7 +327,7 @@
             <li><span aria-hidden="true">📊</span> Live summary, KPIs, plan health score</li>
           </ul>
           <div class="flex" style="margin-top:14px">
-            <a class="btn btn--primary" href="./planner.html">Open the full planner →</a>
+            <a class="btn btn--primary" href="./planner.html">Open the customizable plan →</a>
             <a class="btn btn--ghost" href="./plan.html">👁 View my plan</a>
           </div>
         </div>
@@ -421,7 +421,7 @@
       <h2 id="cta-title" style="margin:8px 0">Open the Freedom Plan Panel.</h2>
       <p class="muted">A 60-second quiz. Then a printable, savable plan for your first 72 hours.</p>
       <div class="flex center mt-2" style="justify-content:center">
-        <button class="btn btn--primary" data-open-plan>Open my plan</button>
+        <button class="btn btn--primary" data-open-plan>Generate planner</button>
         <a class="btn btn--ghost" href="./learn.html">Learn modern finance</a>
       </div>
     </div>
@@ -435,11 +435,11 @@
     <button class="btn btn--ghost btn--sm" id="closePlan" aria-label="Close panel">Close</button>
   </div>
   <div class="plan-panel__body">
-    <p class="muted" style="margin-top:0">Pick everything that applies. We'll generate a 72-hour plan and link to resources. Want a deeper plan? <a href="./planner.html">Open the full 90-day planner →</a></p>
+    <p class="muted" style="margin-top:0">Pick everything that applies. We'll generate a 72-hour plan and link to resources. Want a deeper plan? <a href="./planner.html">Open the customizable plan →</a></p>
     <div class="quiz" id="quiz"></div>
     <div class="flex mt-3">
       <button class="btn btn--primary" id="generate72">Generate my 72-hour plan</button>
-      <a class="btn btn--dark" href="./planner.html">Open the full planner →</a>
+      <a class="btn btn--dark" href="./planner.html">Open the customizable plan →</a>
       <button class="btn btn--ghost" type="button" id="openAdvancedFromPanel">Advanced wizard</button>
     </div>
     <div id="quizOutput" class="mt-3"></div>
@@ -484,5 +484,6 @@
 <script src="./src/auth.js" defer></script>
 <script src="./src/chatbot.js" defer></script>
 <script src="./src/contact-gate.js" defer></script>
+<script src="./src/freedom-plan-panel.js" defer></script>
 </body>
 </html>

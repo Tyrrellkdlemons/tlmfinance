@@ -1,5 +1,5 @@
 /* Paving the Road — service worker. Static-first cache + stale-while-revalidate. */
-const CACHE = 'paving-the-road-v14';
+const CACHE = 'paving-the-road-v15';
 const SHELL = [
   './', './index.html', './planner.html', './plan.html',
   './learn.html', './hub.html', './watch.html',
@@ -10,6 +10,7 @@ const SHELL = [
   './src/styles/globals.css', './src/styles/print.css',
   './src/app.js', './src/chatbot.js', './src/auth.js',
   './src/admin-overrides.js', './src/contact-gate.js', './src/tlm-config.js',
+  './src/freedom-plan-panel.js',
   './src/utils/storage.js', './src/utils/budgetCalculator.js', './src/utils/exportPlan.js',
   './src/data/resources.json', './src/data/people.json',
   './src/data/tlmStats.json', './src/data/media.json',
