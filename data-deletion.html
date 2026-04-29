@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Delete my data · The Last Mile · Finance</title>
+<meta name="description" content="How to delete your TLM Finance account and all data, including data sourced via Facebook Login." />
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
+<link rel="stylesheet" href="./src/styles/globals.css" />
+</head>
+<body class="has-bottom-nav">
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="nav" role="banner">
+  <div class="nav__inner">
+    <a class="brand" href="./index.html" aria-label="The Last Mile · Finance home">
+      <picture>
+        <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
+        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="240" height="78" style="height:72px;width:auto"/>
+      </picture>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="./index.html#planner">Plan</a>
+      <a href="./learn.html">Learn</a>
+      <a href="./hub.html">Hub</a>
+      <a href="./feed.html">Feed</a>
+      <a href="./watch.html">Watch</a>
+      <a href="./media.html">Media</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section">
+  <div class="container" style="max-width:760px">
+    <span class="eyebrow">User control · plain-language</span>
+    <h1>Delete my data</h1>
+    <p class="lede">You can delete your TLM Finance account and every bit of data tied to it (including any info Facebook Login passed us) using one of three methods below.</p>
+
+    <h2>Option 1 — One-click in your account menu</h2>
+    <ol style="line-height:1.8;color:var(--ink-soft)">
+      <li>Open <a href="./index.html">tlmfinance.netlify.app</a> on the device you signed in from</li>
+      <li>Click the avatar / "Account" pill in the top-right (or the Account tab in the bottom nav on mobile)</li>
+      <li>Choose <strong>Delete my account</strong></li>
+      <li>Confirm — your account, plan, audit log, and newsletter subscription are wiped within seconds</li>
+    </ol>
+
+    <h2>Option 2 — Email request</h2>
+    <p>Email <a href="mailto:tyrrellkdlemons@gmail.com?subject=Delete%20my%20TLM%20account">tyrrellkdlemons@gmail.com</a> from the email address you used to sign in (or include enough info to identify your account). We will:</p>
+    <ul style="line-height:1.8;color:var(--ink-soft)">
+      <li>Confirm receipt within 48 hours</li>
+      <li>Delete your account and every related row from our Supabase database within 7 days</li>
+      <li>Send you a confirmation when done</li>
+    </ul>
+
+    <h2>Option 3 — Phone</h2>
+    <p>Call or text <a href="tel:+13239726100">323-972-6100</a>. Leave your sign-in email or the name on the account and we'll process it within 7 days.</p>
+
+    <h2>What gets deleted</h2>
+    <ul style="line-height:1.8;color:var(--ink-soft)">
+      <li>Your authentication record (email, provider, name, avatar URL)</li>
+      <li>Your reentry plan content (every section)</li>
+      <li>Your audit-log events on our server</li>
+      <li>Your newsletter subscription, if any</li>
+      <li>Any local data stored in your browser when you visit while signed out</li>
+    </ul>
+    <p>Anything sourced from Facebook Login (your name, email, profile picture URL) is removed at the same time. We retain no derivative copies, no backups beyond standard 30-day rolling Supabase backups, and we don't sell or share any of it before deletion.</p>
+
+    <h2>Confirmation code</h2>
+    <p>Once your data is deleted we email you a unique confirmation code you can show Facebook (Facebook requires this for apps that use Facebook Login). The code is also visible inside your final confirmation email's footer.</p>
+  </div>
+</section>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="container"><p>© <span id="year"></span> The Last Mile · Finance.</p></div>
+</footer>
+
+<nav class="bottom-nav" aria-label="Mobile primary">
+  <a href="./index.html#planner" aria-label="Plan"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12l4-4 4 4 7-7 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a>
+  <a href="./learn.html" aria-label="Learn"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h8a2 2 0 012 2v12H6a2 2 0 01-2-2V5zM12 5h8v12a2 2 0 01-2 2h-6V5z" stroke="currentColor" stroke-width="2"/></svg><span>Learn</span></a>
+  <a href="./hub.html" aria-label="Hub"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/></svg><span>Hub</span></a>
+  <a href="./watch.html" aria-label="Watch"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><polygon points="6 4 20 12 6 20" stroke="currentColor" stroke-width="2"/></svg><span>Watch</span></a>
+  <a href="./media.html" aria-label="Media"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2"/></svg><span>Media</span></a>
+</nav>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -263,7 +263,8 @@
         if (!client) { showErr(`${provider} sign-in needs Supabase to be configured. Use email + password for now.`); return; }
         try {
           const { error } = await client.auth.signInWithOAuth({
-            provider, options: { redirectTo: location.href }
+            provider,
+            options: { redirectTo: CFG.oauthRedirectTo || location.href }
           });
           if (error) showErr(error.message);
         } catch (e) { showErr(String(e.message || e)); }
