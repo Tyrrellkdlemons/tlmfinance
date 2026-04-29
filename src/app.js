@@ -319,161 +319,639 @@ window.__tlmDownloadPlanPDF = downloadStarterPlanPDF;
 $('#generate72')?.addEventListener('click', generate72);
 
 /* =====================================================================
-   PLANNER
+   PLANNER — upgraded "Pro" version. Same data shape on disk
+   (state.plan.income/expenses/etc.) so existing localStorage and
+   exportPlan utilities keep working. New: rich icons, smart presets,
+   currency formatting, live insights, cloud sync, scenario simulator,
+   accessibility polish, and auto-fill suggestions.
    ===================================================================== */
 const STEPS = [
-  { key: 'income',   title: 'Income',    hint: "Wages, gig work, family support — anything you'll receive monthly." },
-  { key: 'benefits', title: 'Benefits',  hint: 'SNAP, TANF, unemployment, disability, veterans benefits.' },
-  { key: 'expenses', title: 'Expenses',  hint: 'Rent, food, phone, transport, hygiene, medication, child support.' },
-  { key: 'debts',    title: 'Debts',     hint: 'Restitution, court fees, credit cards, payday loans, medical bills.' },
-  { key: 'goals',    title: 'Goals',     hint: 'Emergency fund, deposit on housing, course tuition, transportation.' },
-  { key: 'documents',title: 'Documents', hint: 'ID, SS card, birth cert, resume, references, prescriptions.' },
-  { key: 'days',     title: '72h / 30 / 60 / 90', hint: 'Sequence the next three months.' }
+  { key: 'income',    title: 'Income',     icon: '💵', short: 'What comes in', hint: "Wages, gig work, family support — anything you'll receive monthly." },
+  { key: 'benefits',  title: 'Benefits',   icon: '🏛️', short: 'Programs that help', hint: 'SNAP, TANF, unemployment, disability, veterans benefits.' },
+  { key: 'expenses',  title: 'Expenses',   icon: '🧾', short: 'What goes out', hint: 'Rent, food, phone, transport, hygiene, medication, child support.' },
+  { key: 'debts',     title: 'Debts',      icon: '🪙', short: 'What you owe', hint: 'Restitution, court fees, credit cards, payday loans, medical bills.' },
+  { key: 'goals',     title: 'Goals',      icon: '🎯', short: 'Where money goes', hint: 'Emergency fund, deposit on housing, course tuition, transportation.' },
+  { key: 'documents', title: 'Documents',  icon: '📄', short: 'Have / need', hint: 'ID, SS card, birth cert, resume, references, prescriptions.' },
+  { key: 'days',      title: 'Sequence',   icon: '🗓️', short: '72h → 90d', hint: 'Sequence the next three months.' }
 ];
 
+// ---- Smart suggestion chips per step ------------------------------------
+const PRESETS = {
+  income: [
+    { label: 'Wages (job)',          icon: '💼' },
+    { label: 'Gig work (rideshare)', icon: '🚗' },
+    { label: 'Family support',       icon: '🤝' },
+    { label: 'Side hustle',          icon: '🛠️' },
+    { label: 'Tips',                 icon: '💸' },
+    { label: 'Self-employed',        icon: '🏷️' },
+    { label: 'Stipend',              icon: '🎓' }
+  ],
+  benefits: [
+    { label: 'SNAP / EBT',           icon: '🥕' },
+    { label: 'TANF',                 icon: '👨‍👩‍👧' },
+    { label: 'Unemployment',         icon: '🆘' },
+    { label: 'Disability (SSI/SSDI)',icon: '♿' },
+    { label: 'VA benefits',          icon: '🎖️' },
+    { label: 'Medicaid',             icon: '🏥' },
+    { label: 'WIC',                  icon: '🍼' },
+    { label: 'Section 8',            icon: '🏠' }
+  ],
+  expenses: [
+    { label: 'Rent',                 icon: '🏠' },
+    { label: 'Groceries',            icon: '🛒' },
+    { label: 'Phone',                icon: '📱' },
+    { label: 'Transit / bus pass',   icon: '🚌' },
+    { label: 'Gas',                  icon: '⛽' },
+    { label: 'Car payment',          icon: '🚗' },
+    { label: 'Car insurance',        icon: '📋' },
+    { label: 'Utilities',            icon: '💡' },
+    { label: 'Internet',             icon: '🌐' },
+    { label: 'Medication',           icon: '💊' },
+    { label: 'Child support',        icon: '👶' },
+    { label: 'Hygiene',              icon: '🧴' },
+    { label: 'Laundry',              icon: '🧺' }
+  ],
+  debts: [
+    { label: 'Restitution',          icon: '⚖️' },
+    { label: 'Court fees',           icon: '🏛️' },
+    { label: 'Credit card',          icon: '💳' },
+    { label: 'Payday loan',          icon: '⚠️' },
+    { label: 'Medical bill',         icon: '🏥' },
+    { label: 'Student loan',         icon: '🎓' },
+    { label: 'Auto loan',            icon: '🚗' },
+    { label: 'Cell phone past-due',  icon: '📵' }
+  ],
+  goals: [
+    { label: 'Emergency fund ($250)',icon: '🛟', target: 250 },
+    { label: 'Emergency fund ($1k)', icon: '🛡️', target: 1000 },
+    { label: 'Security deposit',     icon: '🔑', target: 1500 },
+    { label: 'First/last month rent',icon: '🏠', target: 3000 },
+    { label: 'Used car (clean)',     icon: '🚗', target: 5000 },
+    { label: 'Trade school',         icon: '🛠️', target: 2000 },
+    { label: 'Driver license / DMV', icon: '🪪', target: 80 },
+    { label: 'Work boots / clothes', icon: '👞', target: 200 },
+    { label: 'Tools',                icon: '🔧', target: 400 }
+  ]
+};
+const QUICK_TASKS = {
+  first72Hours: [
+    'Open a checking account or activate prepaid card',
+    'Pull free credit reports at AnnualCreditReport.com',
+    'Replace ID + Social Security card',
+    'Confirm housing for tonight + next 7 nights',
+    'Refill prescriptions / call provider'
+  ],
+  thirtyDayPlan: [
+    'Apply to 5 fair-chance employers per week',
+    'Open Bank On certified checking account',
+    'Visit American Job Center for resume review',
+    'File any taxes / claim EITC if eligible',
+    'Set up auto-transfer $10/wk → savings'
+  ],
+  sixtyDayPlan: [
+    'Aim for 2 first interviews this month',
+    'Start a credit-builder loan (Self.inc, $25/mo)',
+    'Save $500 emergency fund',
+    'Earn one free certificate (Google IT / Money Smart)'
+  ],
+  ninetyDayPlan: [
+    'Land a role or convert apprenticeship',
+    'Hit $1,000 emergency fund',
+    'Open a secured credit card',
+    'Complete one stackable credential'
+  ]
+};
+
+const DEFAULT_DOCS = [
+  { label: 'Government photo ID',     icon: '🪪' },
+  { label: 'Social Security card',    icon: '🔢' },
+  { label: 'Birth certificate',       icon: '📜' },
+  { label: 'Court / sentencing paperwork', icon: '⚖️' },
+  { label: 'Resume',                  icon: '📄' },
+  { label: 'List of references',      icon: '👥' },
+  { label: 'Medical records / prescriptions', icon: '💊' },
+  { label: 'Bank account info',       icon: '🏦' },
+  { label: 'Lease / housing letter',  icon: '🏠' },
+  { label: 'Employment verification', icon: '🛠️' },
+  { label: 'Tax return / W-2',        icon: '🧾' }
+];
+
+const TEMPLATES = [
+  {
+    id: 'just-released',
+    icon: '🚪',
+    title: 'Just released, no income yet',
+    desc: 'Pre-fill core expense + document checklist for the first week.',
+    apply(plan) {
+      plan.income = plan.income.length ? plan.income : [{ label: '', amount: 0 }];
+      plan.expenses = plan.expenses.length ? plan.expenses : [
+        { label: 'Phone', amount: 30 },
+        { label: 'Transit / bus pass', amount: 70 },
+        { label: 'Hygiene', amount: 25 },
+        { label: 'Groceries', amount: 200 }
+      ];
+      if (!plan.documents.length) plan.documents = DEFAULT_DOCS.map(d => ({ label: d.label, have: false }));
+      if (!plan.first72Hours.length) plan.first72Hours = QUICK_TASKS.first72Hours.slice();
+    }
+  },
+  {
+    id: 'working-pt',
+    icon: '🛠️',
+    title: 'Working part-time',
+    desc: 'Income from a job + standard household expenses + start a small savings goal.',
+    apply(plan) {
+      plan.income = plan.income.length ? plan.income : [
+        { label: 'Wages (job)', amount: 1600 }
+      ];
+      plan.expenses = plan.expenses.length ? plan.expenses : [
+        { label: 'Rent (room share)', amount: 600 },
+        { label: 'Groceries', amount: 250 },
+        { label: 'Phone', amount: 35 },
+        { label: 'Transit / bus pass', amount: 70 },
+        { label: 'Utilities', amount: 70 }
+      ];
+      if (!plan.goals.length) plan.goals = [{ label: 'Emergency fund', monthly: 50, target: 1000, kind: 'save' }];
+      if (!plan.documents.length) plan.documents = DEFAULT_DOCS.map(d => ({ label: d.label, have: false }));
+    }
+  },
+  {
+    id: 'school-side',
+    icon: '🎓',
+    title: 'School + side hustle',
+    desc: 'Stipend + gig work, course-related expenses, savings for tuition.',
+    apply(plan) {
+      plan.income = plan.income.length ? plan.income : [
+        { label: 'Pell grant (monthly avg)', amount: 600 },
+        { label: 'Side hustle', amount: 500 }
+      ];
+      plan.expenses = plan.expenses.length ? plan.expenses : [
+        { label: 'Rent', amount: 700 },
+        { label: 'Groceries', amount: 220 },
+        { label: 'Internet', amount: 45 },
+        { label: 'Phone', amount: 30 }
+      ];
+      if (!plan.goals.length) plan.goals = [
+        { label: 'Trade school / books', monthly: 60, target: 1200, kind: 'save' },
+        { label: 'Emergency fund', monthly: 25, target: 500, kind: 'save' }
+      ];
+    }
+  },
+  {
+    id: 'family',
+    icon: '🤝',
+    title: 'Family support setup',
+    desc: 'Family covers basics while you stabilize — track what you contribute back.',
+    apply(plan) {
+      plan.income = plan.income.length ? plan.income : [
+        { label: 'Family support', amount: 400 },
+        { label: 'Side hustle', amount: 300 }
+      ];
+      plan.expenses = plan.expenses.length ? plan.expenses : [
+        { label: 'Phone', amount: 30 },
+        { label: 'Transit', amount: 70 },
+        { label: 'Hygiene', amount: 30 },
+        { label: 'Contribute to family bills', amount: 150 }
+      ];
+      if (!plan.documents.length) plan.documents = DEFAULT_DOCS.map(d => ({ label: d.label, have: false }));
+    }
+  }
+];
+
+// ---- Cloud sync (Supabase) ----------------------------------------------
+let __syncTimer = null;
+let __lastSyncedAt = 0;
+function setSyncStatus(text, kind) {
+  const el = $('#planSync'); if (!el) return;
+  el.textContent = text;
+  el.dataset.kind = kind || '';
+}
+async function cloudSyncPlan() {
+  try {
+    if (!window.TLMAuth) { setSyncStatus('Saved on this device', 'local'); return; }
+    const u = window.TLMAuth.getUser?.();
+    if (!u || !u.id) { setSyncStatus('Saved on this device', 'local'); return; }
+    const cfg = window.__TLM_CONFIG || {};
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) { setSyncStatus('Saved on this device', 'local'); return; }
+    setSyncStatus('Saving to cloud…', 'syncing');
+    const m = await import("https://esm.sh/@supabase/supabase-js@2.45.4");
+    const sb = m.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true } });
+    const { error } = await sb.from('tlm_plans').upsert({
+      user_id: u.id, plan: state.plan, updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+    if (error) throw error;
+    __lastSyncedAt = Date.now();
+    setSyncStatus('Synced to cloud · ' + new Date().toLocaleTimeString(), 'ok');
+  } catch (e) {
+    setSyncStatus('Saved on this device', 'local');
+  }
+}
+function schedulePlanSync() {
+  clearTimeout(__syncTimer);
+  __syncTimer = setTimeout(cloudSyncPlan, 1200);
+}
+// Immediate flush — bypasses the 1.2s debounce. Used by the "Save progress" button.
+async function flushPlanSync() {
+  clearTimeout(__syncTimer);
+  await cloudSyncPlan();
+}
+window.flushPlanSync = flushPlanSync;
+// Wrap persist() so any plan change triggers cloud sync
+const __origPersist = persist;
+window.__tlmPersist = function () { __origPersist.apply(this, arguments); schedulePlanSync(); };
+// If logged in already at boot, pull cloud plan once
+async function pullCloudPlan() {
+  try {
+    if (!window.TLMAuth) return;
+    const u = window.TLMAuth.getUser?.();
+    if (!u || !u.id) return;
+    const cfg = window.__TLM_CONFIG || {};
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return;
+    const m = await import("https://esm.sh/@supabase/supabase-js@2.45.4");
+    const sb = m.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true } });
+    const { data } = await sb.from('tlm_plans').select('plan, updated_at').eq('user_id', u.id).single();
+    if (data && data.plan && (!state.plan.updatedAt || new Date(data.updated_at) > new Date(state.plan.updatedAt))) {
+      // Cloud plan is newer — overwrite local
+      Object.assign(state.plan, data.plan);
+      __origPersist();
+      renderStep(); renderSteps(); renderSummary();
+      setSyncStatus('Loaded from cloud', 'ok');
+    }
+  } catch {}
+}
+window.TLMAuth?.onChange?.(u => { if (u) { pullCloudPlan(); } });
+
+// ---- Currency formatting ------------------------------------------------
+function fmtCurrency(v) {
+  const n = parseFloat(v);
+  if (!isFinite(n) || n === 0) return '';
+  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+}
+function bindCurrencyInput(input, onChange) {
+  // Show formatted on blur, raw number on focus
+  input.setAttribute('inputmode', 'decimal');
+  input.addEventListener('focus', () => {
+    const raw = parseFloat((input.value || '').replace(/[^\d.]/g, '')) || 0;
+    input.value = raw ? String(raw) : '';
+  });
+  input.addEventListener('blur', () => {
+    const n = parseFloat((input.value || '').replace(/[^\d.]/g, '')) || 0;
+    input.value = n ? fmtCurrency(n) : '';
+  });
+  input.addEventListener('input', () => {
+    const n = parseFloat((input.value || '').replace(/[^\d.]/g, '')) || 0;
+    onChange(n);
+  });
+}
+
+// ---- UI helpers ---------------------------------------------------------
+function chipRow(items, onPick) {
+  const wrap = el('div', { className: 'plan-chips', role: 'group' });
+  items.forEach(it => {
+    const b = el('button', {
+      type: 'button',
+      className: 'plan-chip',
+      innerHTML: `<span class="plan-chip__icon" aria-hidden="true">${it.icon || ''}</span><span>${it.label}</span>`
+    });
+    b.setAttribute('aria-label', `Add ${it.label}`);
+    b.addEventListener('click', () => onPick(it));
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+function smartTip(text, kind) {
+  const t = el('div', { className: `plan-tip plan-tip--${kind || 'info'}` , innerHTML: text });
+  return t;
+}
+
+// ---- Step header --------------------------------------------------------
 function renderSteps() {
   const wrap = $('#plannerSteps'); if (!wrap) return;
   wrap.innerHTML = '';
+  // Visual progress fill — exposed as a real progressbar
+  const pct = ((state.step + 1) / STEPS.length) * 100;
+  const bar = el('div', { className: 'plan-stepbar' });
+  bar.setAttribute('role', 'progressbar');
+  bar.setAttribute('aria-label', 'Planner progress');
+  bar.setAttribute('aria-valuemin', '0');
+  bar.setAttribute('aria-valuemax', String(STEPS.length));
+  bar.setAttribute('aria-valuenow', String(state.step + 1));
+  bar.setAttribute('aria-valuetext', `Step ${state.step + 1} of ${STEPS.length}`);
+  const fill = el('div', { className: 'plan-stepbar__fill', style: `width:${pct.toFixed(1)}%` });
+  bar.appendChild(fill);
+  wrap.appendChild(bar);
+
+  const grid = el('div', { className: 'plan-steps-grid' });
+  grid.setAttribute('role', 'group');
+  grid.setAttribute('aria-label', 'Planner steps');
   STEPS.forEach((s, i) => {
-    const b = el('button', { type: 'button', className: 'planner__step', textContent: `${i + 1}. ${s.title}` });
-    b.setAttribute('role', 'tab');
-    if (i === state.step) b.setAttribute('aria-current', 'true');
-    if (i < state.step) b.classList.add('planner__step--done');
+    const done = isStepDone(s.key);
+    const b = el('button', {
+      type: 'button',
+      className: 'plan-step' + (i === state.step ? ' is-active' : '') + (done ? ' is-done' : ''),
+      innerHTML: `<span class="plan-step__icon" aria-hidden="true">${s.icon}</span>` +
+                 `<span class="plan-step__num" aria-hidden="true">${i + 1}</span>` +
+                 `<span class="plan-step__title">${s.title}</span>` +
+                 `<span class="plan-step__sub">${s.short}</span>` +
+                 (done ? '<span class="plan-step__check" aria-hidden="true">✓</span>' : '')
+    });
+    if (i === state.step) b.setAttribute('aria-current', 'step');
+    b.setAttribute('aria-label', `Step ${i + 1} of ${STEPS.length}: ${s.title}${done ? ', complete' : ''}${i === state.step ? ', current' : ''}`);
     b.addEventListener('click', () => { state.step = i; renderStep(); renderSteps(); });
-    wrap.appendChild(b);
+    grid.appendChild(b);
   });
+  wrap.appendChild(grid);
 }
 
-function moneyRow(_, valKey, list, placeholder) {
-  const wrap = el('div');
+function isStepDone(key) {
+  const p = state.plan;
+  switch (key) {
+    case 'income':    return (p.income || []).some(r => r.amount > 0);
+    case 'benefits':  return (p.benefits || []).some(r => r.amount > 0) || ((p.benefits || []).length > 0 && (p.benefitsAcked === true));
+    case 'expenses':  return (p.expenses || []).some(r => r.amount > 0);
+    case 'debts':     return (p.debts || []).length > 0 || p.debtsAcked === true;
+    case 'goals':     return (p.goals || []).length > 0 || p.goalsAcked === true;
+    case 'documents': return (p.documents || []).some(d => d.have);
+    case 'days':      return ((p.first72Hours||[]).length + (p.thirtyDayPlan||[]).length + (p.sixtyDayPlan||[]).length + (p.ninetyDayPlan||[]).length) >= 4;
+  }
+  return false;
+}
+
+// ---- Money rows (income / benefits / expenses) --------------------------
+function moneyRow(_, valKey, list, placeholder, presets, ackKey) {
+  const wrap = el('div', { className: 'plan-rows' });
+
+  // Suggestion chips
+  if (presets && presets.length) {
+    const chips = chipRow(presets, (p) => {
+      list.push({ label: p.label, [valKey]: p[valKey] || 0 });
+      window.__tlmPersist();
+      renderStep();
+      renderSummary();
+    });
+    chips.classList.add('plan-rows__chips');
+    wrap.appendChild(chips);
+  }
+
+  // Existing rows
   list.forEach((row, i) => {
-    const r = el('div', { className: 'row' });
-    const labelInput = el('input', { type: 'text', value: row.label || '', placeholder });
-    const amtInput = el('input', { type: 'number', value: row[valKey] ?? '', placeholder: 'Amount' });
-    amtInput.setAttribute('inputmode', 'decimal');
-    const del = el('button', { type: 'button', className: 'icon-btn', title: 'Remove', innerHTML: '&times;' });
-    labelInput.addEventListener('input', () => { row.label = labelInput.value; persist(); });
-    amtInput.addEventListener('input', () => { row[valKey] = parseFloat(amtInput.value) || 0; persist(); });
-    del.addEventListener('click', () => { list.splice(i, 1); persist(); renderStep(); });
-    r.append(labelInput, amtInput, del);
+    const r = el('div', { className: 'plan-row' });
+    const labelInput = el('input', { type: 'text', value: row.label || '', placeholder, className: 'plan-row__label' });
+    const amtWrap = el('div', { className: 'plan-row__amt' });
+    const amtInput = el('input', { type: 'text', value: row[valKey] ? fmtCurrency(row[valKey]) : '', placeholder: '$0', className: 'plan-row__amount' });
+    bindCurrencyInput(amtInput, (n) => { row[valKey] = n; window.__tlmPersist(); renderSummary(); });
+    amtWrap.appendChild(amtInput);
+    const del = el('button', { type: 'button', className: 'plan-row__del', title: 'Remove', innerHTML: '×', 'aria-label': 'Remove this row' });
+    labelInput.addEventListener('input', () => { row.label = labelInput.value; window.__tlmPersist(); });
+    del.addEventListener('click', () => { list.splice(i, 1); window.__tlmPersist(); renderStep(); renderSummary(); });
+    r.append(labelInput, amtWrap, del);
     wrap.appendChild(r);
   });
-  const add = el('button', { type: 'button', className: 'btn btn--ghost btn--sm', textContent: '+ Add' });
-  add.addEventListener('click', () => { list.push({ label: '', [valKey]: 0 }); persist(); renderStep(); });
-  wrap.appendChild(add);
+
+  // Manual add
+  const addBtn = el('button', { type: 'button', className: 'plan-add-btn', innerHTML: '<span aria-hidden="true">＋</span> Add another' });
+  addBtn.addEventListener('click', () => { list.push({ label: '', [valKey]: 0 }); window.__tlmPersist(); renderStep(); });
+  wrap.appendChild(addBtn);
+
+  // Acknowledgment toggle for empty steps (so "I don't have any" still marks step done)
+  if (ackKey && list.length === 0) {
+    const ack = el('label', { className: 'plan-ack' });
+    const cb = el('input', { type: 'checkbox', checked: !!state.plan[ackKey] });
+    cb.addEventListener('change', () => { state.plan[ackKey] = cb.checked; window.__tlmPersist(); renderSteps(); });
+    const t = el('span', { textContent: "I don't have any of these right now" });
+    ack.append(cb, t);
+    wrap.appendChild(ack);
+  }
   return wrap;
 }
 
+// ---- Debts (richer) -----------------------------------------------------
 function debtRows() {
-  const wrap = el('div');
+  const wrap = el('div', { className: 'plan-rows' });
+
+  const chips = chipRow(PRESETS.debts, (p) => {
+    state.plan.debts.push({ label: p.label, balance: 0, apr: 0, minPayment: 0 });
+    window.__tlmPersist(); renderStep(); renderSummary();
+  });
+  chips.classList.add('plan-rows__chips');
+  wrap.appendChild(chips);
+
   state.plan.debts.forEach((d, i) => {
-    const r = el('div', { className: 'row' });
-    r.style.gridTemplateColumns = '1.4fr 1fr 1fr 1fr 36px';
-    const label = el('input', { type: 'text', value: d.label || '', placeholder: 'Debt name' });
-    const bal = el('input', { type: 'number', value: d.balance || '', placeholder: 'Balance' });
-    const apr = el('input', { type: 'number', value: d.apr || '', placeholder: 'APR %' });
-    const min = el('input', { type: 'number', value: d.minPayment || '', placeholder: 'Min/mo' });
-    const del = el('button', { type: 'button', className: 'icon-btn', innerHTML: '&times;' });
-    label.addEventListener('input', () => { d.label = label.value; persist(); });
-    bal.addEventListener('input',   () => { d.balance = parseFloat(bal.value) || 0; persist(); });
-    apr.addEventListener('input',   () => { d.apr = parseFloat(apr.value) || 0; persist(); });
-    min.addEventListener('input',   () => { d.minPayment = parseFloat(min.value) || 0; persist(); });
-    del.addEventListener('click',   () => { state.plan.debts.splice(i, 1); persist(); renderStep(); });
+    const r = el('div', { className: 'plan-row plan-row--debt' });
+    const label = el('input', { type: 'text', value: d.label || '', placeholder: 'Debt name', className: 'plan-row__label' });
+    const bal = el('input', { type: 'text', value: d.balance ? fmtCurrency(d.balance) : '', placeholder: 'Balance', className: 'plan-row__amount' });
+    bindCurrencyInput(bal, (n) => { d.balance = n; window.__tlmPersist(); renderSummary(); });
+    const apr = el('input', { type: 'number', value: d.apr || '', placeholder: 'APR %', className: 'plan-row__small', min: 0, max: 999, step: 0.1 });
+    const min = el('input', { type: 'text', value: d.minPayment ? fmtCurrency(d.minPayment) : '', placeholder: 'Min/mo', className: 'plan-row__small' });
+    bindCurrencyInput(min, (n) => { d.minPayment = n; window.__tlmPersist(); renderSummary(); });
+    const del = el('button', { type: 'button', className: 'plan-row__del', innerHTML: '×', 'aria-label': 'Remove debt' });
+    label.addEventListener('input', () => { d.label = label.value; window.__tlmPersist(); });
+    apr.addEventListener('input', () => { d.apr = parseFloat(apr.value) || 0; window.__tlmPersist(); });
+    del.addEventListener('click', () => { state.plan.debts.splice(i, 1); window.__tlmPersist(); renderStep(); renderSummary(); });
     r.append(label, bal, apr, min, del);
     wrap.appendChild(r);
   });
-  const add = el('button', { type: 'button', className: 'btn btn--ghost btn--sm', textContent: '+ Add debt' });
-  add.addEventListener('click', () => { state.plan.debts.push({ label: '', balance: 0, apr: 0, minPayment: 0 }); persist(); renderStep(); });
-  wrap.appendChild(add);
+
+  const addBtn = el('button', { type: 'button', className: 'plan-add-btn', innerHTML: '<span aria-hidden="true">＋</span> Add a debt' });
+  addBtn.addEventListener('click', () => { state.plan.debts.push({ label: '', balance: 0, apr: 0, minPayment: 0 }); window.__tlmPersist(); renderStep(); });
+  wrap.appendChild(addBtn);
+
+  if (state.plan.debts.length === 0) {
+    const ack = el('label', { className: 'plan-ack' });
+    const cb = el('input', { type: 'checkbox', checked: !!state.plan.debtsAcked });
+    cb.addEventListener('change', () => { state.plan.debtsAcked = cb.checked; window.__tlmPersist(); renderSteps(); });
+    ack.append(cb, el('span', { textContent: "I have no debts to list" }));
+    wrap.appendChild(ack);
+  }
+
+  if (state.plan.debts.length >= 2) {
+    const order = state.plan.debts.slice().sort((a,b) => (b.apr || 0) - (a.apr || 0));
+    const top = order.find(d => (d.apr || 0) > 0);
+    if (top) wrap.appendChild(smartTip(
+      `<strong>Pay-down strategy:</strong> highest APR first → "${top.label || 'this debt'}" at ${(top.apr||0).toFixed(1)}%. Pay minimums on the rest, throw every spare dollar at the top one.`,
+      'info'
+    ));
+  }
   return wrap;
 }
 
+// ---- Goals --------------------------------------------------------------
 function goalsRows() {
-  const wrap = el('div');
+  const wrap = el('div', { className: 'plan-rows' });
+
+  const chips = chipRow(PRESETS.goals, (p) => {
+    state.plan.goals.push({ label: p.label, monthly: 0, target: p.target || 0, kind: 'save' });
+    window.__tlmPersist(); renderStep(); renderSummary();
+  });
+  chips.classList.add('plan-rows__chips');
+  wrap.appendChild(chips);
+
   state.plan.goals.forEach((g, i) => {
-    const r = el('div', { className: 'row' });
-    r.style.gridTemplateColumns = '1.4fr 130px 130px 36px';
-    const label = el('input', { type: 'text', value: g.label || '', placeholder: 'Goal' });
-    const monthly = el('input', { type: 'number', value: g.monthly || '', placeholder: '$/mo' });
-    const target = el('input', { type: 'number', value: g.target || '', placeholder: 'Target $' });
-    const del = el('button', { type: 'button', className: 'icon-btn', innerHTML: '&times;' });
-    label.addEventListener('input', () => { g.label = label.value; g.kind = 'save'; persist(); });
-    monthly.addEventListener('input', () => { g.monthly = parseFloat(monthly.value) || 0; persist(); });
-    target.addEventListener('input', () => { g.target = parseFloat(target.value) || 0; persist(); });
-    del.addEventListener('click', () => { state.plan.goals.splice(i, 1); persist(); renderStep(); });
-    r.append(label, monthly, target, del);
+    const r = el('div', { className: 'plan-row plan-row--goal' });
+    const label = el('input', { type: 'text', value: g.label || '', placeholder: 'Goal', className: 'plan-row__label' });
+    const monthly = el('input', { type: 'text', value: g.monthly ? fmtCurrency(g.monthly) : '', placeholder: '$/mo', className: 'plan-row__small' });
+    bindCurrencyInput(monthly, (n) => { g.monthly = n; window.__tlmPersist(); renderSummary(); });
+    const target = el('input', { type: 'text', value: g.target ? fmtCurrency(g.target) : '', placeholder: 'Target $', className: 'plan-row__small' });
+    bindCurrencyInput(target, (n) => { g.target = n; window.__tlmPersist(); });
+    const eta = el('span', { className: 'plan-row__eta' });
+    const updateEta = () => {
+      if (g.monthly > 0 && g.target > 0) {
+        const months = Math.ceil(g.target / g.monthly);
+        eta.textContent = months <= 1 ? '≈ 1 mo' : `≈ ${months} mo`;
+      } else eta.textContent = '';
+    };
+    monthly.addEventListener('input', updateEta);
+    target.addEventListener('input', updateEta);
+    updateEta();
+    const del = el('button', { type: 'button', className: 'plan-row__del', innerHTML: '×', 'aria-label': 'Remove goal' });
+    label.addEventListener('input', () => { g.label = label.value; g.kind = 'save'; window.__tlmPersist(); });
+    del.addEventListener('click', () => { state.plan.goals.splice(i, 1); window.__tlmPersist(); renderStep(); renderSummary(); });
+    r.append(label, monthly, target, eta, del);
     wrap.appendChild(r);
   });
-  const add = el('button', { type: 'button', className: 'btn btn--ghost btn--sm', textContent: '+ Add goal' });
-  add.addEventListener('click', () => { state.plan.goals.push({ label: '', monthly: 0, target: 0, kind: 'save' }); persist(); renderStep(); });
-  wrap.appendChild(add);
+
+  const addBtn = el('button', { type: 'button', className: 'plan-add-btn', innerHTML: '<span aria-hidden="true">＋</span> Add a goal' });
+  addBtn.addEventListener('click', () => { state.plan.goals.push({ label: '', monthly: 0, target: 0, kind: 'save' }); window.__tlmPersist(); renderStep(); });
+  wrap.appendChild(addBtn);
+
+  if (state.plan.goals.length === 0) {
+    const ack = el('label', { className: 'plan-ack' });
+    const cb = el('input', { type: 'checkbox', checked: !!state.plan.goalsAcked });
+    cb.addEventListener('change', () => { state.plan.goalsAcked = cb.checked; window.__tlmPersist(); renderSteps(); });
+    ack.append(cb, el('span', { textContent: "I'll come back to goals later" }));
+    wrap.appendChild(ack);
+  }
   return wrap;
 }
 
-const DEFAULT_DOCS = [
-  'Government photo ID', 'Social Security card', 'Birth certificate',
-  'Court / sentencing paperwork', 'Resume', 'List of references',
-  'Medical records / prescriptions', 'Bank account info', 'Lease / housing letter'
-];
-
+// ---- Documents (with progress bar) --------------------------------------
 function docsList() {
   if ((state.plan.documents || []).length === 0) {
-    state.plan.documents = DEFAULT_DOCS.map(label => ({ label, have: false }));
+    state.plan.documents = DEFAULT_DOCS.map(d => ({ label: d.label, have: false }));
   }
-  const wrap = el('div');
-  state.plan.documents.forEach((d) => {
-    const row = el('label', { style: 'display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)' });
+  const wrap = el('div', { className: 'plan-rows' });
+
+  const total = state.plan.documents.length;
+  const have = state.plan.documents.filter(d => d.have).length;
+  const pct = total ? Math.round((have / total) * 100) : 0;
+
+  const summary = el('div', { className: 'plan-doc-summary' });
+  summary.innerHTML = `<strong>${have} / ${total}</strong> documents on hand · <span class="muted">${pct}% complete</span>
+    <div class="plan-doc-bar" role="progressbar" aria-label="Documents collected" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${have}" aria-valuetext="${have} of ${total} documents collected"><div class="plan-doc-bar__fill" style="width:${pct}%"></div></div>`;
+  wrap.appendChild(summary);
+
+  const list = el('div', { className: 'plan-doc-grid' });
+  state.plan.documents.forEach((d, i) => {
+    const found = DEFAULT_DOCS.find(x => x.label === d.label);
+    const row = el('label', { className: 'plan-doc' + (d.have ? ' is-have' : '') });
     const cb = el('input', { type: 'checkbox', checked: !!d.have });
-    cb.addEventListener('change', () => { d.have = cb.checked; persist(); });
-    const t = el('span', { textContent: d.label });
-    row.append(cb, t);
-    wrap.appendChild(row);
+    cb.setAttribute('aria-label', `Mark ${d.label} as collected`);
+    cb.addEventListener('change', () => { d.have = cb.checked; window.__tlmPersist(); renderStep(); renderSummary(); });
+    const ic = el('span', { className: 'plan-doc__icon', 'aria-hidden': 'true', textContent: (found && found.icon) || '📄' });
+    const tx = el('span', { className: 'plan-doc__label', textContent: d.label });
+    const xb = el('button', { type: 'button', className: 'plan-doc__del', innerHTML: '×', 'aria-label': 'Remove document', title: 'Remove' });
+    xb.addEventListener('click', (e) => { e.preventDefault(); state.plan.documents.splice(i, 1); window.__tlmPersist(); renderStep(); });
+    row.append(cb, ic, tx, xb);
+    list.appendChild(row);
   });
-  const addRow = el('div', { className: 'row mt-2' });
-  addRow.style.gridTemplateColumns = '1fr 100px';
-  const inp = el('input', { type: 'text', placeholder: 'Add another document' });
-  const add = el('button', { type: 'button', className: 'btn btn--ghost btn--sm', textContent: 'Add' });
-  add.addEventListener('click', () => {
+  wrap.appendChild(list);
+
+  const addRow = el('div', { className: 'plan-row plan-row--add' });
+  const inp = el('input', { type: 'text', placeholder: 'Add another document', className: 'plan-row__label' });
+  const add = el('button', { type: 'button', className: 'plan-add-btn', innerHTML: '<span aria-hidden="true">＋</span> Add' });
+  function tryAdd() {
     if (!inp.value.trim()) return;
     state.plan.documents.push({ label: inp.value.trim(), have: false });
-    inp.value = ''; persist(); renderStep();
-  });
-  addRow.append(inp, add); wrap.appendChild(addRow);
+    inp.value = ''; window.__tlmPersist(); renderStep();
+  }
+  add.addEventListener('click', tryAdd);
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); tryAdd(); } });
+  addRow.append(inp, add);
+  wrap.appendChild(addRow);
   return wrap;
 }
 
+// ---- Sequence (72h / 30 / 60 / 90) --------------------------------------
 function dayPlans() {
-  const wrap = el('div');
+  const wrap = el('div', { className: 'plan-days' });
   const groups = [
-    { key: 'first72Hours', title: 'First 72 hours' },
-    { key: 'thirtyDayPlan', title: '30 days' },
-    { key: 'sixtyDayPlan',  title: '60 days' },
-    { key: 'ninetyDayPlan', title: '90 days' }
+    { key: 'first72Hours',  title: 'First 72 hours', icon: '⏱️' },
+    { key: 'thirtyDayPlan', title: '30 days',        icon: '📅' },
+    { key: 'sixtyDayPlan',  title: '60 days',        icon: '📆' },
+    { key: 'ninetyDayPlan', title: '90 days',        icon: '🗓️' }
   ];
   groups.forEach(g => {
-    const card = el('div', { className: 'card', style: 'margin-bottom:14px' });
-    card.appendChild(el('h3', { textContent: g.title, style: 'margin-top:0' }));
-    const list = el('div');
-    (state.plan[g.key] || []).forEach((task, i) => {
-      const row = el('div', { className: 'row', style: 'grid-template-columns:1fr 36px' });
-      const inp = el('input', { type: 'text', value: task });
-      const del = el('button', { type: 'button', className: 'icon-btn', innerHTML: '&times;' });
-      inp.addEventListener('input', () => { state.plan[g.key][i] = inp.value; persist(); });
-      del.addEventListener('click', () => { state.plan[g.key].splice(i, 1); persist(); renderStep(); });
-      row.append(inp, del); list.appendChild(row);
+    const card = el('div', { className: 'plan-day-card' });
+    card.appendChild(el('h3', { innerHTML: `<span aria-hidden="true">${g.icon}</span> ${g.title}` }));
+
+    // Quick-task chips
+    const chips = chipRow((QUICK_TASKS[g.key] || []).map(t => ({ icon: '＋', label: t })), (p) => {
+      state.plan[g.key] = (state.plan[g.key] || []).concat([p.label]);
+      window.__tlmPersist(); renderStep();
     });
-    const addRow = el('div', { className: 'row', style: 'grid-template-columns:1fr 100px;margin-top:10px' });
-    const inp = el('input', { type: 'text', placeholder: 'Add a step' });
-    const add = el('button', { type: 'button', className: 'btn btn--ghost btn--sm', textContent: 'Add' });
-    add.addEventListener('click', () => {
+    chips.classList.add('plan-rows__chips');
+    card.appendChild(chips);
+
+    const list = el('div', { className: 'plan-day-list' });
+    (state.plan[g.key] || []).forEach((task, i) => {
+      const row = el('div', { className: 'plan-day-row' });
+      const cb = el('input', { type: 'checkbox', checked: !!(state.plan[g.key + ':done'] || []).includes(i) });
+      cb.setAttribute('aria-label', `Mark task complete: ${task}`);
+      cb.addEventListener('change', () => {
+        const k = g.key + ':done';
+        const arr = state.plan[k] || [];
+        if (cb.checked) arr.push(i); else arr.splice(arr.indexOf(i), 1);
+        state.plan[k] = arr; window.__tlmPersist();
+        row.classList.toggle('is-done', cb.checked);
+      });
+      const inp = el('input', { type: 'text', value: task, className: 'plan-day-input', 'aria-label': `Task in ${g.title}` });
+      const del = el('button', { type: 'button', className: 'plan-row__del', innerHTML: '×', 'aria-label': 'Remove task' });
+      inp.addEventListener('input', () => { state.plan[g.key][i] = inp.value; window.__tlmPersist(); });
+      del.addEventListener('click', () => { state.plan[g.key].splice(i, 1); window.__tlmPersist(); renderStep(); });
+      row.append(cb, inp, del);
+      list.appendChild(row);
+    });
+
+    const addRow = el('div', { className: 'plan-row plan-row--add' });
+    const inp = el('input', { type: 'text', placeholder: 'Add a step', className: 'plan-row__label' });
+    const add = el('button', { type: 'button', className: 'plan-add-btn', innerHTML: '<span aria-hidden="true">＋</span> Add' });
+    function tryAdd() {
       if (!inp.value.trim()) return;
       state.plan[g.key] = (state.plan[g.key] || []).concat([inp.value.trim()]);
-      inp.value = ''; persist(); renderStep();
-    });
+      inp.value = ''; window.__tlmPersist(); renderStep();
+    }
+    add.addEventListener('click', tryAdd);
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); tryAdd(); } });
     addRow.append(inp, add);
-    card.appendChild(list); card.appendChild(addRow);
+    card.append(list, addRow);
     wrap.appendChild(card);
   });
+  return wrap;
+}
+
+// ---- Templates loader (renders before step content) ---------------------
+function templatesPicker() {
+  const wrap = el('div', { className: 'plan-templates' });
+  wrap.appendChild(el('div', { className: 'plan-templates__head', innerHTML:
+    '<strong>Quick start</strong> <span class="muted">Pre-fill from a common scenario · you can edit anything after.</span>'
+  }));
+  const grid = el('div', { className: 'plan-templates__grid' });
+  TEMPLATES.forEach(t => {
+    const b = el('button', {
+      type: 'button',
+      className: 'plan-template',
+      innerHTML: `<span class="plan-template__icon" aria-hidden="true">${t.icon}</span>
+                  <span class="plan-template__title">${t.title}</span>
+                  <span class="plan-template__desc">${t.desc}</span>`
+    });
+    b.setAttribute('aria-label', `Quick start template: ${t.title}. ${t.desc}`);
+    b.addEventListener('click', () => {
+      t.apply(state.plan);
+      window.__tlmPersist(); renderStep(); renderSteps(); renderSummary();
+      toast(`Loaded "${t.title}". Edit any line below.`);
+    });
+    grid.appendChild(b);
+  });
+  wrap.appendChild(grid);
   return wrap;
 }
 
@@ -481,21 +959,60 @@ function renderStep() {
   const host = $('#plannerStep'); if (!host) return;
   host.innerHTML = '';
   const s = STEPS[state.step];
-  const head = el('div');
-  head.appendChild(el('h3', { textContent: s.title, style: 'margin-bottom:4px' }));
-  head.appendChild(el('p', { className: 'muted', textContent: s.hint, style: 'margin-top:0' }));
+
+  // Step header — icon + title + hint
+  const head = el('div', { className: 'plan-step-head' });
+  head.innerHTML = `
+    <div class="plan-step-head__icon" aria-hidden="true">${s.icon}</div>
+    <div class="plan-step-head__txt">
+      <h3>${s.title}</h3>
+      <p>${s.hint}</p>
+    </div>
+    <div class="plan-step-head__count">Step ${state.step + 1} of ${STEPS.length}</div>
+  `;
   host.appendChild(head);
 
-  switch (s.key) {
-    case 'income':   host.appendChild(moneyRow('Income', 'amount', state.plan.income, 'Paycheck / gig / family')); break;
-    case 'benefits': host.appendChild(moneyRow('Benefits', 'amount', state.plan.benefits, 'SNAP / TANF / UI / VA')); break;
-    case 'expenses': host.appendChild(moneyRow('Expense', 'amount', state.plan.expenses, 'Rent / food / phone / bus')); break;
-    case 'debts':    host.appendChild(debtRows()); break;
-    case 'goals':    host.appendChild(goalsRows()); break;
-    case 'documents':host.appendChild(docsList()); break;
-    case 'days':     host.appendChild(dayPlans()); break;
+  // Templates appear ONLY on first step before any income is entered
+  if (s.key === 'income' && !(state.plan.income || []).some(r => r.amount > 0)) {
+    host.appendChild(templatesPicker());
   }
+
+  // Main step content
+  switch (s.key) {
+    case 'income':
+      host.appendChild(moneyRow('Income', 'amount', state.plan.income,
+        'e.g. Wages, gig work, family help', PRESETS.income));
+      if ((state.plan.income || []).some(r => r.amount > 0))
+        host.appendChild(smartTip("<strong>Smart move:</strong> set up direct deposit so payroll lands in a real bank account, not a paper check.", 'ok'));
+      break;
+    case 'benefits':
+      host.appendChild(moneyRow('Benefits', 'amount', state.plan.benefits,
+        'e.g. SNAP, TANF, UI, VA', PRESETS.benefits, 'benefitsAcked'));
+      host.appendChild(smartTip("Not sure what you qualify for? <a href='https://www.usa.gov/benefit-finder' target='_blank' rel='noopener' style='color:var(--tlm-gold)'>USA.gov Benefit Finder →</a>", 'info'));
+      break;
+    case 'expenses':
+      host.appendChild(moneyRow('Expense', 'amount', state.plan.expenses,
+        'e.g. Rent, food, phone, bus', PRESETS.expenses));
+      break;
+    case 'debts':
+      host.appendChild(debtRows());
+      break;
+    case 'goals':
+      host.appendChild(goalsRows());
+      break;
+    case 'documents':
+      host.appendChild(docsList());
+      host.appendChild(smartTip(
+        "Replacing missing IDs: <a href='https://www.ssa.gov/number-card' target='_blank' rel='noopener' style='color:var(--tlm-gold)'>SSA.gov</a> for SS card · your state DMV for ID · vital records for birth certificate.",
+        'info'));
+      break;
+    case 'days':
+      host.appendChild(dayPlans());
+      break;
+  }
+
   const stepHint = $('#stepHint'); if (stepHint) stepHint.textContent = s.hint;
+  renderSummary();
 }
 
 $('#prevStep')?.addEventListener('click', () => { state.step = Math.max(0, state.step - 1); renderStep(); renderSteps(); });
@@ -514,9 +1031,31 @@ function renderSummary() {
   net.style.color = t.net < 0 ? 'var(--tlm-danger)' : 'var(--tlm-success)';
   $('#kpiSavings').textContent = fmtMoney(t.savingsGoal);
   $('#ratioPct').textContent = Math.round(t.ratio * 100) + '%';
-  $('#ratioFill').style.width = (t.ratio * 100).toFixed(0) + '%';
+  $('#ratioFill').style.width = Math.min(100, t.ratio * 100).toFixed(0) + '%';
+  // Color the ratio bar by health
+  const fill = $('#ratioFill');
+  if (fill) {
+    if (t.ratio > 1) fill.style.background = 'linear-gradient(90deg, var(--tlm-danger), #FF7A55)';
+    else if (t.ratio > 0.85) fill.style.background = 'linear-gradient(90deg, #DAA520, #F5C84F)';
+    else fill.style.background = 'linear-gradient(90deg, #1F7A4D, #4FB87A)';
+  }
 
   const flagsHost = $('#riskFlags'); flagsHost.innerHTML = '';
+
+  // Health score (0–100) — lightweight composite
+  const stepDone = STEPS.filter(s => isStepDone(s.key)).length;
+  const ratioOk = t.ratio < 0.85 ? 1 : t.ratio < 1 ? 0.6 : 0.2;
+  const docsOk = (state.plan.documents || []).filter(d => d.have).length / Math.max(1, (state.plan.documents || []).length);
+  const score = Math.round(((stepDone / STEPS.length) * 0.5 + ratioOk * 0.3 + docsOk * 0.2) * 100);
+  const scoreCard = el('div', { className: 'plan-score' });
+  const scoreKind = score >= 75 ? 'ok' : score >= 50 ? 'mid' : 'low';
+  scoreCard.innerHTML = `
+    <div class="plan-score__num plan-score__num--${scoreKind}">${score}</div>
+    <div class="plan-score__lbl">Plan health</div>
+    <div class="plan-score__hint">${score >= 75 ? 'Strong start.' : score >= 50 ? 'Coming together — keep going.' : 'Plenty of room to fill in. One section at a time.'}</div>
+  `;
+  flagsHost.appendChild(scoreCard);
+
   riskFlags(state.plan).forEach(f => {
     const c = el('div', { className: `callout ${f.kind === 'warn' ? 'callout--warn' : f.kind === 'ok' ? 'callout--ok' : 'callout--info'}`, textContent: f.text });
     flagsHost.appendChild(c);
@@ -566,6 +1105,36 @@ $('#btnCopy')?.addEventListener('click', async () => {
 $('#btnCaseMgr')?.addEventListener('click', () => {
   const to = prompt('Case manager email (optional):', '') || '';
   location.href = caseManagerEmail(state.plan, to);
+});
+
+// --- Save progress (manual force-save) ---------------------------------
+$('#btnSaveProgress')?.addEventListener('click', async () => {
+  // Local save is automatic, but flush localStorage explicitly so the
+  // user gets a visible confirmation either signed-in or signed-out.
+  try { window.__tlmPersist(); } catch {}
+  // If signed in, push to cloud immediately (bypassing 1.2s debounce).
+  const signedIn = window.TLMAuth && window.TLMAuth.getUser && window.TLMAuth.getUser();
+  if (signedIn) {
+    setSyncStatus('Saving to cloud…', 'syncing');
+    try {
+      await flushPlanSync();
+      toast('Progress saved to cloud.');
+    } catch {
+      toast('Saved on this device. Cloud will retry.');
+    }
+  } else {
+    // Offer one-tap sign in for cross-device save.
+    const u = window.TLMAuth ? await window.TLMAuth.requireSignIn({
+      reason: 'Sign in to save your progress across devices. You can keep using the site signed-out — your plan stays on this device.'
+    }) : null;
+    if (u) {
+      setSyncStatus('Saving to cloud…', 'syncing');
+      try { await flushPlanSync(); toast('Progress saved to cloud.'); }
+      catch { toast('Saved on this device. Cloud will retry.'); }
+    } else {
+      toast('Saved on this device.');
+    }
+  }
 });
 
 function toast(msg) {

@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0E0E0E" />
+<meta name="color-scheme" content="light dark" />
+<title>My Plan · The Last Mile · Finance</title>
+<meta name="description" content="Inline view of your reentry money plan — see all sections, share, print, or keep editing." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="TLM Finance" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
+<link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
+<link rel="stylesheet" href="./src/styles/globals.css" />
+<link rel="stylesheet" href="./src/styles/print.css" media="print" />
+<style>
+  /* Page-local styles for the read-only inline plan view */
+  .plan-view { max-width: 920px; margin: 0 auto; padding: 28px 18px 80px; }
+  .plan-view__hero {
+    display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+    padding: 18px 20px; margin-bottom: 18px;
+    background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
+    border: 1px solid var(--line); border-radius: 16px;
+  }
+  .plan-view__hero h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.02em; }
+  .plan-view__hero p  { margin: 4px 0 0; color: var(--muted); font-size: .92rem; }
+  .plan-view__actions {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 18px;
+  }
+  .plan-view__section {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+  }
+  .plan-view__section h2 {
+    margin: 0 0 10px; font-size: 1.05rem; letter-spacing: -.005em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .plan-view__section h2 .badge {
+    margin-left: auto; font-size: .68rem; font-weight: 800; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--tlm-gold-deep);
+    background: rgba(218,165,32,.10); border: 1px solid rgba(218,165,32,.35);
+    border-radius: 999px; padding: 4px 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .plan-view__section h2 .badge { color: #FFD970; }
+  }
+  .pv-empty { color: var(--muted); font-size: .9rem; font-style: italic; }
+  .pv-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .pv-list li {
+    display: grid; grid-template-columns: 1fr auto; gap: 12px;
+    padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 10px; font-size: .92rem;
+  }
+  .pv-list li .pv-amt { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .pv-list li.is-done { opacity: .65; text-decoration: line-through; }
+  .pv-debt-grid { grid-template-columns: 1.4fr 1fr 80px 1fr; }
+  .pv-goal-grid { grid-template-columns: 1.4fr 1fr 1fr auto; }
+  .pv-kpis {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    margin: 6px 0 14px;
+  }
+  @media (max-width: 720px) { .pv-kpis { grid-template-columns: repeat(2, 1fr); } }
+  .pv-kpi {
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px; text-align: center;
+  }
+  .pv-kpi__num { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; letter-spacing: -.02em; }
+  .pv-kpi__lbl { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+  .pv-doc-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+  }
+  @media (max-width: 540px) { .pv-doc-grid { grid-template-columns: 1fr; } .pv-debt-grid, .pv-goal-grid { grid-template-columns: 1fr !important; } }
+  .pv-doc {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 10px; font-size: .9rem;
+  }
+  .pv-doc.is-have { background: rgba(31,122,77,.10); border-color: rgba(31,122,77,.45); }
+  .pv-doc .pv-check { color: var(--tlm-success); font-weight: 900; }
+  .pv-doc .pv-x { color: var(--muted); }
+  .pv-empty-banner {
+    text-align: center; padding: 28px; background: var(--surface-2);
+    border: 1px dashed var(--line); border-radius: 14px; color: var(--muted);
+  }
+  .pv-empty-banner h2 { margin: 0 0 6px; color: var(--ink); }
+</style>
+</head>
+<body class="has-bottom-nav">
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="nav" role="banner">
+  <div class="nav__inner">
+    <a class="brand" href="./index.html" aria-label="The Last Mile · Finance home">
+      <picture>
+        <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
+        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="240" height="78" style="height:72px;width:auto"/>
+      </picture>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="./index.html#planner">Plan</a>
+      <a href="./learn.html">Learn</a>
+      <a href="./hub.html">Hub</a>
+      <a href="./watch.html">Watch</a>
+      <a href="./media.html">Media</a>
+    </nav>
+    <div class="nav__cta">
+      <a class="btn btn--primary btn--sm" href="./index.html#planner">Continue editing <span class="arrow">→</span></a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="plan-view">
+    <div class="plan-view__hero">
+      <div>
+        <h1>My Plan</h1>
+        <p id="planMeta">Read-only view — your full plan, exactly as it stands. <span id="planFreshness"></span></p>
+      </div>
+      <span class="plan-sync" id="planSync" data-kind="local" role="status" aria-live="polite" aria-atomic="true">Loading…</span>
+    </div>
+
+    <div class="plan-view__actions" role="group" aria-label="Plan actions">
+      <button class="btn btn--primary btn--sm" id="btnSaveProgress" aria-label="Save progress now">💾 Save progress</button>
+      <a class="btn btn--dark btn--sm" href="./index.html#planner">✎ Continue editing</a>
+      <button class="btn btn--dark btn--sm" id="btnPrint">🖨 Print plan</button>
+      <button class="btn btn--ghost btn--sm" id="btnExportJSON">Export JSON</button>
+      <button class="btn btn--ghost btn--sm" id="btnExportCSV">Export CSV</button>
+      <button class="btn btn--ghost btn--sm" id="btnShare">Share</button>
+      <button class="btn btn--ghost btn--sm" id="btnCopy">Copy summary</button>
+      <button class="btn btn--ghost btn--sm" id="btnCaseMgr">Send to case manager</button>
+    </div>
+
+    <div id="planBody" aria-live="polite"></div>
+  </section>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer__inner">
+    <p class="muted">Plan stays on this device unless you export or sign in to sync. <a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a> · <a href="./data-deletion.html">Data deletion</a></p>
+  </div>
+</footer>
+
+<nav class="bottom-nav" aria-label="Mobile">
+  <a href="./index.html#planner" class="bottom-nav__cell"><span aria-hidden="true">📋</span><span>Plan</span></a>
+  <a href="./hub.html"            class="bottom-nav__cell"><span aria-hidden="true">🧭</span><span>Hub</span></a>
+  <a href="./learn.html"          class="bottom-nav__cell"><span aria-hidden="true">📘</span><span>Learn</span></a>
+  <a href="./watch.html"          class="bottom-nav__cell"><span aria-hidden="true">▶️</span><span>Watch</span></a>
+  <a href="./plan.html"           class="bottom-nav__cell" aria-current="page"><span aria-hidden="true">👁</span><span>My plan</span></a>
+</nav>
+
+<!-- Runtime config + auth (so we can pull from Supabase if signed in) -->
+<script src="./src/tlm-config.js"></script>
+<script src="./src/auth.js" defer></script>
+
+<script type="module">
+  // ---- Plan view: read state from localStorage (and Supabase if available) ----
+  const STORAGE_KEY = 'paving-the-road:plan:v1';
+  const $ = (s, r = document) => r.querySelector(s);
+  const fmtMoney = (n) => {
+    const v = Number(n) || 0;
+    return v.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  };
+  const setSyncStatus = (text, kind) => {
+    const e = $('#planSync'); if (!e) return;
+    e.textContent = text; e.dataset.kind = kind || '';
+  };
+
+  function loadLocalPlan() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch { return null; }
+  }
+  async function loadCloudPlanIfNewer(localPlan) {
+    try {
+      if (!window.TLMAuth) return localPlan;
+      const u = window.TLMAuth.getUser?.();
+      if (!u || !u.id) return localPlan;
+      const cfg = window.__TLM_CONFIG || {};
+      if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return localPlan;
+      setSyncStatus('Checking cloud…', 'syncing');
+      const m = await import('https://esm.sh/@supabase/supabase-js@2.45.4');
+      const sb = m.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true } });
+      const { data } = await sb.from('tlm_plans').select('plan, updated_at').eq('user_id', u.id).single();
+      if (data && data.plan && (!localPlan?.updatedAt || new Date(data.updated_at) > new Date(localPlan.updatedAt))) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.plan));
+        setSyncStatus('Loaded from cloud · ' + new Date().toLocaleTimeString(), 'ok');
+        return data.plan;
+      }
+      setSyncStatus('Synced · ' + new Date().toLocaleTimeString(), 'ok');
+      return localPlan;
+    } catch {
+      setSyncStatus('Saved on this device', 'local');
+      return localPlan;
+    }
+  }
+  async function saveCloudPlan(plan) {
+    try {
+      if (!window.TLMAuth) return false;
+      const u = window.TLMAuth.getUser?.();
+      if (!u || !u.id) return false;
+      const cfg = window.__TLM_CONFIG || {};
+      if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return false;
+      const m = await import('https://esm.sh/@supabase/supabase-js@2.45.4');
+      const sb = m.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true } });
+      const { error } = await sb.from('tlm_plans').upsert({
+        user_id: u.id, plan, updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      return !error;
+    } catch { return false; }
+  }
+
+  // ---- Render helpers --------------------------------------------------
+  function escapeHTML(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+  function listSection(title, badge, items, fn, emptyText) {
+    const block = document.createElement('section');
+    block.className = 'plan-view__section';
+    block.innerHTML = `<h2>${title} ${badge ? `<span class="badge">${escapeHTML(badge)}</span>` : ''}</h2>`;
+    if (!items || !items.length) {
+      const e = document.createElement('p'); e.className = 'pv-empty';
+      e.textContent = emptyText || 'Nothing here yet — keep going on the planner.';
+      block.appendChild(e);
+    } else {
+      const ul = document.createElement('ul'); ul.className = 'pv-list';
+      items.forEach(it => ul.appendChild(fn(it)));
+      block.appendChild(ul);
+    }
+    return block;
+  }
+
+  function moneyLi(item, valKey, placeholder) {
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${escapeHTML(item.label || placeholder)}</span><span class="pv-amt">${fmtMoney(item[valKey] || 0)}/mo</span>`;
+    return li;
+  }
+  function debtLi(d) {
+    const li = document.createElement('li'); li.className = 'pv-debt-grid';
+    li.innerHTML = `<span>${escapeHTML(d.label || 'Debt')}</span>` +
+                   `<span class="pv-amt">${fmtMoney(d.balance || 0)}</span>` +
+                   `<span class="pv-amt">${(d.apr || 0)}% APR</span>` +
+                   `<span class="pv-amt">${fmtMoney(d.minPayment || 0)}/mo</span>`;
+    return li;
+  }
+  function goalLi(g) {
+    const li = document.createElement('li'); li.className = 'pv-goal-grid';
+    const eta = g.monthly && g.target ? `${Math.ceil(g.target / g.monthly)} mo` : '—';
+    li.innerHTML = `<span>${escapeHTML(g.label || 'Goal')}</span>` +
+                   `<span class="pv-amt">${fmtMoney(g.monthly || 0)}/mo</span>` +
+                   `<span class="pv-amt">${fmtMoney(g.target || 0)} target</span>` +
+                   `<span class="pv-amt">ETA ${eta}</span>`;
+    return li;
+  }
+  function dayLi(task, doneIdxs, idx) {
+    const li = document.createElement('li');
+    const done = (doneIdxs || []).includes(idx);
+    if (done) li.className = 'is-done';
+    li.innerHTML = `<span>${done ? '✓ ' : ''}${escapeHTML(task)}</span><span></span>`;
+    return li;
+  }
+
+  // ---- KPIs computation (mirror of budgetCalculator.totals — keeps this page standalone)
+  function totals(plan) {
+    const sum = (a, k) => (a || []).reduce((s, x) => s + (Number(x[k]) || 0), 0);
+    const monthlyIncome   = sum(plan.income,   'amount') + sum(plan.benefits, 'amount');
+    const monthlyExpenses = sum(plan.expenses, 'amount');
+    const monthlyDebtPayments = sum(plan.debts, 'minPayment');
+    const net = monthlyIncome - monthlyExpenses - monthlyDebtPayments;
+    const ratio = monthlyIncome > 0 ? (monthlyExpenses + monthlyDebtPayments) / monthlyIncome : 0;
+    const savingsGoal = Math.max(0, Math.round(monthlyIncome * 0.10));
+    return { monthlyIncome, monthlyExpenses, monthlyDebtPayments, net, ratio, savingsGoal };
+  }
+  const STEP_KEYS = ['income','benefits','expenses','debts','goals','documents','days'];
+  function isStepDone(plan, key) {
+    switch (key) {
+      case 'income':    return (plan.income || []).some(r => r.amount > 0);
+      case 'benefits':  return (plan.benefits || []).some(r => r.amount > 0) || plan.benefitsAcked === true;
+      case 'expenses':  return (plan.expenses || []).some(r => r.amount > 0);
+      case 'debts':     return (plan.debts || []).length > 0 || plan.debtsAcked === true;
+      case 'goals':     return (plan.goals || []).length > 0 || plan.goalsAcked === true;
+      case 'documents': return (plan.documents || []).some(d => d.have);
+      case 'days':      return ((plan.first72Hours||[]).length + (plan.thirtyDayPlan||[]).length + (plan.sixtyDayPlan||[]).length + (plan.ninetyDayPlan||[]).length) >= 4;
+    }
+    return false;
+  }
+
+  // ---- Main render ------------------------------------------------------
+  function render(plan) {
+    const body = $('#planBody'); body.innerHTML = '';
+    if (!plan || (!plan.income?.length && !plan.expenses?.length && !plan.first72Hours?.length && !plan.documents?.some(d => d.have))) {
+      const empty = document.createElement('div');
+      empty.className = 'pv-empty-banner';
+      empty.innerHTML = `<h2>No plan yet</h2><p>Start your plan and your progress will show up here automatically.</p><a class="btn btn--primary btn--sm" href="./index.html#planner" style="margin-top:10px">Start my plan →</a>`;
+      body.appendChild(empty);
+      return;
+    }
+
+    // KPIs + score
+    const t = totals(plan);
+    const stepDone = STEP_KEYS.filter(k => isStepDone(plan, k)).length;
+    const ratioOk = t.ratio < 0.85 ? 1 : t.ratio < 1 ? 0.6 : 0.2;
+    const docs = plan.documents || [];
+    const docsOk = docs.length ? docs.filter(d => d.have).length / docs.length : 0;
+    const score = Math.round(((stepDone / STEP_KEYS.length) * 0.5 + ratioOk * 0.3 + docsOk * 0.2) * 100);
+    const scoreKind = score >= 75 ? 'ok' : score >= 50 ? 'mid' : 'low';
+
+    const overview = document.createElement('section');
+    overview.className = 'plan-view__section';
+    overview.innerHTML = `
+      <h2>Overview <span class="badge">Plan health: ${score}/100</span></h2>
+      <div class="pv-kpis" role="group" aria-label="Plan key figures">
+        <div class="pv-kpi"><div class="pv-kpi__num">${fmtMoney(t.monthlyIncome)}</div><div class="pv-kpi__lbl">Income / mo</div></div>
+        <div class="pv-kpi"><div class="pv-kpi__num">${fmtMoney(t.monthlyExpenses + t.monthlyDebtPayments)}</div><div class="pv-kpi__lbl">Expenses / mo</div></div>
+        <div class="pv-kpi"><div class="pv-kpi__num" style="color:${t.net < 0 ? 'var(--tlm-danger)' : 'var(--tlm-success)'}">${fmtMoney(t.net)}</div><div class="pv-kpi__lbl">Net cash flow</div></div>
+        <div class="pv-kpi"><div class="pv-kpi__num">${fmtMoney(t.savingsGoal)}</div><div class="pv-kpi__lbl">Savings target / mo</div></div>
+      </div>
+      <p class="pv-empty" style="font-style:normal">Sections complete: <strong>${stepDone}</strong> of ${STEP_KEYS.length} · Spending ratio: <strong>${Math.round(t.ratio * 100)}%</strong></p>
+    `;
+    body.appendChild(overview);
+
+    // Income / Benefits / Expenses
+    body.appendChild(listSection('💰 Income', `${(plan.income || []).length} sources`, plan.income,
+      it => moneyLi(it, 'amount', 'Income source'), 'No income sources added yet.'));
+    body.appendChild(listSection('🎟 Benefits & support', `${(plan.benefits || []).length} sources`, plan.benefits,
+      it => moneyLi(it, 'amount', 'Benefit'), 'No benefits added yet.'));
+    body.appendChild(listSection('📂 Expenses', `${(plan.expenses || []).length} items`, plan.expenses,
+      it => moneyLi(it, 'amount', 'Expense'), 'No expenses added yet.'));
+
+    // Debts
+    body.appendChild(listSection('💳 Debts', `${(plan.debts || []).length} debts`, plan.debts, debtLi,
+      plan.debtsAcked ? 'Acknowledged: no debts right now.' : 'No debts added yet.'));
+
+    // Goals
+    body.appendChild(listSection('🎯 Goals', `${(plan.goals || []).length} goals`, plan.goals, goalLi,
+      plan.goalsAcked ? 'Acknowledged: coming back to goals later.' : 'No goals added yet.'));
+
+    // Documents — special grid
+    const docBlock = document.createElement('section');
+    docBlock.className = 'plan-view__section';
+    const haveCount = (plan.documents || []).filter(d => d.have).length;
+    docBlock.innerHTML = `<h2>📋 Documents <span class="badge">${haveCount} / ${(plan.documents || []).length} on hand</span></h2>`;
+    if (!plan.documents?.length) {
+      const e = document.createElement('p'); e.className = 'pv-empty';
+      e.textContent = 'Document checklist not started.';
+      docBlock.appendChild(e);
+    } else {
+      const grid = document.createElement('div'); grid.className = 'pv-doc-grid';
+      plan.documents.forEach(d => {
+        const cell = document.createElement('div');
+        cell.className = 'pv-doc' + (d.have ? ' is-have' : '');
+        cell.innerHTML = `<span class="${d.have ? 'pv-check' : 'pv-x'}" aria-hidden="true">${d.have ? '✓' : '○'}</span><span>${escapeHTML(d.label)}</span>`;
+        grid.appendChild(cell);
+      });
+      docBlock.appendChild(grid);
+    }
+    body.appendChild(docBlock);
+
+    // Sequence cards
+    [
+      { key: 'first72Hours',  label: 'First 72 hours' },
+      { key: 'thirtyDayPlan', label: '30 days' },
+      { key: 'sixtyDayPlan',  label: '60 days' },
+      { key: 'ninetyDayPlan', label: '90 days' }
+    ].forEach(g => {
+      const tasks = plan[g.key] || [];
+      const done = plan[g.key + ':done'] || [];
+      const block = document.createElement('section');
+      block.className = 'plan-view__section';
+      block.innerHTML = `<h2>📅 ${g.label} <span class="badge">${done.length} / ${tasks.length} done</span></h2>`;
+      if (!tasks.length) {
+        const e = document.createElement('p'); e.className = 'pv-empty';
+        e.textContent = 'No steps for this window yet.';
+        block.appendChild(e);
+      } else {
+        const ul = document.createElement('ul'); ul.className = 'pv-list';
+        tasks.forEach((t, i) => ul.appendChild(dayLi(t, done, i)));
+        block.appendChild(ul);
+      }
+      body.appendChild(block);
+    });
+
+    // Freshness footer
+    const meta = $('#planFreshness');
+    if (plan.updatedAt) meta.textContent = '· Last updated ' + new Date(plan.updatedAt).toLocaleString();
+  }
+
+  // ---- Actions ---------------------------------------------------------
+  let CURRENT_PLAN = null;
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    Object.assign(t.style, {
+      position: 'fixed', left: '50%', bottom: '90px', transform: 'translateX(-50%)',
+      background: 'var(--tlm-charcoal)', color: 'var(--tlm-gold)',
+      padding: '10px 16px', borderRadius: '999px', zIndex: 100,
+      boxShadow: '0 6px 24px rgba(0,0,0,.35)', fontWeight: 700
+    });
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2200);
+  }
+  function planAsText(plan) {
+    const t = totals(plan);
+    const lines = [];
+    lines.push('TLM Finance — My Plan');
+    if (plan.updatedAt) lines.push('Updated ' + new Date(plan.updatedAt).toLocaleString());
+    lines.push('');
+    lines.push(`Income: ${fmtMoney(t.monthlyIncome)} / mo`);
+    lines.push(`Expenses + debt: ${fmtMoney(t.monthlyExpenses + t.monthlyDebtPayments)} / mo`);
+    lines.push(`Net: ${fmtMoney(t.net)} / mo`);
+    lines.push(`Savings target: ${fmtMoney(t.savingsGoal)} / mo`);
+    const blocks = [
+      ['Income', plan.income, r => `  • ${r.label || '—'}: ${fmtMoney(r.amount)}/mo`],
+      ['Benefits', plan.benefits, r => `  • ${r.label || '—'}: ${fmtMoney(r.amount)}/mo`],
+      ['Expenses', plan.expenses, r => `  • ${r.label || '—'}: ${fmtMoney(r.amount)}/mo`],
+      ['Debts', plan.debts, r => `  • ${r.label || '—'}: ${fmtMoney(r.balance)} @ ${r.apr || 0}% (min ${fmtMoney(r.minPayment)}/mo)`],
+      ['Goals', plan.goals, r => `  • ${r.label || '—'}: ${fmtMoney(r.monthly)}/mo → ${fmtMoney(r.target)}`],
+      ['Documents', (plan.documents || []).filter(d => d.have), d => `  • ✓ ${d.label}`]
+    ];
+    blocks.forEach(([title, arr, fmt]) => {
+      lines.push(''); lines.push(title + ':');
+      if (!arr || !arr.length) lines.push('  (none yet)');
+      else arr.forEach(x => lines.push(fmt(x)));
+    });
+    [['First 72 hours','first72Hours'],['30 days','thirtyDayPlan'],['60 days','sixtyDayPlan'],['90 days','ninetyDayPlan']].forEach(([title, key]) => {
+      lines.push(''); lines.push(title + ':');
+      const tasks = plan[key] || []; const done = plan[key + ':done'] || [];
+      if (!tasks.length) lines.push('  (none yet)');
+      else tasks.forEach((t, i) => lines.push(`  ${done.includes(i) ? '✓' : '○'} ${t}`));
+    });
+    return lines.join('\n');
+  }
+  function exportJSON(plan) {
+    const blob = new Blob([JSON.stringify(plan, null, 2)], { type: 'application/json' });
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'my-tlm-plan.json' });
+    a.click();
+  }
+  function exportCSV(plan) {
+    const rows = [['section','label','value','extra']];
+    (plan.income || []).forEach(r => rows.push(['income', r.label || '', r.amount || 0, '']));
+    (plan.benefits || []).forEach(r => rows.push(['benefits', r.label || '', r.amount || 0, '']));
+    (plan.expenses || []).forEach(r => rows.push(['expenses', r.label || '', r.amount || 0, '']));
+    (plan.debts || []).forEach(r => rows.push(['debts', r.label || '', r.balance || 0, `apr=${r.apr || 0}, min=${r.minPayment || 0}`]));
+    (plan.goals || []).forEach(r => rows.push(['goals', r.label || '', r.monthly || 0, `target=${r.target || 0}`]));
+    (plan.documents || []).forEach(d => rows.push(['documents', d.label, d.have ? 1 : 0, '']));
+    [['first72Hours','first72Hours'],['30 days','thirtyDayPlan'],['60 days','sixtyDayPlan'],['90 days','ninetyDayPlan']].forEach(([title,key]) => {
+      const done = plan[key + ':done'] || [];
+      (plan[key] || []).forEach((t, i) => rows.push([title, t, done.includes(i) ? 'done' : 'todo', '']));
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'my-tlm-plan.csv' });
+    a.click();
+  }
+  async function shareOrCopy(plan, mode) {
+    const text = planAsText(plan);
+    if (mode === 'share' && navigator.share) {
+      try { await navigator.share({ title: 'My TLM Plan', text }); return 'shared'; } catch { /* fallthrough */ }
+    }
+    try { await navigator.clipboard.writeText(text); return 'copied'; } catch { return 'fail'; }
+  }
+
+  // Wire actions
+  $('#btnPrint')?.addEventListener('click', () => window.print());
+  $('#btnExportJSON')?.addEventListener('click', () => CURRENT_PLAN && exportJSON(CURRENT_PLAN));
+  $('#btnExportCSV')?.addEventListener('click', () => CURRENT_PLAN && exportCSV(CURRENT_PLAN));
+  $('#btnShare')?.addEventListener('click', async () => {
+    if (!CURRENT_PLAN) return;
+    const r = await shareOrCopy(CURRENT_PLAN, 'share');
+    toast(r === 'shared' ? 'Shared.' : r === 'copied' ? 'Copied to clipboard.' : 'Could not share.');
+  });
+  $('#btnCopy')?.addEventListener('click', async () => {
+    if (!CURRENT_PLAN) return;
+    const r = await shareOrCopy(CURRENT_PLAN, 'copy');
+    toast(r === 'copied' ? 'Plan copied.' : 'Could not copy.');
+  });
+  $('#btnCaseMgr')?.addEventListener('click', () => {
+    if (!CURRENT_PLAN) return;
+    const to = prompt('Case manager email (optional):', '') || '';
+    const subject = encodeURIComponent('My TLM Finance plan');
+    const body = encodeURIComponent(planAsText(CURRENT_PLAN));
+    location.href = `mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`;
+  });
+  $('#btnSaveProgress')?.addEventListener('click', async () => {
+    if (!CURRENT_PLAN) { toast('Nothing to save yet.'); return; }
+    // Local save is a no-op (already in localStorage), but we update the timestamp.
+    CURRENT_PLAN.updatedAt = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(CURRENT_PLAN));
+    const signedIn = window.TLMAuth && window.TLMAuth.getUser && window.TLMAuth.getUser();
+    if (signedIn) {
+      setSyncStatus('Saving to cloud…', 'syncing');
+      const ok = await saveCloudPlan(CURRENT_PLAN);
+      if (ok) { setSyncStatus('Synced · ' + new Date().toLocaleTimeString(), 'ok'); toast('Progress saved to cloud.'); }
+      else    { setSyncStatus('Saved on this device', 'local'); toast('Saved on this device. Cloud will retry.'); }
+    } else if (window.TLMAuth) {
+      const u = await window.TLMAuth.requireSignIn({ reason: 'Sign in to save your progress across devices. The plan stays on this device either way.' });
+      if (u) {
+        setSyncStatus('Saving to cloud…', 'syncing');
+        const ok = await saveCloudPlan(CURRENT_PLAN);
+        if (ok) { setSyncStatus('Synced · ' + new Date().toLocaleTimeString(), 'ok'); toast('Progress saved to cloud.'); }
+        else    { setSyncStatus('Saved on this device', 'local'); toast('Saved on this device. Cloud will retry.'); }
+      } else {
+        toast('Saved on this device.');
+      }
+    } else {
+      toast('Saved on this device.');
+    }
+  });
+
+  // ---- Boot ------------------------------------------------------------
+  (async () => {
+    let plan = loadLocalPlan();
+    if (!plan) setSyncStatus('No plan yet', 'local');
+    else setSyncStatus('Saved on this device', 'local');
+    render(plan);
+    // After auth boots, try to upgrade from cloud
+    setTimeout(async () => {
+      plan = await loadCloudPlanIfNewer(plan);
+      CURRENT_PLAN = plan;
+      render(plan);
+    }, 600);
+    CURRENT_PLAN = plan;
+  })();
+</script>
+
+<script src="./service-worker-register.js" defer></script>
+</body>
+</html>

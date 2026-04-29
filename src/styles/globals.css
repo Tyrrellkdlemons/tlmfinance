@@ -2680,3 +2680,472 @@ nav[aria-label$="shortcuts"] h3 {
 @media (prefers-reduced-motion: reduce) {
   .fp-resume-nudge { transition: none; transform: translate(-50%, 0); }
 }
+
+/* ==========================================================================
+   PLANNER PRO — major upgrade. Visual stepper, smart chip presets,
+   currency-formatted inputs, doc grid w/ progress bar, sequence cards
+   with inline check-offs, templates, sync indicator, plan health score.
+   ========================================================================== */
+
+/* Top progress bar across the planner */
+.plan-stepbar {
+  position: relative;
+  height: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.plan-stepbar__fill {
+  position: absolute; inset: 0 auto 0 0;
+  background: linear-gradient(90deg, #DAA520, #FFD970);
+  border-radius: 999px;
+  transition: width .45s cubic-bezier(.2,.7,.2,1);
+}
+
+/* Visual step grid replacing the old planner__steps */
+.plan-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 18px;
+}
+@media (max-width: 760px) {
+  .plan-steps-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 480px) {
+  .plan-steps-grid { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+}
+.plan-step {
+  position: relative;
+  display: grid;
+  grid-template-areas: "icon num" "title title" "sub sub";
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2px 8px;
+  padding: 12px 10px 10px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.plan-step:hover { transform: translateY(-1px); border-color: rgba(218, 165, 32, .55); }
+.plan-step.is-active {
+  background: linear-gradient(180deg, var(--tlm-charcoal) 0%, #1a1a1a 100%);
+  color: var(--tlm-gold);
+  border-color: var(--tlm-gold);
+  box-shadow: 0 0 0 2px rgba(218,165,32,.45), 0 14px 28px -12px rgba(218,165,32,.5);
+}
+.plan-step.is-done { border-color: rgba(31,122,77,.45); }
+.plan-step.is-done:not(.is-active) { background: rgba(31,122,77,.06); }
+.plan-step__icon { grid-area: icon; font-size: 1.15rem; line-height: 1; }
+.plan-step__num {
+  grid-area: num;
+  justify-self: end;
+  font-size: .68rem; font-weight: 800; opacity: .55; letter-spacing: .04em;
+}
+.plan-step__title { grid-area: title; font-weight: 800; font-size: .9rem; letter-spacing: -.01em; line-height: 1.1; }
+.plan-step__sub   { grid-area: sub; font-size: .72rem; opacity: .65; line-height: 1.15; }
+.plan-step.is-active .plan-step__sub { opacity: .85; }
+.plan-step__check {
+  position: absolute; top: 6px; right: 6px;
+  width: 18px; height: 18px;
+  display: grid; place-items: center;
+  border-radius: 50%; background: #1F7A4D; color: #fff;
+  font-size: .68rem; font-weight: 900;
+}
+
+/* Step header (icon + title + count) above content */
+.plan-step-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--line);
+}
+.plan-step-head__icon {
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, #FFD970, #DAA520);
+  color: var(--tlm-charcoal);
+  border-radius: 12px;
+  font-size: 1.4rem;
+  box-shadow: 0 6px 16px -8px rgba(218,165,32,.55);
+}
+.plan-step-head__txt h3 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em; }
+.plan-step-head__txt p  { margin: 2px 0 0; color: var(--muted); font-size: .9rem; }
+.plan-step-head__count {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tlm-gold-deep);
+  background: rgba(218,165,32,.10);
+  border: 1px solid rgba(218,165,32,.35);
+  border-radius: 999px;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+@media (max-width: 540px) {
+  .plan-step-head__count { display: none; }
+}
+
+/* Chip suggestions */
+.plan-chips {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.plan-rows__chips { margin-bottom: 12px; }
+.plan-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: .82rem; font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s ease, background .2s ease, border-color .2s ease, color .2s ease;
+}
+.plan-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--tlm-gold);
+  background: rgba(218,165,32,.10);
+  color: var(--tlm-gold-deep);
+}
+.plan-chip__icon { font-size: 1rem; line-height: 1; }
+
+/* Row & inputs */
+.plan-rows { display: flex; flex-direction: column; gap: 10px; }
+.plan-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 36px;
+  gap: 8px;
+  align-items: stretch;
+}
+.plan-row--debt { grid-template-columns: 1.4fr 1fr 80px 1fr 36px; }
+.plan-row--goal { grid-template-columns: 1.4fr 1fr 1fr auto 36px; }
+.plan-row--add  { grid-template-columns: 1fr 100px; }
+@media (max-width: 540px) {
+  .plan-row { grid-template-columns: 1fr 36px; }
+  .plan-row__amt, .plan-row__amount { grid-column: 1; }
+  .plan-row--debt, .plan-row--goal { grid-template-columns: 1fr 36px; }
+  .plan-row--debt > *:not(.plan-row__label):not(.plan-row__del),
+  .plan-row--goal > *:not(.plan-row__label):not(.plan-row__del) { grid-column: 1; }
+}
+.plan-row input,
+.plan-row__label,
+.plan-row__amount,
+.plan-row__small,
+.plan-day-input {
+  font: inherit;
+  padding: 11px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--ink);
+  width: 100%;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.plan-row input:focus, .plan-day-input:focus {
+  outline: none;
+  border-color: var(--tlm-gold);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(218,165,32,.18);
+}
+.plan-row__amount { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.plan-row__del {
+  display: grid; place-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.plan-row__del:hover { background: var(--tlm-cream-2); color: var(--tlm-danger); border-color: var(--tlm-danger); }
+.plan-row__eta {
+  display: grid; place-items: center;
+  font-size: .82rem; font-weight: 700; color: var(--tlm-gold-deep);
+  white-space: nowrap;
+}
+
+/* Add buttons */
+.plan-add-btn {
+  align-self: flex-start;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1.5px dashed rgba(218,165,32,.5);
+  background: rgba(218,165,32,.06);
+  color: var(--tlm-gold-deep);
+  font: inherit; font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.plan-add-btn:hover {
+  background: var(--tlm-gold);
+  color: var(--tlm-charcoal);
+  border-color: var(--tlm-gold);
+}
+
+/* Acknowledgment ("I don't have any") */
+.plan-ack {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 8px; padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  font-size: .9rem; color: var(--ink-soft);
+  cursor: pointer;
+}
+.plan-ack input { accent-color: var(--tlm-gold); width: 16px; height: 16px; }
+
+/* Smart tip callout */
+.plan-tip {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(47,93,219,.08);
+  border-left: 4px solid var(--tlm-info);
+  font-size: .9rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+.plan-tip--ok    { background: rgba(31,122,77,.10); border-left-color: var(--tlm-success); }
+.plan-tip--warn  { background: rgba(178,58,31,.10); border-left-color: var(--tlm-danger); }
+
+/* Documents — progress bar + grid */
+.plan-doc-summary {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: .92rem;
+}
+.plan-doc-bar {
+  height: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.plan-doc-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1F7A4D, #4FB87A);
+  transition: width .45s cubic-bezier(.2,.7,.2,1);
+}
+.plan-doc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (max-width: 540px) { .plan-doc-grid { grid-template-columns: 1fr; } }
+.plan-doc {
+  display: grid;
+  grid-template-columns: 22px 28px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.plan-doc:hover { border-color: rgba(218,165,32,.55); }
+.plan-doc.is-have {
+  background: rgba(31,122,77,.10);
+  border-color: rgba(31,122,77,.45);
+}
+.plan-doc.is-have .plan-doc__label { text-decoration: line-through; opacity: .8; }
+.plan-doc input { accent-color: var(--tlm-gold); width: 18px; height: 18px; }
+.plan-doc__icon { font-size: 1.1rem; line-height: 1; }
+.plan-doc__label { font-size: .9rem; font-weight: 600; }
+.plan-doc__del {
+  background: transparent; border: 0; color: var(--muted);
+  font-size: 1.1rem; cursor: pointer;
+  border-radius: 6px;
+}
+.plan-doc__del:hover { color: var(--tlm-danger); background: rgba(178,58,31,.08); }
+
+/* Sequence cards */
+.plan-days { display: grid; gap: 14px; }
+.plan-day-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.plan-day-card h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.plan-day-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.plan-day-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 36px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.plan-day-row.is-done .plan-day-input { text-decoration: line-through; opacity: .65; }
+.plan-day-row input[type="checkbox"] { accent-color: var(--tlm-gold); width: 18px; height: 18px; }
+
+/* Templates */
+.plan-templates {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(218,165,32,.08), rgba(218,165,32,.02));
+  border: 1px solid rgba(218,165,32,.30);
+}
+.plan-templates__head { margin-bottom: 10px; font-size: .92rem; }
+.plan-templates__head .muted { color: var(--muted); margin-left: 6px; }
+.plan-templates__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (max-width: 540px) { .plan-templates__grid { grid-template-columns: 1fr; } }
+.plan-template {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "icon title" "icon desc";
+  gap: 4px 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .2s ease, background .2s ease;
+}
+.plan-template:hover { transform: translateY(-1px); border-color: var(--tlm-gold); background: rgba(218,165,32,.05); }
+.plan-template__icon { grid-area: icon; font-size: 1.6rem; align-self: start; }
+.plan-template__title { grid-area: title; font-weight: 800; font-size: .95rem; letter-spacing: -.005em; }
+.plan-template__desc { grid-area: desc; font-size: .82rem; color: var(--muted); }
+
+/* Sync indicator pill */
+.plan-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.plan-sync::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.plan-sync[data-kind="ok"] {
+  color: var(--tlm-success);
+  border-color: rgba(31,122,77,.4);
+  background: rgba(31,122,77,.08);
+}
+.plan-sync[data-kind="ok"]::before { background: var(--tlm-success); }
+.plan-sync[data-kind="syncing"] {
+  color: var(--tlm-gold-deep);
+  border-color: rgba(218,165,32,.4);
+  background: rgba(218,165,32,.10);
+}
+.plan-sync[data-kind="syncing"]::before { background: var(--tlm-gold); animation: plan-pulse 1s ease-in-out infinite; }
+@keyframes plan-pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+
+/* Plan health score */
+.plan-score {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "num lbl" "num hint";
+  gap: 4px 14px;
+  align-items: center;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.plan-score__num {
+  grid-area: num;
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -.04em;
+  line-height: 1;
+}
+.plan-score__num--ok  { color: var(--tlm-success); }
+.plan-score__num--mid { color: var(--tlm-gold-deep); }
+.plan-score__num--low { color: var(--tlm-danger); }
+.plan-score__lbl { grid-area: lbl; font-weight: 800; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+.plan-score__hint { grid-area: hint; font-size: .82rem; color: var(--muted); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .plan-stepbar__fill, .plan-doc-bar__fill, .plan-step, .plan-template, .plan-add-btn, .plan-chip {
+    transition: none !important;
+  }
+  .plan-sync[data-kind="syncing"]::before { animation: none; }
+}
+
+/* === A11Y POLISH (audit 2026-04-28) =====================================
+   Focus-visible rings on every interactive Planner Pro surface, and
+   dark-mode contrast overrides for the gold-deep ink that was failing
+   4.5:1 against charcoal backgrounds. WCAG 2.1 AA · 1.4.3, 2.4.7
+   ====================================================================== */
+.plan-step:focus-visible,
+.plan-chip:focus-visible,
+.plan-template:focus-visible,
+.plan-add-btn:focus-visible,
+.plan-row__del:focus-visible,
+.plan-doc__del:focus-visible {
+  outline: 3px solid var(--tlm-gold);
+  outline-offset: 2px;
+  border-color: var(--tlm-gold);
+}
+.plan-doc:focus-within {
+  outline: 3px solid var(--tlm-gold);
+  outline-offset: 2px;
+}
+.plan-day-row input[type="checkbox"]:focus-visible,
+.plan-doc input[type="checkbox"]:focus-visible,
+.plan-ack input:focus-visible {
+  outline: 3px solid var(--tlm-gold);
+  outline-offset: 2px;
+}
+
+/* Dark-mode contrast — gold-deep #8C6810 fails 4.5:1 on charcoal,
+   so swap to cream-gold #FFD970 (ratio ~10:1) when the user prefers dark. */
+@media (prefers-color-scheme: dark) {
+  .plan-row__eta,
+  .plan-step-head__count,
+  .plan-add-btn,
+  .plan-score__num--mid,
+  .plan-sync[data-kind="syncing"] {
+    color: #FFD970;
+  }
+  .plan-chip:hover {
+    color: #FFD970;
+    background: rgba(218,165,32,.18);
+  }
+}

@@ -324,7 +324,10 @@
         </div>
       </div>
       <div class="planner__panel" aria-live="polite">
-        <h3 style="margin-top:0">Live Summary</h3>
+        <div class="spread" style="align-items:center;margin-bottom:8px">
+          <h3 style="margin:0">Live Summary</h3>
+          <span id="planSync" class="plan-sync" data-kind="local" role="status" aria-live="polite" aria-atomic="true">Saved on this device</span>
+        </div>
         <div class="kpis">
           <div class="kpi"><div class="kpi__num" id="kpiIncome">$0</div><div class="kpi__label">Monthly income</div></div>
           <div class="kpi"><div class="kpi__num" id="kpiExpenses">$0</div><div class="kpi__label">Monthly expenses</div></div>
@@ -334,6 +337,8 @@
         <div class="mt-2"><div class="spread"><strong>Spending vs. income</strong><span class="muted" id="ratioPct">0%</span></div><div class="bar"><div class="bar__fill" id="ratioFill"></div></div></div>
         <div id="riskFlags" class="mt-3"></div>
         <div class="flex mt-3">
+          <button class="btn btn--primary btn--sm" id="btnSaveProgress" aria-label="Save progress now">💾 Save progress</button>
+          <a class="btn btn--dark btn--sm" id="btnViewPlan" href="./plan.html" role="button">👁 View my plan</a>
           <button class="btn btn--dark btn--sm" id="btnPrint">Print plan</button>
           <button class="btn btn--ghost btn--sm" id="btnSavePhone">Save to phone</button>
           <button class="btn btn--ghost btn--sm" id="btnExportJSON">Export JSON</button>

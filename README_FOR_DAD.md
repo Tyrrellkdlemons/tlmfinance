@@ -170,3 +170,139 @@ The service worker only registers over HTTPS or `localhost` — opening `index.h
 It's a privacy-first reentry-planning PWA: 8 pages, ~25 vetted resources, a 90-day money planner that lives entirely in the browser, an AI chatbot routed through a free public relay, a hidden admin panel for the owner, and a Netlify deploy gated by a JSON/HTML validator. The biggest things to fix are the **out-of-date README**, the **service-worker missing two admin files**, and the **admin panel needing real auth**. Everything else is content/refresh work.
 
 — Tyrrell
+
+---
+
+## 11. Updates · April 28, 2026 — Auth, Compliance, Admin & Planner Pro
+
+Since the April 27 review, the site jumped a full version forward. Three big themes: a real **authentication layer**, **legal/brand compliance work** so the site can actually publish on Facebook and Google, and a **complete reinvention of the planner** into a guided, intelligent, cloud-syncing experience. Privacy posture is preserved — sign-in is **only required if the user wants to save their plan to the cloud**. The site is fully usable signed-out exactly as before.
+
+### 11a. Authentication is now live
+
+- **Supabase project** (`oaioqiydnrpgwbflhnba`) wired into `src/tlm-config.js` (URL + anon key). Three tables behind Row-Level Security: `tlm_subscribers` (newsletter list), `tlm_audit` (sign-in / save / admin events), `tlm_plans` (cloud-saved planner state, owner-only access). SQL bootstrap is committed at `docs/supabase-bootstrap.sql`.
+- **Three sign-in methods, all working:**
+  - **Email + password** (Supabase default).
+  - **Google OAuth** — Cloud project "TLM Finance," app published in production. Client ID + secret pasted into Supabase. (Google's secret field had to be re-entered once — the first save dropped it silently and threw `validation_failed: missing OAuth secret` on first sign-in. Re-entered → fixed.)
+  - **Facebook OAuth** — Developer App `1751165142521435`, redirect URI back to Supabase callback. App is in **developer mode** for now: only test users + the admin can sign in publicly. Going Live mode requires Meta's business verification + App Review (a multi-week process), which we're skipping until launch.
+- **Site URL Configuration in Supabase:** site URL `tlmfinance.netlify.app`, redirect URLs include both prod and `localhost:3000` so local testing works.
+- **Auth UI (`src/auth.js`):** Supabase-backed with a `localStorage` fallback so the site never breaks if Supabase is down. The user sees a polished modal with tabs (Sign in / Create account), social buttons (Google, Facebook), and a newsletter opt-in checkbox on the sign-up tab. A **portal pill** in the top nav and a 6th cell in the mobile **bottom nav** (`Account`) handle entry. When signed in, the pill becomes an avatar with a dropdown (My plan / Sign out). Every auth event writes to `tlm_audit` via a `logEvent()` helper.
+- **Login is gated to "save" intent only.** `src/contact-gate.js` was neutralized (it now only fires when `forceContactGate` flag is on). Instead, every Save button on the planner (Print, Save to phone, Export JSON, Export CSV, Share, Copy, Send to case manager) wraps an `ensureSignedInForSave()` call that pops the auth modal if the user isn't already signed in. The plan itself still saves to localStorage as the user types — sign-in is only the gate for cloud-sync and exports.
+
+### 11b. Legal & brand compliance pages (Facebook/Google requirements)
+
+To get OAuth approved I had to ship three new public pages and a real app icon:
+
+- **`privacy.html`** — privacy policy (no analytics, no third-party fonts, what we collect via Supabase auth, what we don't).
+- **`terms.html`** — terms of service.
+- **`data-deletion.html`** — Facebook-required user data deletion instructions, on its own URL because Facebook's validator caches the URL it first sees.
+- **`assets/icons/icon-1024.svg`** + **`assets/icons/make-icon-1024.html`** — the TLM Finance app icon. The `.svg` is the master art (charcoal background, gold sunrise + road + chained-becoming-free silhouettes, "TLM" wordmark). The `.html` page renders the SVG to a 1024×1024 canvas and offers a one-click PNG download for the Facebook / Apple / Google app icon slots — done in-browser, nothing leaves the page.
+
+While registering Facebook there were two notable gotchas worth flagging:
+1. The Facebook validator threw "`name_placeholder should represent a valid URL`" because it had **cached** an earlier failed URL. Switching the dropdown to "Data deletion callback URL" and back, then pasting the explicit `.html` URL, cleared the cache.
+2. Same secret-save issue as Google — Facebook's App Secret had to be re-entered in Supabase a second time after the field appeared blank.
+
+### 11c. Admin panel — real upgrade
+
+The admin panel is no longer just hero-copy editing. **`admin.html`** + **`src/admin-overrides.js`** now ship with:
+
+- **Three secret entry methods** (instead of the original four — simpler, harder to stumble into):
+  1. **Click the logo 7 times in 3 seconds.**
+  2. **Type the literal string `TLMadmin`** anywhere on any page.
+  3. **Konami code** (↑ ↑ ↓ ↓ ← → ← → B A).
+- **Page-hide enforcement** — admin can flip individual pages (Learn, Hub, Watch, Feed, Radio, Media) from "live" to "hidden" without redeploying. Hidden pages 404 in nav. Driven by `tlm:adminPages:v1` in localStorage.
+- **Three tabs:**
+  - **Sign-ins & subscribers** — pulls live from Supabase (`tlm_audit` for sign-ins, `tlm_subscribers` for the newsletter list) with localStorage fallback if Supabase is unreachable.
+  - **Audit log** — every login, save-to-cloud, plan-export, and admin entry, with timestamp + user.
+  - **Pages & visibility** — toggles described above + hero copy / counter overrides.
+- **`src/tlm-config.js`** is the single source of truth for runtime config (Supabase URL + anon key) and is already populated with live values.
+
+### 11d. Planner reinvention — "Planner Pro"
+
+The biggest user-facing change. The planner **kept its 7-step structure and data shape** so existing exports / case-manager email / cloud-sync all still work — but the UI/UX is completely rebuilt:
+
+- **Visual icon stepper.** Each step shows an icon, a short label, and a checkmark when complete. Replaces the old text-only "Step 1 of 7" header.
+- **~50 smart suggestion chips** across all steps. Tap a chip to pre-fill an income source, expense category, debt type, goal, or document — no typing required for the most common cases. Reduces friction enormously for low-literacy / low-typing-comfort users.
+- **4 quick-start templates** appear on Step 1 before any income is entered:
+  1. *Just released, no income yet*
+  2. *Working part-time*
+  3. *School + side hustle*
+  4. *Family support setup*
+  Each template seeds realistic placeholder rows the user then edits — gets people from a blank screen to a usable plan in seconds.
+- **Currency-formatted inputs.** All money fields format on blur via `Intl.NumberFormat` ("$1,250.00") so the plan looks professional and is easier to scan.
+- **"I don't have any" acknowledgment toggles** for each step (income, expenses, debts, goals, documents) so the plan can move forward honestly without forcing fake entries.
+- **Goals with ETA.** Each goal calculates how many months until you hit it given current cash flow.
+- **Documents grid with progress bar.** Visual checklist (ID, Social Security card, birth certificate, lease, employment letter, etc.) with a "X of 12 documents collected" progress bar.
+- **Sequence cards (72h / 30d / 60d / 90d) with quick-task chips and checkbox strikethrough.** Mark a task done → it strikes through and counts toward step completion.
+- **Plan health score (0–100).** Composite of step completion + cash-flow ratio + documents collected, color-coded.
+- **Color-coded cash-flow ratio bar** (green / amber / red) on the live summary.
+- **Smart contextual tips** per step — debt-strategy tip on the debts step, savings-pace tip on the goals step, etc. Plain language, no jargon.
+- **Cloud-sync to Supabase `tlm_plans` table** for signed-in users, debounced 1.2s, with a **live sync indicator pill** next to "Live Summary":
+  - "Saved on this device" (signed-out / fallback)
+  - "Saving to cloud…" (in flight)
+  - "Synced to cloud · 3:41 PM" (last successful save)
+- **Mobile + accessibility polish.** All new components have `prefers-reduced-motion` overrides and three responsive breakpoints (760px, 540px, 480px).
+
+`src/app.js` now boots the Pro planner. `src/styles/globals.css` has ~440 new lines under a clearly marked "PLANNER PRO" section. `index.html` only changed in one place (added the sync indicator next to "Live Summary").
+
+### 11e. Sitewide polish + bug fixes from the audit
+
+- **Bottom nav locked to dark charcoal sitewide.** It used to flip cream under `prefers-color-scheme: dark` because of `--ink`. Locked override added so the nav is always charcoal regardless of system theme.
+- **Hover accessibility fix.** `a:hover { color: var(--tlm-gold-deep) }` was washing out on dark surfaces because `--tlm-gold-deep` (`#8C6810`) is unreadable on charcoal. Override added on `.section--dark`, `.section--charcoal`, `.footer`, `.tlm-chat`, `.fp-wizard`, and `.plan-panel` to force `#FFD970` (cream gold).
+- **`.btn--ghost:hover` lock** — was flipping white in dark mode, now locks to gold-on-charcoal regardless of theme.
+- **Universal "Jump to" nav-card style** across Learn / Hub / Feed / Radio so all four pages feel consistent.
+- **Link-rot audit fixes:** CFPB pay-stub link (was 404, now points to direct PDF), CareerOneStop library finder, VA reentry, CSU Project Rebound — all re-verified and updated.
+- **`index.html` mid-tag truncation repaired.** Line 484 was cut mid-script-tag (`<script src="./src/admin-ov`). Closed properly with admin-overrides + auth scripts and `</body></html>`.
+- **Stray broken CSS fragments removed** (`-install-cta { animation: none; }` orphan and a `, .gold-text { animation: none; }` orphan).
+- **Netlify Functions** added: `chat.js` (relay for the chatbot), `notify.js` (admin email pings), `newsletter.js` (newsletter signup if Supabase is unreachable). All in `netlify/functions/` with a shared `package.json`.
+
+### 11f. What's NOT changing (preserved on purpose)
+
+- The privacy posture: **no analytics, no third-party fonts, plan saves to localStorage by default, sign-in is only required for cloud-sync.**
+- Every page from the original 8 — Learn / Hub / Watch / Feed / Radio / Media / Admin / Index — is still there, same URLs.
+- The chatbot is unchanged (still Pollinations relay, still no API key in the page).
+- Service-worker shell-cache, CI validator, JSON data files — unchanged.
+- All export paths (JSON, CSV, mailto, share, copy, print) still work and still produce the same shape.
+
+### 11g. Known gaps still on the punch list
+
+- Facebook is in developer mode only — Live mode requires Meta business verification (multi-week).
+- The two `service-worker.js` SHELL gaps from the original audit (`admin.html`, `src/admin-overrides.js`) — **still need to be added** before the next deploy. Bump the cache version when you do.
+- Top-level `README.md` is still out of date — this `README_FOR_DAD.md` is the current source of truth.
+- TLM logo / portraits still placeholder (waiting on `info@thelastmile.org` written permission).
+- Legal disclaimer in footer still needs attorney review before public launch.
+
+### 11h. Pre-deploy accessibility audit (WCAG 2.1 AA)
+
+Right before deploy I ran a full a11y pass on the new Planner Pro additions and fixed everything I found. None of the issues were show-stoppers — most were "screen-reader users would have a worse experience than sighted users." Now they're at parity.
+
+**What was checked.** The visual stepper, suggestion chips, quick-start templates, "I don't have any" toggles, document grid + progress bar, sequence cards (72h/30/60/90), the live cloud-sync pill, and the plan-health score card. Plus a sweep on the auth modal and the new `plan.html` inline view.
+
+**What I fixed:**
+
+- **Cloud-sync pill announces state changes.** Added `role="status"` + `aria-live="polite"` + `aria-atomic="true"` to `#planSync` so screen readers say "Saving to cloud… / Synced to cloud · 3:41 PM" out loud — sighted users get the visual change for free, but SR users were silent before.
+- **Decorative emoji icons are now hidden from screen readers.** All the emoji on chips (`💵 Job income`), step buttons (`💰 Income`), templates (`🆕 Just released`), document rows, day-card headers, and the step counter number now carry `aria-hidden="true"` — SR no longer reads "knife and fork dollar sign job income," just "Add Job income."
+- **Stepper buttons use the right ARIA pattern.** Was `role="tab"` with `aria-current="true"` (incorrect — `tab` requires a `tablist` parent and a `tabpanel` association). Switched to plain buttons with the proper `aria-current="step"` on the active step plus a full `aria-label="Step 3 of 7: Expenses, complete, current"`.
+- **Progress bars are real progress bars.** The top "Planner progress" bar and the "Documents collected" bar got `role="progressbar"` + `aria-valuemin` + `aria-valuemax` + `aria-valuenow` + `aria-valuetext` — SR users now hear "Planner progress, step 3 of 7."
+- **Every checkbox has an explicit label.** The day-row task checkboxes and document checkboxes were wrapped in styled `<div>`/`<label>` but the checkbox itself had no name. Each now carries an `aria-label` like "Mark Phone bill as collected" or "Mark task complete: Apply for state ID."
+- **Chip and template buttons announce their full action.** Each chip ("`+ Job income`") now has `aria-label="Add Job income"`. Each template ("Just released, no income yet") has `aria-label="Quick start template: Just released, no income yet. Pre-fill from a common scenario."`
+- **Visible focus rings on every new interactive surface.** Added `:focus-visible` styles for `.plan-step`, `.plan-chip`, `.plan-template`, `.plan-add-btn`, `.plan-doc`, `.plan-row__del`, `.plan-doc__del`, `.plan-day-row input`, `.plan-doc input`, `.plan-ack input` — 3px gold ring + 2px offset. Was relying on browser default before, which is sometimes invisible.
+- **Dark-mode contrast bumps for `--tlm-gold-deep` text.** `#8C6810` is ~5.5:1 against cream (passes 4.5:1 on light theme) but only ~3.5:1 against charcoal (fails on dark theme). Under `prefers-color-scheme: dark`, `.plan-row__eta`, `.plan-step-head__count`, `.plan-add-btn`, `.plan-score__num--mid`, the syncing pill, and `.plan-chip:hover` now switch to `#FFD970` (cream gold, ~10:1 on charcoal).
+
+**Already good — no changes needed.** Auth modal already had `role="dialog"` + `aria-modal="true"` + `aria-labelledby` + autofocus on the email field and a labeled close button. Account dropdown already had `aria-haspopup="menu"` + `aria-expanded`. The `+` add buttons already had `aria-hidden` on the icon span and visible text. All `×` delete buttons already had `aria-label="Remove …"`. The planner panel already had `aria-live="polite"`.
+
+**Tested with:** keyboard-only navigation (Tab/Shift-Tab/Enter/Space across the planner), `prefers-reduced-motion` (animations disabled correctly), `prefers-color-scheme: dark` (all text passes 4.5:1), and 200% browser zoom (layout reflows, doesn't break).
+
+### 11i. Inline plan view (new) + Save Progress button
+
+You can now see your full plan on a dedicated page — `plan.html` — that loads from localStorage (and from Supabase if you're signed in, picking whichever copy is newer). It works **even while the plan is in progress** — empty sections show a friendly "Nothing here yet" instead of breaking. Sections covered: KPIs (income, expenses, net cash flow, savings target), plan-health score, income, benefits, expenses, debts, goals, documents grid (✓/○ on each), and all four sequence windows (72h / 30 / 60 / 90) with completed tasks struck through.
+
+The page mirrors all existing actions — Print, Share, Copy summary, Export JSON, Export CSV, Send to case manager — and adds a new **💾 Save progress** button (also added to the index planner action row). Behavior:
+
+- **Signed in:** flushes the 1.2-second auto-sync debounce and pushes immediately to Supabase, then toasts "Progress saved to cloud."
+- **Signed out:** offers a one-tap sign-in pop-up (so the next visit on any device picks up where you left off), or lets you skip and just save locally with a "Saved on this device" toast.
+
+Both `plan.html` and the new Save button surface the same `role="status"` sync pill so screen readers hear "Saving to cloud… / Synced · 3:41 PM" the same way they do on the planner. The mobile bottom nav has a 5th cell on `plan.html` that highlights "My plan" with `aria-current="page"`.
+
+---
+
+— Tyrrell, 2026-04-28
