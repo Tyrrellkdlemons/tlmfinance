@@ -99,14 +99,14 @@
       </picture>
     </a>
     <nav class="nav__links" aria-label="Primary">
-      <a href="./index.html#planner">Plan</a>
+      <a href="./planner.html">Plan</a>
       <a href="./learn.html">Learn</a>
       <a href="./hub.html">Hub</a>
       <a href="./watch.html">Watch</a>
       <a href="./media.html">Media</a>
     </nav>
     <div class="nav__cta">
-      <a class="btn btn--primary btn--sm" href="./index.html#planner">Continue editing <span class="arrow">→</span></a>
+      <a class="btn btn--primary btn--sm" href="./planner.html">Continue editing <span class="arrow">→</span></a>
     </div>
   </div>
 </header>
@@ -123,7 +123,7 @@
 
     <div class="plan-view__actions" role="group" aria-label="Plan actions">
       <button class="btn btn--primary btn--sm" id="btnSaveProgress" aria-label="Save progress now">💾 Save progress</button>
-      <a class="btn btn--dark btn--sm" href="./index.html#planner">✎ Continue editing</a>
+      <a class="btn btn--dark btn--sm" href="./planner.html">✎ Continue editing</a>
       <button class="btn btn--dark btn--sm" id="btnPrint">🖨 Print plan</button>
       <button class="btn btn--ghost btn--sm" id="btnExportJSON">Export JSON</button>
       <button class="btn btn--ghost btn--sm" id="btnExportCSV">Export CSV</button>
@@ -143,7 +143,7 @@
 </footer>
 
 <nav class="bottom-nav" aria-label="Mobile">
-  <a href="./index.html#planner" class="bottom-nav__cell"><span aria-hidden="true">📋</span><span>Plan</span></a>
+  <a href="./planner.html" class="bottom-nav__cell"><span aria-hidden="true">📋</span><span>Plan</span></a>
   <a href="./hub.html"            class="bottom-nav__cell"><span aria-hidden="true">🧭</span><span>Hub</span></a>
   <a href="./learn.html"          class="bottom-nav__cell"><span aria-hidden="true">📘</span><span>Learn</span></a>
   <a href="./watch.html"          class="bottom-nav__cell"><span aria-hidden="true">▶️</span><span>Watch</span></a>
@@ -294,7 +294,7 @@
     if (!plan || (!plan.income?.length && !plan.expenses?.length && !plan.first72Hours?.length && !plan.documents?.some(d => d.have))) {
       const empty = document.createElement('div');
       empty.className = 'pv-empty-banner';
-      empty.innerHTML = `<h2>No plan yet</h2><p>Start your plan and your progress will show up here automatically.</p><a class="btn btn--primary btn--sm" href="./index.html#planner" style="margin-top:10px">Start my plan →</a>`;
+      empty.innerHTML = `<h2>No plan yet</h2><p>Start your plan and your progress will show up here automatically.</p><a class="btn btn--primary btn--sm" href="./planner.html" style="margin-top:10px">Start my plan →</a>`;
       body.appendChild(empty);
       return;
     }

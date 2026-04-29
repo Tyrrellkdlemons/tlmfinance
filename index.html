@@ -62,7 +62,7 @@
       </picture>
     </a>
     <nav class="nav__links" aria-label="Primary">
-      <a href="#planner">Plan</a>
+      <a href="./planner.html">Plan</a>
       <a href="./learn.html">Learn</a>
       <a href="./hub.html">Hub</a>
       <a href="#builders">Builders</a>
@@ -281,7 +281,7 @@
         <p>Full-scale tech labs in correctional facilities — secure internet, live remote instruction, web development, audio/video production, project management, sales, entrepreneurship, AI literacy.</p>
         <span class="act__cta">Explore the Learn page →</span>
       </a>
-      <a class="act" href="#planner" aria-label="Reentry — open the planner">
+      <a class="act" href="./planner.html" aria-label="Reentry — open the planner">
         <div class="act__num">02</div><span class="act__tag">Reentry</span>
         <h3>72-hour to 90-day plan.</h3>
         <p>The first three months decide a lot. Money, documents, housing, transit, health, family, and a job lead. Plus financial literacy that respects where you've been.</p>
@@ -312,43 +312,35 @@
   <div class="container">
     <span class="eyebrow">Core feature</span>
     <h2 id="planner-title">Your money plan, your way.</h2>
-    <p class="lede">A step-by-step planner for income, expenses, debts, documents, and the first 90 days. Saves on this device. Print it, save to your phone, or hand it to a case manager.</p>
-    <div class="planner mt-3">
-      <div class="planner__panel">
-        <div class="planner__steps" id="plannerSteps" role="tablist" aria-label="Plan steps"></div>
-        <div id="plannerStep" aria-live="polite"></div>
-        <div class="spread mt-3">
-          <button class="btn btn--ghost btn--sm" id="prevStep">Back</button>
-          <div class="muted" id="stepHint">Saved automatically · device-only</div>
-          <button class="btn btn--primary btn--sm" id="nextStep">Continue</button>
+    <p class="lede">A step-by-step planner for income, expenses, debts, documents, and the first 90 days. Auto-saves on this device. Sign in to sync across devices.</p>
+
+    <div class="planner-cta mt-3">
+      <div class="planner-cta__main">
+        <div class="planner-cta__copy">
+          <span class="planner-cta__eyebrow">90-day macro plan · the deep one</span>
+          <h3 class="planner-cta__title">Open the full planner</h3>
+          <p>7 quick steps · ~50 smart suggestion chips · 4 quick-start templates · plan health score · cloud sync. Auto-saves as you go.</p>
+          <ul class="planner-cta__bullets">
+            <li><span aria-hidden="true">💰</span> Income, benefits, expenses, debts, goals</li>
+            <li><span aria-hidden="true">📋</span> Document checklist with progress</li>
+            <li><span aria-hidden="true">📅</span> First 72 hours · 30 / 60 / 90 days</li>
+            <li><span aria-hidden="true">📊</span> Live summary, KPIs, plan health score</li>
+          </ul>
+          <div class="flex" style="margin-top:14px">
+            <a class="btn btn--primary" href="./planner.html">Open the full planner →</a>
+            <a class="btn btn--ghost" href="./plan.html">👁 View my plan</a>
+          </div>
         </div>
+        <aside class="planner-cta__quick">
+          <span class="planner-cta__eyebrow">In a hurry?</span>
+          <h3 class="planner-cta__title planner-cta__title--sm">60-second micro plan</h3>
+          <p class="muted">Pick a few needs and we'll print a starter 72-hour list in a minute. You can graduate to the full planner whenever.</p>
+          <div class="flex">
+            <button class="btn btn--dark btn--sm" data-open-plan id="fpp">⚡ Quick start</button>
+          </div>
+        </aside>
       </div>
-      <div class="planner__panel" aria-live="polite">
-        <div class="spread" style="align-items:center;margin-bottom:8px">
-          <h3 style="margin:0">Live Summary</h3>
-          <span id="planSync" class="plan-sync" data-kind="local" role="status" aria-live="polite" aria-atomic="true">Saved on this device</span>
-        </div>
-        <div class="kpis">
-          <div class="kpi"><div class="kpi__num" id="kpiIncome">$0</div><div class="kpi__label">Monthly income</div></div>
-          <div class="kpi"><div class="kpi__num" id="kpiExpenses">$0</div><div class="kpi__label">Monthly expenses</div></div>
-          <div class="kpi"><div class="kpi__num" id="kpiNet">$0</div><div class="kpi__label">Net cash flow</div></div>
-          <div class="kpi"><div class="kpi__num" id="kpiSavings">$0</div><div class="kpi__label">Savings goal / month</div></div>
-        </div>
-        <div class="mt-2"><div class="spread"><strong>Spending vs. income</strong><span class="muted" id="ratioPct">0%</span></div><div class="bar"><div class="bar__fill" id="ratioFill"></div></div></div>
-        <div id="riskFlags" class="mt-3"></div>
-        <div class="flex mt-3">
-          <button class="btn btn--primary btn--sm" id="btnSaveProgress" aria-label="Save progress now">💾 Save progress</button>
-          <a class="btn btn--dark btn--sm" id="btnViewPlan" href="./plan.html" role="button">👁 View my plan</a>
-          <button class="btn btn--dark btn--sm" id="btnPrint">Print plan</button>
-          <button class="btn btn--ghost btn--sm" id="btnSavePhone">Save to phone</button>
-          <button class="btn btn--ghost btn--sm" id="btnExportJSON">Export JSON</button>
-          <button class="btn btn--ghost btn--sm" id="btnExportCSV">Export CSV</button>
-          <button class="btn btn--ghost btn--sm" id="btnShare">Share</button>
-          <button class="btn btn--ghost btn--sm" id="btnCopy">Copy summary</button>
-          <button class="btn btn--ghost btn--sm" id="btnCaseMgr">Send to case manager</button>
-        </div>
-        <p class="disclaimer mt-3">This tool provides planning information and resource links — not legal, financial, or case-management advice. Your information stays on this device unless you choose to export it.</p>
-      </div>
+      <p class="disclaimer mt-3">Planning information and resource links — not legal, financial, or case-management advice. Your data stays on this device unless you choose to export or sync.</p>
     </div>
   </div>
 </section>
@@ -443,11 +435,12 @@
     <button class="btn btn--ghost btn--sm" id="closePlan" aria-label="Close panel">Close</button>
   </div>
   <div class="plan-panel__body">
-    <p class="muted" style="margin-top:0">Pick everything that applies. We'll generate a 72-hour plan and link to resources.</p>
+    <p class="muted" style="margin-top:0">Pick everything that applies. We'll generate a 72-hour plan and link to resources. Want a deeper plan? <a href="./planner.html">Open the full 90-day planner →</a></p>
     <div class="quiz" id="quiz"></div>
     <div class="flex mt-3">
       <button class="btn btn--primary" id="generate72">Generate my 72-hour plan</button>
-      <button class="btn btn--ghost" type="button" id="openAdvancedFromPanel">Open full planner →</button>
+      <a class="btn btn--dark" href="./planner.html">Open the full planner →</a>
+      <button class="btn btn--ghost" type="button" id="openAdvancedFromPanel">Advanced wizard</button>
     </div>
     <div id="quizOutput" class="mt-3"></div>
   </div>
@@ -473,7 +466,7 @@
   </div>
 </footer>
 <nav class="bottom-nav" aria-label="Mobile primary">
-  <a href="#planner" aria-label="Plan"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12l4-4 4 4 7-7 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a>
+  <a href="./planner.html" aria-label="Plan"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12l4-4 4 4 7-7 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></a>
   <a href="./learn.html" aria-label="Learn"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h8a2 2 0 012 2v12H6a2 2 0 01-2-2V5zM12 5h8v12a2 2 0 01-2 2h-6V5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Learn</span></a>
   <a href="./hub.html" aria-label="Hub"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/></svg><span>Hub</span></a>
   <a href="./watch.html" aria-label="Watch"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><polygon points="6 4 20 12 6 20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Watch</span></a>

@@ -303,6 +303,31 @@ The page mirrors all existing actions — Print, Share, Copy summary, Export JSO
 
 Both `plan.html` and the new Save button surface the same `role="status"` sync pill so screen readers hear "Saving to cloud… / Synced · 3:41 PM" the same way they do on the planner. The mobile bottom nav has a 5th cell on `plan.html` that highlights "My plan" with `aria-current="page"`.
 
+### 11j. The macro planner has its own page now (`planner.html`)
+
+This is a structural change to how the site is organized — small in code, big in framing. Until now the full Planner Pro lived inline inside `index.html` under the `#planner` anchor, sharing the page with the hero, the Freedom Plan Panel quiz, the impact stats, the resources hub, and Project Rebound. As the planner grew into the site's actual core feature, that crowding stopped serving users.
+
+**The new layout, in two sentences:** `planner.html` is now the dedicated home of the full 90-day planner — that's the page the "Plan" link in every nav points to. `index.html` remains the landing page and still hosts the Freedom Plan Panel as the **60-second micro plan** for people who want a printable starter list in a hurry, and now ends with a clear handoff to the full planner.
+
+What changed where:
+
+- **New page: `planner.html`.** Hero introduces the planner directly ("Your 90-day money plan"), then a 4-tile feature strip (Smart suggestions · Plan health score · Cloud sync · Private by default), then the full planner below. Quick-start links at the top point to the micro plan (`index.html#fpp`) and the read-only inline view (`plan.html`). All seven steps, all the chips, templates, save buttons, and the live sync indicator come along verbatim — same DOM IDs so `src/app.js` boots identically.
+- **`index.html`'s old planner section becomes a CTA card.** Same `#planner` anchor (so any old bookmark still lands somewhere sensible), but the inline planner is replaced by a two-column card: left side "Open the full planner" (lists the macro features and points to `planner.html`), right side "60-second micro plan" (opens the FPP quiz). One coherent surface that explains the choice instead of dropping users into the deep planner without context.
+- **The Freedom Plan Panel suggests the full planner.** The modal subtitle now reads "Pick everything that applies. We'll generate a 72-hour plan and link to resources. Want a deeper plan? Open the full 90-day planner →" The button row gained a dark "Open the full planner →" button next to the primary "Generate my 72-hour plan." After the 72-hour starter plan generates, a gold-bordered banner appears at the bottom: "Take this further. Open the full **90-day planner** — your 72-hour starter carries over automatically." Single click into `planner.html` with the data already in localStorage.
+- **Site-wide nav update.** Every page (Learn, Hub, Watch, Feed, Radio, Media, Privacy, Terms, Data-deletion, Plan, Index, Planner) now has its top-nav "Plan" tab, top-right "Build My Plan" CTA where applicable, and mobile bottom-nav "Plan" cell pointing to `./planner.html`. No more `#planner` anchor links anywhere in nav.
+- **`media.html` repair.** That file had trailing null-byte padding from an earlier save error — stripped during the nav update.
+
+**Service-worker punch-list cleanup (the long-standing 7a item).** While I was in there, I bumped `service-worker.js` to `v14` and added the missing files. The SHELL now includes `planner.html`, `plan.html`, `admin.html`, `src/admin-overrides.js`, `src/auth.js`, `src/contact-gate.js`, `src/tlm-config.js`, plus the legal pages (`privacy.html`, `terms.html`, `data-deletion.html`). This closes the **two service-worker gaps** flagged in section 7a since the original audit (admin.html + admin-overrides.js were missing — fixed) and pre-caches everything new from sections 11h–11j. Old caches get evicted on next visit because of the version bump.
+
+**What didn't change.** Same DOM IDs across the planner. Same `state.plan` shape. Same Supabase tables. Same auth flow. Same exports (Print, JSON, CSV, mailto, share, copy). Same Freedom Plan Panel quiz logic. Same admin entry methods. Same data files. The advanced future-plan wizard (`openFuturePlanWizard`) is preserved — still reachable from the FPP modal's "Advanced wizard" button.
+
+**Updated punch list.** Two items shrink:
+- ~~Service-worker SHELL gaps~~ → done.
+- Top-level `README.md` is still out of date (this `README_FOR_DAD.md` remains canonical).
+- Facebook is still developer-mode only.
+- TLM logo / portraits still placeholder.
+- Legal disclaimer still needs attorney review.
+
 ---
 
 — Tyrrell, 2026-04-28

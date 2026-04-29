@@ -241,6 +241,17 @@ function renderQuizOutput() {
   row.append(dlBtn, printBtn);
   card.appendChild(row);
 
+  // CTA — suggest the full 90-day planner (the macro core feature)
+  const upgrade = el('div', { className: 'fp-upgrade' });
+  upgrade.innerHTML = `
+    <div class="fp-upgrade__body">
+      <strong>Take this further.</strong>
+      <span>Open the full <em>90-day planner</em> — income, expenses, debts, goals, documents, and a live plan-health score. Your 72-hour starter carries over automatically.</span>
+    </div>
+    <a class="btn btn--primary btn--sm" href="./planner.html">Open the full planner →</a>
+  `;
+  card.appendChild(upgrade);
+
   out.appendChild(card);
 }
 

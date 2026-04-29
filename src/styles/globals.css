@@ -3149,3 +3149,76 @@ nav[aria-label$="shortcuts"] h3 {
     background: rgba(218,165,32,.18);
   }
 }
+
+/* === Index landing planner CTA card =================================== */
+.planner-cta {
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px 22px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.planner-cta__main {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+@media (max-width: 760px) {
+  .planner-cta__main { grid-template-columns: 1fr; }
+}
+.planner-cta__copy { display: flex; flex-direction: column; }
+.planner-cta__quick {
+  background: var(--surface-2);
+  border: 1px dashed rgba(218,165,32,.4);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.planner-cta__eyebrow {
+  font-size: .72rem; font-weight: 800; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--tlm-gold-deep);
+}
+@media (prefers-color-scheme: dark) {
+  .planner-cta__eyebrow { color: #FFD970; }
+}
+.planner-cta__title { margin: 4px 0 6px; font-size: 1.5rem; letter-spacing: -.015em; }
+.planner-cta__title--sm { font-size: 1.15rem; }
+.planner-cta__bullets {
+  list-style: none; padding: 0; margin: 8px 0 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px;
+  font-size: .92rem;
+}
+@media (max-width: 540px) {
+  .planner-cta__bullets { grid-template-columns: 1fr; }
+}
+.planner-cta__bullets li {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--ink-soft);
+}
+.planner-cta__bullets li span { font-size: 1rem; }
+
+/* === FPP → planner upgrade CTA (after starter 72h plan generates) ====== */
+.fp-upgrade {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(218,165,32,.10), rgba(218,165,32,.04));
+  border: 1px solid rgba(218,165,32,.45);
+  border-radius: 14px;
+}
+.fp-upgrade__body {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: .92rem; line-height: 1.4;
+}
+.fp-upgrade__body strong { font-size: 1rem; }
+.fp-upgrade__body em { color: var(--tlm-gold-deep); font-style: normal; font-weight: 700; }
+@media (prefers-color-scheme: dark) {
+  .fp-upgrade__body em { color: #FFD970; }
+}
+@media (max-width: 540px) {
+  .fp-upgrade { grid-template-columns: 1fr; }
+}

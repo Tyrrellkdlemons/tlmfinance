@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0E0E0E" />
+<meta name="color-scheme" content="light dark" />
+<title>Planner · The Last Mile · Finance — Your 90-day money plan</title>
+<meta name="description" content="The full TLM Finance planner — income, expenses, debts, goals, documents, and a 72-hour / 30 / 60 / 90-day sequence. Auto-saves on this device. Cloud-sync when you sign in." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="TLM Finance" />
+<meta name="application-name" content="TLM Finance" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-TileColor" content="#0E0E0E" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
+<link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
+<link rel="stylesheet" href="./src/styles/globals.css" />
+<link rel="stylesheet" href="./src/styles/print.css" media="print" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="TLM Finance · Planner" />
+<meta property="og:description" content="The full reentry money planner — chips, templates, plan health score, cloud-sync." />
+<meta property="og:url" content="https://tlmfinance.netlify.app/planner.html" />
+<meta property="og:image" content="https://tlmfinance.netlify.app/assets/social/og-image.png?v=1" />
+<link rel="canonical" href="https://tlmfinance.netlify.app/planner.html" />
+<style>
+  /* Page-local — focused entry header above the planner */
+  .planner-page__hero {
+    background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
+    border-bottom: 1px solid var(--line);
+    padding: 28px 0 22px;
+  }
+  .planner-page__hero h1 {
+    margin: 0 0 6px; font-size: 2rem; letter-spacing: -.02em;
+  }
+  .planner-page__hero p {
+    margin: 0; color: var(--muted); max-width: 720px; line-height: 1.55;
+  }
+  .planner-page__hero .crumbs {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: .78rem; font-weight: 800; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--tlm-gold-deep);
+    margin-bottom: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .planner-page__hero .crumbs { color: #FFD970; }
+  }
+  .planner-page__hero .crumbs a { color: inherit; text-decoration: none; }
+  .planner-page__hero .crumbs a:hover { text-decoration: underline; }
+  .planner-page__intro-grid {
+    display: grid; grid-template-columns: 1fr auto; gap: 14px;
+    align-items: end; flex-wrap: wrap;
+  }
+  @media (max-width: 720px) { .planner-page__intro-grid { grid-template-columns: 1fr; } }
+  .planner-page__quick {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .planner-page__feature-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin-top: 18px;
+  }
+  @media (max-width: 720px) { .planner-page__feature-strip { grid-template-columns: repeat(2, 1fr); } }
+  .planner-page__feat {
+    display: grid; gap: 4px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .planner-page__feat .ic { font-size: 1.2rem; line-height: 1; }
+  .planner-page__feat .t  { font-weight: 800; font-size: .92rem; letter-spacing: -.005em; }
+  .planner-page__feat .d  { font-size: .82rem; color: var(--muted); line-height: 1.4; }
+</style>
+</head>
+<body class="has-bottom-nav">
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="nav" role="banner">
+  <div class="nav__inner">
+    <a class="brand" href="./index.html" aria-label="The Last Mile · Finance home">
+      <picture>
+        <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
+        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="240" height="78" style="height:72px;width:auto"/>
+      </picture>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="./planner.html" aria-current="page">Planner</a>
+      <a href="./learn.html">Learn</a>
+      <a href="./hub.html">Hub</a>
+      <a href="./watch.html">Watch</a>
+      <a href="./media.html">Media</a>
+    </nav>
+    <div class="nav__cta">
+      <a class="btn btn--ghost btn--sm" href="./plan.html">👁 View my plan</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="planner-page__hero" aria-labelledby="planner-page-title">
+  <div class="container">
+    <span class="crumbs"><a href="./index.html">Home</a> · Planner</span>
+    <div class="planner-page__intro-grid">
+      <div>
+        <h1 id="planner-page-title">Your 90-day money plan.</h1>
+        <p>Walk through 7 quick steps — income, benefits, expenses, debts, goals, documents, and your first 72 hours through 90 days. Auto-saves on this device. Sign in to sync across devices.</p>
+      </div>
+      <div class="planner-page__quick" role="group" aria-label="Quick start">
+        <a class="btn btn--ghost btn--sm" href="./index.html#fpp">⚡ 60-second micro plan</a>
+        <a class="btn btn--dark btn--sm" href="./plan.html">👁 View my plan</a>
+      </div>
+    </div>
+    <div class="planner-page__feature-strip" aria-label="What this planner gives you">
+      <div class="planner-page__feat"><span class="ic" aria-hidden="true">💡</span><span class="t">Smart suggestions</span><span class="d">~50 pre-set chips help you fill in common income, expenses, debts, and tasks fast.</span></div>
+      <div class="planner-page__feat"><span class="ic" aria-hidden="true">📊</span><span class="t">Plan health score</span><span class="d">A live 0–100 read on how complete and balanced your plan is.</span></div>
+      <div class="planner-page__feat"><span class="ic" aria-hidden="true">☁️</span><span class="t">Cloud sync (optional)</span><span class="d">Sign in to keep your plan across phones, laptops, and shared devices.</span></div>
+      <div class="planner-page__feat"><span class="ic" aria-hidden="true">🔒</span><span class="t">Private by default</span><span class="d">No analytics. The plan stays on your device unless you export or sync.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="planner" aria-labelledby="planner-title">
+  <div class="container">
+    <span class="eyebrow">Core feature</span>
+    <h2 id="planner-title">Your money plan, your way.</h2>
+    <p class="lede">A step-by-step planner for income, expenses, debts, documents, and the first 90 days. Saves on this device. Print it, save to your phone, or hand it to a case manager.</p>
+    <div class="planner mt-3">
+      <div class="planner__panel">
+        <div class="planner__steps" id="plannerSteps" aria-label="Plan steps"></div>
+        <div id="plannerStep" aria-live="polite"></div>
+        <div class="spread mt-3">
+          <button class="btn btn--ghost btn--sm" id="prevStep">Back</button>
+          <div class="muted" id="stepHint">Saved automatically · device-only</div>
+          <button class="btn btn--primary btn--sm" id="nextStep">Continue</button>
+        </div>
+      </div>
+      <div class="planner__panel" aria-live="polite">
+        <div class="spread" style="align-items:center;margin-bottom:8px">
+          <h3 style="margin:0">Live Summary</h3>
+          <span id="planSync" class="plan-sync" data-kind="local" role="status" aria-live="polite" aria-atomic="true">Saved on this device</span>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="kpi__num" id="kpiIncome">$0</div><div class="kpi__label">Monthly income</div></div>
+          <div class="kpi"><div class="kpi__num" id="kpiExpenses">$0</div><div class="kpi__label">Monthly expenses</div></div>
+          <div class="kpi"><div class="kpi__num" id="kpiNet">$0</div><div class="kpi__label">Net cash flow</div></div>
+          <div class="kpi"><div class="kpi__num" id="kpiSavings">$0</div><div class="kpi__label">Savings goal / month</div></div>
+        </div>
+        <div class="mt-2"><div class="spread"><strong>Spending vs. income</strong><span class="muted" id="ratioPct">0%</span></div><div class="bar"><div class="bar__fill" id="ratioFill"></div></div></div>
+        <div id="riskFlags" class="mt-3"></div>
+        <div class="flex mt-3">
+          <button class="btn btn--primary btn--sm" id="btnSaveProgress" aria-label="Save progress now">💾 Save progress</button>
+          <a class="btn btn--dark btn--sm" id="btnViewPlan" href="./plan.html" role="button">👁 View my plan</a>
+          <button class="btn btn--dark btn--sm" id="btnPrint">Print plan</button>
+          <button class="btn btn--ghost btn--sm" id="btnSavePhone">Save to phone</button>
+          <button class="btn btn--ghost btn--sm" id="btnExportJSON">Export JSON</button>
+          <button class="btn btn--ghost btn--sm" id="btnExportCSV">Export CSV</button>
+          <button class="btn btn--ghost btn--sm" id="btnShare">Share</button>
+          <button class="btn btn--ghost btn--sm" id="btnCopy">Copy summary</button>
+          <button class="btn btn--ghost btn--sm" id="btnCaseMgr">Send to case manager</button>
+        </div>
+        <p class="disclaimer mt-3">This tool provides planning information and resource links — not legal, financial, or case-management advice. Your information stays on this device unless you choose to export it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer__cols">
+      <div>
+        <h3>The Last Mile · Finance</h3>
+        <p>The reentry-finance branch of <a href="https://thelastmile.org/" target="_blank" rel="noopener">The Last Mile</a>. Money plan, modern-finance education, and resources for returning citizens.</p>
+        <p><small>If you or someone you love is in crisis, call or text <a href="https://988lifeline.org/" target="_blank" rel="noopener">988</a>.</small></p>
+      </div>
+      <div>
+        <h3>About TLM</h3>
+        <p style="margin:0;line-height:1.9"><a href="https://thelastmile.org/" target="_blank" rel="noopener">Official site</a><br><a href="https://thelastmile.org/programs/reentry/" target="_blank" rel="noopener">Workforce Reentry</a><br><a href="https://thelastmile.org/about/team/" target="_blank" rel="noopener">Team</a><br><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a> · <a href="./data-deletion.html">Data deletion</a></p>
+      </div>
+      <div>
+        <h3>Quick links</h3>
+        <p style="margin:0;line-height:1.9"><a href="./plan.html">My plan (read-only)</a><br><a href="./hub.html">Resources hub</a><br><a href="./learn.html">Learn modern finance</a><br><a href="./index.html#fpp">60-second micro plan</a></p>
+      </div>
+    </div>
+    <p class="mt-3"><small>© <span id="year"></span> The Last Mile · Finance — All trademarks belong to their respective owners.</small></p>
+  </div>
+</footer>
+
+<nav class="bottom-nav" aria-label="Mobile primary">
+  <a href="./planner.html" aria-label="Planner" aria-current="page"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12l4-4 4 4 7-7 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Planner</span></a>
+  <a href="./learn.html" aria-label="Learn"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h8a2 2 0 012 2v12H6a2 2 0 01-2-2V5zM12 5h8v12a2 2 0 01-2 2h-6V5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Learn</span></a>
+  <a href="./hub.html" aria-label="Hub"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="2"/></svg><span>Hub</span></a>
+  <a href="./watch.html" aria-label="Watch"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><polygon points="6 4 20 12 6 20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Watch</span></a>
+  <a href="./plan.html" aria-label="My plan"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="2"/></svg><span>My plan</span></a>
+</nav>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  }
+</script>
+<script type="module" src="./src/app.js"></script>
+<script src="./src/tlm-config.js"></script>
+<script src="./src/admin-overrides.js"></script>
+<script src="./src/auth.js" defer></script>
+<script src="./src/chatbot.js" defer></script>
+</body>
+</html>
