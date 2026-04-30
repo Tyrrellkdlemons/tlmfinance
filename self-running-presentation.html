@@ -482,7 +482,7 @@ a:hover{text-decoration:underline}
   position:absolute;left:0;top:0;width:54px;height:54px;
   pointer-events:none;z-index:25;
   transform:translate(-9999px,-9999px);
-  transition:transform 1.05s cubic-bezier(.22,.95,.34,1.0), opacity .35s ease;
+  transition:transform .42s cubic-bezier(.34,1.05,.42,1.0), opacity .22s ease;
   opacity:0;
   filter:drop-shadow(0 6px 14px rgba(232,177,74,.35));
   will-change:transform,opacity;
@@ -523,6 +523,49 @@ a:hover{text-decoration:underline}
   .presenter-pointer{transition:opacity .35s ease}
   .presenter-pointer .pp-finger{animation:none}
   .presenter-pointer .pp-ring{animation:none;opacity:0}
+}
+
+/* ===== Cursor-following gold glow (ported from homepage hero) ===== */
+.slide{ --mx:50%; --my:50%; }
+.slide::before{
+  /* keep the existing 3px gold top stripe — append the radial halo as a second layer */
+  background:
+    radial-gradient(220px 220px at var(--mx) var(--my), rgba(232,177,74,.16), transparent 62%),
+    linear-gradient(90deg, transparent, var(--gold) 35%, var(--amber) 50%, var(--gold-2) 65%, transparent);
+  background-repeat:no-repeat;
+  background-position:0 0, 0 0;
+  background-size:100% 100%, 100% 3px;
+  inset:0;
+  height:100%;
+  opacity:1;
+  pointer-events:none;
+  transition:background-position .15s linear;
+}
+/* Card lift + glow on hover (matches homepage cinematic feel) */
+.stat-card, .col, .walk ul.highlights li, .lst .row, .fourrow .item,
+.hero .bullets li, .persona .info ul li, .thanks .lines .pair{
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
+}
+.stat-card:hover, .col:hover, .walk ul.highlights li:hover, .lst .row:hover,
+.fourrow .item:hover, .hero .bullets li:hover, .persona .info ul li:hover{
+  transform:translateY(-1px);
+  box-shadow:0 18px 40px rgba(0,0,0,.30), 0 0 0 1px rgba(232,177,74,.45);
+  border-color:rgba(232,177,74,.55);
+}
+.controls .btn:hover{
+  box-shadow:0 0 0 1px rgba(232,177,74,.45), 0 8px 22px rgba(232,177,74,.18);
+}
+.urlchip:hover{
+  border-color:rgba(232,177,74,.55);
+  box-shadow:0 0 0 1px rgba(232,177,74,.35), 0 4px 18px rgba(232,177,74,.18);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .slide::before{ transition:none }
+  .stat-card, .col, .walk ul.highlights li, .lst .row, .fourrow .item,
+  .hero .bullets li, .persona .info ul li, .thanks .lines .pair{ transition:none }
+  .stat-card:hover, .col:hover, .walk ul.highlights li:hover, .lst .row:hover,
+  .fourrow .item:hover, .hero .bullets li:hover, .persona .info ul li:hover{ transform:none }
 }
 
 /* Tiny voice-source pill (visible bottom-left of stage when ElevenLabs is on) */
@@ -1097,18 +1140,19 @@ function schedulePointer(slide){
   const targets = gatherPointTargets(slide);
   if(!targets.length) return;
   const dur = (slide.durationSec || 30) * 1000 / state.rate;
-  // Lead-in 600ms, stagger remaining targets across the slide window.
-  const leadIn = 500;
-  const span = Math.max(2400, dur - leadIn - 700);
+  // Faster response: short lead-in so the finger lands almost immediately,
+  // and a tight per-target step that still spans the slide.
+  const leadIn = 120;
+  const span = Math.max(1600, dur - leadIn - 300);
   const step = span / targets.length;
   targets.forEach((el, idx) => {
     const t = setTimeout(() => pointAt(el), leadIn + idx * step);
     state.pointerTimers.push(t);
   });
-  // Fade pointer off near the end so the cap looks clean
+  // Fade pointer off close to the slide cap (small tail so it feels snappy)
   const offT = setTimeout(() => {
     const p = $('#presenter-pointer'); if(p) p.classList.remove('on');
-  }, Math.max(800, dur - 600));
+  }, Math.max(500, dur - 250));
   state.pointerTimers.push(offT);
 }
 
@@ -1282,6 +1326,20 @@ function attach(){
       if(tgt) pointAt(tgt);
     }, 80);
   });
+
+  // Cursor-following gold glow on the active slide (matches homepage hero)
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduceMotion){
+    $('#stage').addEventListener('pointermove', (e) => {
+      const slide = document.querySelector('.slide');
+      if(!slide) return;
+      const r = slide.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      slide.style.setProperty('--mx', x + 'px');
+      slide.style.setProperty('--my', y + 'px');
+    }, { passive: true });
+  }
 
   // Auto on URL ?auto=1
   const params = new URLSearchParams(location.search);

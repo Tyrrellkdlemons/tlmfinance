@@ -21,7 +21,7 @@
         { "icon": "🛡", "head": "Free · Private · Open-source", "sub": "No analytics · plan stays on-device" },
         { "icon": "🤝", "head": "Inspired by The Last Mile", "sub": "Independent until partnership lands" }
       ],
-      "narration": "Welcome. I am the voice of TLM Finance, walking you through a tool built for the moments after release. Tyrrell K.D. Lemons created this project because the first ninety days outside is the most financially unsupported moment of a person's life, and nobody was building for it. In the next thirteen minutes, we will tour every page of the live site, explain why each piece exists, and show you how it helps a person walking out of a facility today turn their first ninety days into a real plan. The site is at tlmfinance dot netlify dot app, free, private, mobile first. Let's begin.",
+      "narration": "Welcome. I am the voice of The Last Mile Finance Sector, walking you through a tool built for the moments after release. This project exists because the first ninety days outside is the most financially unsupported moment of a person's life, and nobody was building for it. In the next thirteen minutes, we will tour every page of the live site, explain why each piece exists, and show you how it helps a person walking out of a facility today turn their first ninety days into a real plan. The site is at tlmfinance dot netlify dot app, free, private, mobile first. Let's begin.",
       "durationSec": 32
     },
     {
@@ -35,7 +35,7 @@
         { "num": "<5%",  "label": "TLM RECIDIVISM",       "sub": "graduates",        "color": "green" }
       ],
       "footer": "TLM cracked the inside-the-walls half. The day someone walks out is the unsupported half — that is the gap this site closes.",
-      "narration": "Three numbers from thelastmile dot org as of today. The U.S. prison population is up seven hundred percent since the nineteen seventies. Sixty one percent of people released come back within ten years. But TLM graduates? Under five percent. That gap proves what TLM does works. The reentry window is the unsupported half. This site is for that half.",
+      "narration": "Three numbers from thelastmile dot org as of today. The U.S. prison population is up seven hundred percent since the nineteen seventies. Sixty one percent of people released come back within ten years. But The Last Mile graduates? Under five percent. That gap proves what The Last Mile does works. The reentry window is the unsupported half. This site is for that half.",
       "durationSec": 36
     },
     {
@@ -63,7 +63,7 @@
           "Built to TLM's voice · independent until permission lands"
         ]
       },
-      "narration": "TLM teaches inside the walls. This site helps after. Two surfaces, one population, one mission. TLM is donor funded with thirteen facilities across eight states and over sixteen hundred alumni. This site is privacy first, mobile first, works offline, no analytics. It is not trying to compete with TLM. It is trying to extend TLM into the moments after a person walks out.",
+      "narration": "The Last Mile teaches inside the walls. This site helps after. Two surfaces, one population, one mission. The Last Mile is donor funded with thirteen facilities across eight states and over sixteen hundred alumni. This site is privacy first, mobile first, works offline, no analytics. It is not trying to compete with The Last Mile. It is trying to extend The Last Mile into the moments after a person walks out.",
       "durationSec": 30
     },
     {
@@ -195,7 +195,7 @@
         { "label": "Search-link safety", "text": "Spotify + WP search URLs that always resolve · never 404" },
         { "label": "Live broadcast", "text": "Saturdays at 12 PM ET on SiriusXM" }
       ],
-      "narration": "TLM Radio is embedded. Spotify and SoundCloud play side by side, with an animated equalizer and a tap-to-load policy so nothing tracks the visitor before they press play. The Voices from the Road list pulls the latest episodes — Restoring Promise, Gio Romero, Shelley Winner, Dr. James Cavitt, and dozens more. Every link is a search URL that always resolves, so episodes never 404 even when the radio site reorganizes its archive. Live broadcast Saturdays at twelve P-M Eastern on SiriusXM.",
+      "narration": "The Last Mile Radio is embedded. Spotify and SoundCloud play side by side, with an animated equalizer and a tap-to-load policy so nothing tracks the visitor before they press play. The Voices from the Road list pulls the latest episodes — Restoring Promise, Gio Romero, Shelley Winner, Dr. James Cavitt, and dozens more. Every link is a search URL that always resolves, so episodes never 404 even when the radio site reorganizes its archive. Live broadcast Saturdays at twelve P-M Eastern on SiriusXM.",
       "durationSec": 42
     },
     {
@@ -240,7 +240,7 @@
         "No bank account, no smartphone yet.",
         "Job interview he can probably get if he shows up clean and on time."
       ],
-      "narration": "Now let me make it concrete. Meet Marcus. Composited from real reentry profiles. Marcus is thirty four, six days from release, four years served. He has a brother who can host him for two weeks. A state ID that expired in twenty twenty two. No bank account, no smartphone yet. And a job interview he can probably get, if he can show up clean and on time. The next two minutes walk through how Marcus uses TLM Finance from day minus six to day ninety.",
+      "narration": "Now let me make it concrete. Meet Marcus. Composited from real reentry profiles. Marcus is thirty four, six days from release, four years served. He has a brother who can host him for two weeks. A state ID that expired in twenty twenty two. No bank account, no smartphone yet. And a job interview he can probably get, if he can show up clean and on time. The next two minutes walk through how Marcus uses The Last Mile Finance Sector from day minus six to day ninety.",
       "durationSec": 28
     },
     {
@@ -288,7 +288,7 @@
         { "left": "4", "mid": "Cheap to operate",            "right": "Static hosting + Supabase free tier + a single Netlify function" },
         { "left": "5", "mid": "Adoptable, not a fork",       "right": "Branded for TLM. Re-skin or replace the moment permission lands." }
       ],
-      "narration": "Five reasons. One. There is a quietly real gap. No consumer grade money planner exists for the reentry window. This is one. Two. It honors the population. Sixth grade reading level. Zero analytics. No dark patterns. The plan stays on the device by default. Three. It is complete, not a prototype. Thirteen pages, accessibility audit passed, password gated admin, CSP hardened, offline capable. Four. It is cheap to operate. Static hosting plus the Supabase free tier plus a single Netlify function. Five. It is adoptable, not a fork. Already branded for TLM. Re-skin or replace the moment permission lands.",
+      "narration": "Five reasons. One. There is a quietly real gap. No consumer grade money planner exists for the reentry window. This is one. Two. It honors the population. Sixth grade reading level. Zero analytics. No dark patterns. The plan stays on the device by default. Three. It is complete, not a prototype. Thirteen pages, accessibility audit passed, password gated admin, CSP hardened, offline capable. Four. It is cheap to operate. Static hosting plus the Supabase free tier plus a single Netlify function. Five. It is adoptable, not a fork. Already branded for The Last Mile. Re-skin or replace the moment permission lands.",
       "durationSec": 50
     },
     {
@@ -301,7 +301,7 @@
         { "left": "B", "mid": "Sponsor + co-brand",     "right": "TLM endorses the project; we keep operating it; TLM's logo appears with proper attribution." },
         { "left": "C", "mid": "Reference for replace",  "right": "TLM builds its own version using this codebase as the open-source reference. We hand over the keys." }
       ],
-      "narration": "Three ways this could plug into TLM. Option A. Officially adopt — TLM Finance becomes the financial planning surface of the reentry program, rebranded under the official mark. Option B. Sponsor and co-brand — TLM endorses; this team keeps operating; TLM's logo appears with proper attribution. Option C. Reference for replacement — TLM builds its own version using this codebase as the open-source reference. We hand over the keys, the codebase, the design tokens. Any of those works. The point is to extend what TLM does into the moments after release.",
+      "narration": "Three ways this could plug into The Last Mile. Option A. Officially adopt — The Last Mile Finance Sector becomes the financial planning surface of the reentry program, rebranded under the official mark. Option B. Sponsor and co-brand — The Last Mile endorses; this team keeps operating; The Last Mile's logo appears with proper attribution. Option C. Reference for replacement — The Last Mile builds its own version using this codebase as the open-source reference. We hand over the keys, the codebase, the design tokens. Any of those works. The point is to extend what The Last Mile does into the moments after release.",
       "durationSec": 50
     },
     {
@@ -319,7 +319,7 @@
         { "left": "📞", "mid": "Crisis lines",         "right": "211 for basic needs · 988 for mental-health crisis" },
         { "left": "🎙", "mid": "TLM Radio",            "right": "93 episodes — stories of people who walked this road and won" }
       ],
-      "narration": "If you are watching this and you are the person who would use this site — here is what is on it that can change your life if you let it. A personal money plan, free, takes about seven minutes on any phone or library computer. A document checklist for your ID, Social Security card, birth certificate, lease. An AI helper that answers anything about money, careers, AI, or study skills, free and with no login. Education tracks pointing to Pell Grants, FAFSA, California Grants, free open educational resources, and lists of fair-chance employers. Federal resources from the Consumer Financial Protection Bureau, FDIC, Social Security, and the Department of Labor — all sourced and dated. Reentry-specific organizations: the National Reentry Resource Center, Root and Rebound, CSU Project Rebound. Crisis lines: two one one for basic needs, nine eight eight for mental health. And TLM Radio, ninety three episodes of stories from people who walked this same road and made it. You are not alone. The road is paved. Walk it.",
+      "narration": "If you are watching this and you are the person who would use this site — here is what is on it that can change your life if you let it. A personal money plan, free, takes about seven minutes on any phone or library computer. A document checklist for your ID, Social Security card, birth certificate, lease. An AI helper that answers anything about money, careers, AI, or study skills, free and with no login. Education tracks pointing to Pell Grants, FAFSA, California Grants, free open educational resources, and lists of fair-chance employers. Federal resources from the Consumer Financial Protection Bureau, FDIC, Social Security, and the Department of Labor — all sourced and dated. Reentry-specific organizations: the National Reentry Resource Center, Root and Rebound, CSU Project Rebound. Crisis lines: two one one for basic needs, nine eight eight for mental health. And The Last Mile Radio, ninety three episodes of stories from people who walked this same road and made it. You are not alone. The road is paved. Walk it.",
       "durationSec": 80
     },
     {
