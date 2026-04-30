@@ -92,19 +92,20 @@
         <button class="btn btn--ghost-light" data-filter="report">Reports</button>
       </div>
     </div>
-    <nav class="card" aria-label="Sources shortcuts" style="background:rgba(255,255,255,.05);color:#fff;border-color:rgba(255,255,255,.15)">
-      <h3 style="color:#fff;margin-top:0">Sources</h3>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li>🌐 <a href="https://thelastmile.org/" target="_blank" rel="noopener" style="color:var(--tlm-gold)">thelastmile.org</a></li>
-        <li>🎧 <a href="https://thelastmileradio.org/" target="_blank" rel="noopener" style="color:var(--tlm-gold)">The Last Mile Radio</a></li>
-        <li>🎵 <a href="https://open.spotify.com/show/2AUpxHWgiqBY11hqi3MAKF" target="_blank" rel="noopener" style="color:var(--tlm-gold)">Spotify</a></li>
-        <li>☁︎ <a href="https://soundcloud.com/tlmradio" target="_blank" rel="noopener" style="color:var(--tlm-gold)">SoundCloud</a></li>
-        <li>📺 <a href="https://www.youtube.com/@TheLastMile" target="_blank" rel="noopener" style="color:var(--tlm-gold)">YouTube</a></li>
-        <li>📷 <a href="https://www.instagram.com/thelastmileorg/" target="_blank" rel="noopener" style="color:var(--tlm-gold)">Instagram</a></li>
-        <li>📘 <a href="https://www.facebook.com/thelastmileorg" target="_blank" rel="noopener" style="color:var(--tlm-gold)">Facebook</a></li>
-        <li>🐦 <a href="https://x.com/TLM" target="_blank" rel="noopener" style="color:var(--tlm-gold)">X</a></li>
-        <li>💼 <a href="https://www.linkedin.com/company/the-last-mile/" target="_blank" rel="noopener" style="color:var(--tlm-gold)">LinkedIn</a></li>
-      </ul>
+    <nav class="sources-card" aria-label="Sources shortcuts">
+      <h3>Sources</h3>
+      <p class="sources-card__sub">All Title-Cased · all open in a new tab</p>
+      <div class="sources-grid">
+        <a class="source-pill source-pill--site"  href="https://thelastmile.org/"                            target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">🌐</span><span class="source-pill__lbl">The Last Mile</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+        <a class="source-pill source-pill--radio" href="https://thelastmileradio.org/"                       target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">🎙️</span><span class="source-pill__lbl">The Last Mile Radio</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+        <a class="source-pill source-pill--spotify" href="https://open.spotify.com/show/2AUpxHWgiqBY11hqi3MAKF" target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">🎵</span><span class="source-pill__lbl">Spotify</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+        <a class="source-pill source-pill--sc"     href="https://soundcloud.com/tlmradio"                    target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">☁️</span><span class="source-pill__lbl">SoundCloud</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+        <a class="source-pill source-pill--yt"     href="https://www.youtube.com/@TheLastMile"               target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">▶️</span><span class="source-pill__lbl">YouTube</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+        <a class="source-pill source-pill--ig"     href="https://www.instagram.com/thelastmileorg/"          target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">📷</span><span class="source-pill__lbl">Instagram</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+        <a class="source-pill source-pill--fb"     href="https://www.facebook.com/thelastmileorg"            target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">👍</span><span class="source-pill__lbl">Facebook</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+        <a class="source-pill source-pill--x"      href="https://x.com/TLM"                                  target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">𝕏</span><span class="source-pill__lbl">X (Twitter)</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+        <a class="source-pill source-pill--li"     href="https://www.linkedin.com/company/the-last-mile/"    target="_blank" rel="noopener"><span class="source-pill__ic" aria-hidden="true">💼</span><span class="source-pill__lbl">LinkedIn</span><span class="source-pill__arrow" aria-hidden="true">→</span></a>
+      </div>
     </nav>
   </div>
 </section>
@@ -248,5 +249,7 @@
 <script src="./src/chatbot.js" defer></script>
 <script src="./src/contact-gate.js" defer></script>
 <script src="./src/freedom-plan-panel.js" defer></script>
+<script src="./src/mile-high-club.js" defer></script>
+<script src="./src/theme-toggle.js" defer></script>
 </body>
 </html>

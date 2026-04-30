@@ -1514,8 +1514,11 @@ html, body { overscroll-behavior-y: contain; }
 }
 .bottom-nav a:active svg { transform: scale(.85); transition: transform .12s ease; }
 
-/* Bottom-nav: subtle gold sweep when active */
-.bottom-nav { position: relative; }
+/* Bottom-nav: subtle gold sweep when active.
+   IMPORTANT: keep `position: fixed` (set on the base rule above) — earlier
+   `position: relative` here was breaking mobile by taking the nav out of
+   fixed-bottom mode. position:fixed is also a containing block for the
+   absolutely-positioned ::after sweep, so we don't need :relative. */
 .bottom-nav::after {
   content: "";
   position: absolute;
@@ -3222,3 +3225,273 @@ nav[aria-label$="shortcuts"] h3 {
 @media (max-width: 540px) {
   .fp-upgrade { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   THEME TOGGLE (April 29, 2026) — explicit [data-theme] overrides on top
+   of existing prefers-color-scheme rules. Auto means "follow OS"; explicit
+   light/dark force regardless of OS preference. The toggle button itself
+   sits in the top nav.
+   ========================================================================== */
+
+/* The toggle button */
+.tlm-theme {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 999px;
+  background: rgba(218,165,32,.10);
+  border: 1px solid rgba(218,165,32,.35);
+  color: var(--tlm-gold-deep);
+  font: inherit; font-size: .82rem; font-weight: 800;
+  cursor: pointer; line-height: 1;
+  transition: transform .12s ease, background .15s ease, border-color .15s ease, color .15s ease;
+  margin-right: 8px;
+}
+.tlm-theme:hover { background: rgba(218,165,32,.18); border-color: var(--tlm-gold); color: var(--tlm-gold-deep); }
+.tlm-theme:focus-visible { outline: 3px solid var(--tlm-gold); outline-offset: 2px; }
+.tlm-theme.is-tap { transform: scale(.93); }
+.tlm-theme__ic { font-size: 1rem; line-height: 1; }
+.tlm-theme__lbl { letter-spacing: .04em; text-transform: uppercase; font-size: .68rem; }
+@media (max-width: 540px) {
+  .tlm-theme__lbl { display: none; }
+  .tlm-theme { padding: 7px 9px; }
+}
+
+/* Dark theme button readability */
+@media (prefers-color-scheme: dark) {
+  .tlm-theme { color: #FFD970; border-color: rgba(218,165,32,.5); }
+  .tlm-theme:hover { color: #FFD970; }
+}
+:root[data-theme="dark"] .tlm-theme { color: #FFD970; border-color: rgba(218,165,32,.5); }
+:root[data-theme="light"] .tlm-theme { color: #8C6810; border-color: rgba(218,165,32,.4); }
+
+/* === Explicit theme overrides ============================================
+   When the user picks "Light" or "Dark" we set <html data-theme="...">;
+   the rules below win because they're at the end of the cascade.
+   We re-declare the variables that drive the rest of the stylesheet
+   instead of touching every individual rule.
+   ========================================================================= */
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --surface:        #FFFFFF;
+  --surface-2:      #FAF7EE;
+  --line:           #E8E2D8;
+  --ink:            #1F1F1F;
+  --ink-soft:       #3F3F3A;
+  --muted:          #6F6F65;
+  --tlm-cream:      #FAF7EE;
+  --tlm-cream-2:    #F0E7C7;
+  --safe-bottom:    env(safe-area-inset-bottom, 0px);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface:        #131313;
+  --surface-2:      #1A1A1A;
+  --line:           rgba(255,255,255,.10);
+  --ink:            #FAF7EE;
+  --ink-soft:       #E5E0D2;
+  --muted:          #B5B0A8;
+  --tlm-cream:      #1A1A1A;
+  --tlm-cream-2:    #232323;
+  --safe-bottom:    env(safe-area-inset-bottom, 0px);
+}
+
+/* Page-body backgrounds when an explicit theme is on */
+:root[data-theme="dark"] body { background: #0A0A0A; color: var(--ink); }
+:root[data-theme="light"] body { background: #FFFFFF; color: var(--ink); }
+
+/* Nav bar contrast */
+:root[data-theme="dark"] .nav { background: rgba(10,10,10,.96); border-bottom: 1px solid rgba(218,165,32,.18); }
+:root[data-theme="light"] .nav { background: rgba(255,255,255,.96); border-bottom: 1px solid #EAE1CB; }
+
+/* Footer */
+:root[data-theme="dark"] .footer { background: #0A0A0A; color: var(--ink-soft); }
+:root[data-theme="light"] .footer { background: #FAF7EE; color: var(--ink-soft); }
+
+/* Bottom nav already locks to charcoal at < 920px via earlier rules — keep that
+   behavior consistent in both themes. */
+
+/* When the user explicitly picks LIGHT, undo the prefers-color-scheme:dark
+   overrides that earlier in the stylesheet flipped certain colors to gold-cream.
+   We want a true light-theme look. */
+:root[data-theme="light"] .plan-row__eta,
+:root[data-theme="light"] .plan-step-head__count,
+:root[data-theme="light"] .plan-add-btn,
+:root[data-theme="light"] .plan-score__num--mid,
+:root[data-theme="light"] .plan-sync[data-kind="syncing"],
+:root[data-theme="light"] .planner-cta__eyebrow,
+:root[data-theme="light"] .planner-page__hero .crumbs,
+:root[data-theme="light"] .fp-upgrade__body em {
+  color: var(--tlm-gold-deep);
+}
+:root[data-theme="light"] .plan-chip:hover {
+  color: var(--tlm-gold-deep);
+  background: rgba(218,165,32,.10);
+}
+
+/* Reduce-motion override: keep theme-cycler's tap animation off */
+@media (prefers-reduced-motion: reduce) {
+  .tlm-theme, .tlm-theme.is-tap { transition: none; transform: none; }
+}
+
+/* ==========================================================================
+   SOURCES CARD + PILLS (April 29, 2026) — feed.html shortcut grid.
+   ========================================================================== */
+.sources-card {
+  background: linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.02) 100%);
+  color: #fff;
+  border: 1px solid rgba(218,165,32,.30);
+  border-radius: 18px;
+  padding: 22px 22px 18px;
+  box-shadow: 0 18px 40px -22px rgba(0,0,0,.6);
+}
+:root[data-theme="light"] .sources-card { background: var(--surface-2); color: var(--ink); border-color: rgba(218,165,32,.40); }
+.sources-card h3 { margin: 0 0 4px; color: #FFD970; font-size: 1.1rem; letter-spacing: -.005em; }
+:root[data-theme="light"] .sources-card h3 { color: var(--tlm-gold-deep); }
+.sources-card__sub {
+  margin: 0 0 14px; font-size: .78rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: rgba(255,255,255,.55);
+}
+:root[data-theme="light"] .sources-card__sub { color: var(--muted); }
+.sources-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px;
+}
+.source-pill {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 12px; text-decoration: none;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  color: #fff; font: inherit; font-size: .9rem; font-weight: 700;
+  transition: transform .15s ease, background .2s ease, border-color .2s ease, color .2s ease;
+}
+:root[data-theme="light"] .source-pill {
+  background: var(--surface); border-color: var(--line); color: var(--ink);
+}
+.source-pill:hover {
+  transform: translateY(-1px);
+  border-color: var(--tlm-gold);
+  background: rgba(218,165,32,.10);
+  color: #FFD970;
+}
+:root[data-theme="light"] .source-pill:hover { color: var(--tlm-gold-deep); }
+.source-pill:focus-visible { outline: 3px solid var(--tlm-gold); outline-offset: 2px; }
+.source-pill__ic { font-size: 1.05rem; line-height: 1; }
+.source-pill__lbl { font-weight: 700; letter-spacing: -.005em; }
+.source-pill__arrow { color: var(--tlm-gold); font-weight: 800; transition: transform .2s ease; }
+.source-pill:hover .source-pill__arrow { transform: translateX(2px); }
+
+/* ==========================================================================
+   RADIO STREAM GRID (April 29, 2026) — Spotify + SoundCloud, side-by-side
+   on desktop / stacked on mobile, with an animated equalizer bar overlay
+   that softly pulses behind the tile on hover.
+   ========================================================================== */
+.radio-stream-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+}
+@media (max-width: 760px) { .radio-stream-grid { grid-template-columns: 1fr; } }
+.radio-stream {
+  position: relative; overflow: hidden;
+  min-height: 220px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.radio-stream:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.25); box-shadow: 0 24px 48px -22px rgba(0,0,0,.55); }
+.radio-stream:focus-visible { outline: 3px solid var(--tlm-gold); outline-offset: 2px; }
+.radio-stream--spotify .radio-stream__bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #1DB954 0%, #0E7A3A 60%, #0A5028 100%);
+}
+.radio-stream--sc .radio-stream__bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #FF7700 0%, #E04E00 55%, #B23A00 100%);
+}
+.radio-stream__inner {
+  position: relative; z-index: 2;
+  padding: 26px 22px 22px;
+  color: #fff;
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-start;
+}
+.radio-stream__chip {
+  font-size: .68rem; font-weight: 800; letter-spacing: .14em;
+  background: rgba(255,255,255,.18); color: #fff;
+  padding: 4px 10px; border-radius: 999px;
+  backdrop-filter: blur(6px);
+  margin-bottom: 4px;
+}
+.radio-stream__play {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(255,255,255,.18); color: #fff;
+  display: grid; place-items: center;
+  margin: 4px 0 6px;
+  transition: transform .2s ease, background .2s ease;
+  box-shadow: 0 0 0 0 rgba(255,255,255,.3);
+}
+.radio-stream:hover .radio-stream__play {
+  background: rgba(255,255,255,.28);
+  transform: scale(1.06);
+  animation: rs-pulse 1.4s ease-in-out infinite;
+}
+@keyframes rs-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,.35); }
+  50%      { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+}
+.radio-stream__inner h3 { margin: 0; color: #fff; font-size: 1.25rem; letter-spacing: -.01em; }
+.radio-stream__inner p  { margin: 0; color: rgba(255,255,255,.85); font-size: .9rem; }
+
+/* Equalizer bars on the right edge */
+.radio-stream__eq {
+  position: absolute; right: 18px; bottom: 18px; z-index: 1;
+  display: flex; align-items: flex-end; gap: 4px;
+  height: 56px; opacity: .65;
+}
+.radio-stream__eq span {
+  display: block; width: 5px;
+  background: rgba(255,255,255,.85);
+  border-radius: 2px;
+  transform-origin: bottom;
+  animation: rs-eq 1.1s ease-in-out infinite;
+}
+.radio-stream__eq span:nth-child(1)  { height: 30%; animation-delay: 0s;    }
+.radio-stream__eq span:nth-child(2)  { height: 70%; animation-delay: .12s;  }
+.radio-stream__eq span:nth-child(3)  { height: 50%; animation-delay: .24s;  }
+.radio-stream__eq span:nth-child(4)  { height: 90%; animation-delay: .08s;  }
+.radio-stream__eq span:nth-child(5)  { height: 40%; animation-delay: .30s;  }
+.radio-stream__eq span:nth-child(6)  { height: 80%; animation-delay: .18s;  }
+.radio-stream__eq span:nth-child(7)  { height: 35%; animation-delay: .04s;  }
+.radio-stream__eq span:nth-child(8)  { height: 65%; animation-delay: .22s;  }
+.radio-stream__eq span:nth-child(9)  { height: 45%; animation-delay: .14s;  }
+.radio-stream__eq span:nth-child(10) { height: 75%; animation-delay: .26s;  }
+@keyframes rs-eq {
+  0%, 100% { transform: scaleY(0.55); }
+  50%      { transform: scaleY(1.0);  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .radio-stream__eq span { animation: none; transform: scaleY(0.7); }
+  .radio-stream:hover .radio-stream__play { animation: none; transform: none; }
+}
+.radio-stream.is-loaded { cursor: default; min-height: 0; }
+.radio-stream.is-loaded .radio-stream__bg,
+.radio-stream.is-loaded .radio-stream__eq,
+.radio-stream.is-loaded .radio-stream__inner { display: none; }
+.radio-stream__iframe { display: block; width: 100%; border: 0; border-radius: 18px; background: #000; }
+.radio-stream--spotify.is-loaded .radio-stream__iframe { height: 352px; }
+.radio-stream--sc.is-loaded .radio-stream__iframe { height: 300px; }
+
+/* ==========================================================================
+   EPISODE CARDS (radio.html) — match dark section, dual action buttons.
+   ========================================================================== */
+.ep-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+}
+:root[data-theme="light"] .ep-card { background: var(--surface); border-color: var(--line); color: var(--ink); }
+.ep-card__meta { color: rgba(255,255,255,.85); border-color: rgba(255,255,255,.20); }
+:root[data-theme="light"] .ep-card__meta { color: var(--ink-soft); border-color: var(--line); }
+.ep-card__title { color: #fff; margin: 0 0 6px; }
+:root[data-theme="light"] .ep-card__title { color: var(--ink); }
+.ep-card__sum { color: rgba(255,255,255,.85); margin: 0 0 12px; line-height: 1.55; }
+:root[data-theme="light"] .ep-card__sum { color: var(--ink-soft); }
+.ep-card__actions { gap: 8px; flex-wrap: wrap; }

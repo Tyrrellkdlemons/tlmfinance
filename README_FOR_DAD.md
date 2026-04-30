@@ -401,6 +401,108 @@ The Netlify function (`/.netlify/functions/chat`) already handled rotation serve
 
 **Verified clean before deploy:** `node --check` passes on `src/app.js`, `src/freedom-plan-panel.js`, `src/chatbot.js`, `src/auth.js`, `src/admin-overrides.js`. `_headers` is in place at site root; CSP one-liner intact. Admin pages list shows all 12.
 
+### 11m. Presentation hub + Mile High Club + the deck for tomorrow
+
+This round was the presentation-prep round. Three big additions, one bug fix, one deliverable.
+
+**The mobile bottom-nav bug is fixed.** I'd noticed earlier that on mobile the black/gold sticky nav at the bottom of the screen wasn't visible. Found it: a stray CSS rule (`.bottom-nav { position: relative; }` at line ~1518 of `globals.css`) was overriding the original `position: fixed` and dropping the nav into the document flow — so it just scrolled away with the page. Removed the override; left a comment block in place explaining why we don't reintroduce it.
+
+**`present.html` — the password-gated presentation hub ("Mile High Club").** A standalone page at the site root, locked behind the passphrase **`present`**. Once unlocked, ten tabs across the top:
+
+- **Overview** — what this is, who it's for, walking order.
+- **Slides** — paste a Google Slides embed URL and it appears inline. The downloadable `.pptx` is the source.
+- **Real-life simulation** — Marcus, 34, six days from release. A timeline of his 90 days using the site (day −6 prison career center → day 90 stable, plan health 86/100).
+- **vs. thelastmile.org** — side-by-side: what TLM does during incarceration, what TLM Finance does after.
+- **How it works** — eight plain-language paragraphs about the architecture.
+- **Why approve** — the case for partnership.
+- **FAQ** — six pre-answered questions: affiliation, where data lives, how accurate the financial advice is, security, offline-in-facility, what happens if a relay goes dark.
+- **Pre-show suggestions** — capture before walking in. Auto-saves to localStorage.
+- **Live notes** — scratchpad during the talk. Auto-saves. Has a Copy-all button.
+- **Post-show feedback** — debrief after. Has an Export-all-notes (.txt) button that bundles all three windows.
+
+The whole thing is dark-themed, branded, and routed through the same shell + brand palette as the rest of the site. `noindex, nofollow` so search engines never see it. Unlock state lives in `sessionStorage` so closing the tab re-locks it.
+
+**Mile High Club — the cycling-number footer link.** A small text link sits in the footer of every user-facing page that says **"Mile High Club · 1"** where the **1** cycles to a new number between 1 and 9 every 3 seconds. Tap the link N times where N matches the **number that was showing when you started clicking**. If you click in time, the page navigates to `/present.html`. If your streak doesn't finish in 1.6 seconds, it silently resets to zero (no scolding).
+
+The link itself is gold-shimmer text gradient on a dashed gold border, hover-lifted, brief scale-tick on each click, brighter gold flash on success. Implemented as a single shared script `src/mile-high-club.js` that auto-injects on DOMContentLoaded, included via `<script src="./src/mile-high-club.js" defer></script>` on all 12 user-facing pages (admin.html intentionally excluded — admins get there a different way).
+
+**The deck — `TLM-Finance-Presentation.pptx`.** A 25-slide professional deck built with pptxgenjs, in the TLM brand palette (charcoal + gold + cream), 16:9, ready to upload to Google Slides via *File → Import slides*:
+
+1. **Title** — Paving the Road. Breaking chains. Building a future.
+2. **Problem** — three big-number callouts (64% U.S. recidivism / <8% TLM alumni / 0 reentry-window money apps).
+3. **vs. thelastmile.org (early framing)** — independent until permission lands; complementary, not competitive.
+4. **Three planning surfaces** — Freedom Plan Panel, Customizable Plan, My Plan View.
+5. **Site architecture** — all 13 pages laid out as cards.
+6–8. **Customizable Plan walkthrough** — 7 steps, ~50 chips + 4 templates, KPIs + plan-health 84.
+9. **FPP bottom-sheet** — visual mock with pre-selected need pills.
+10. **Marcus, 34** — six days from release. Persona intro.
+11–14. **Marcus day −6 → −5 → 0–7 → 30–90** — narrative with the score climbing from 32 to 86 across visualized progress bars.
+15. **Privacy & auth** — sign-in opt-in, RLS, no analytics.
+16. **Resources & education** — two columns covering Hub + Resources.
+17. **Chatbot** — 13-model rotation, topic guards.
+18. **Admin panel** — three entry methods + hashed-password gate + lockout.
+19. **Under the hood** — six tech-stack tiles.
+20. **Why approve** — five-point case.
+21. **What this means for TLM** — three partnership options (Adopt / Sponsor + co-brand / Reference for replacement).
+22. **What's next** — open punch list.
+23. **TLM impact** — six big-number stats with year + source.
+24. **The ask** — three sentences (bless the mark / pilot a cohort / tell us what we got wrong).
+25. **Thank you** — contact + URLs.
+
+Saved as `TLM-Finance-Presentation.pptx` at the project root (519 KB). The build script lives at `outputs/build-deck.js` so it's regeneratable. I rendered three slides (1, 8, 25) to JPG via `soffice` + `pdftoppm` and visually sanity-checked them — clean palette, good hierarchy, no overflow.
+
+**Service-worker cache bumped to v16** — added `present.html` and `src/mile-high-club.js` to the SHELL pre-cache.
+
+**Files touched this round:**
+
+- `present.html` (new, 33 KB) — the password-gated hub.
+- `src/mile-high-club.js` (new, ~2.5 KB) — cycling-number footer easter-egg.
+- `TLM-Finance-Presentation.pptx` (new, 519 KB) — the deck.
+- `outputs/build-deck.js` (new) — the deck build script (Node + pptxgenjs).
+- `src/styles/globals.css` — bottom-nav `position: relative` override removed.
+- `service-worker.js` — bumped to v16, added the two new files.
+- All 12 user-facing HTML pages — `<script src="./src/mile-high-club.js" defer></script>` added.
+
+**One small thing still pending.** I asked for the location of the "one symmetrical error" earlier and didn't get specifics. Tell me which page + which element next time and I'll fix it in a single edit.
+
+### 11n. Polish round — Advanced wizard out, PDFs as real downloads, light/dark toggle, sources + radio polish
+
+A round of cleanups that came out of looking at the live site.
+
+**The "Advanced wizard" button is gone.** It had stopped doing anything useful in the new flow, so I removed it from both the inline FPP markup on the home page AND the universal bottom-sheet markup that the shared FPP module injects on every other page. The wizard itself (`openFuturePlanWizard()` in `app.js`) is preserved — it's still reachable via the `#wizard` URL hash on the planner page if anyone deep-links there — but nothing on the user-visible site points at it anymore. Two clear actions in the FPP now: **Generate my 72-hour plan** and **Customizable plan →**.
+
+**PDF download is now a real download — desktop and mobile.** It used to open a print-preview tab; now clicking **⬇ Download PDF** generates a real PDF file with `jsPDF` (loaded from `esm.sh` on demand) and the browser drops it straight into your Downloads folder on desktop, or kicks off the device's native download/share sheet on mobile. The PDF has a clean header in TLM gold, your selected focus areas as a chip line, numbered action steps that auto-page-break, and an italic disclaimer footer. If `esm.sh` is unreachable for any reason, the button falls back to a plain-text file so the user always walks away with something. Both the home-page FPP and the shared FPP module use this — same behavior across the board.
+
+**Light + dark mode, with an explicit toggle.** A small pill button now sits in the top-right of every page (next to the existing CTA). Click it once for **Light**, click it again for **Dark**, click it again for **Auto** (follow the OS) — and the choice is remembered across visits. Under the hood it's a 80-line `src/theme-toggle.js` that:
+- Sets `<html data-theme="light|dark|auto">` immediately on every page load (no flash of wrong theme).
+- Updates the browser-chrome `<meta name="theme-color">` so iOS / Android status bars match.
+- Cycles modes on click with a tap-tick animation, respecting `prefers-reduced-motion`.
+
+The CSS additions follow the same tokens-and-overrides pattern the site already uses — `:root[data-theme="light"]` and `[data-theme="dark"]` redeclare `--surface`, `--surface-2`, `--ink`, `--muted`, etc., so the rest of the stylesheet just inherits the right colors. The bottom nav still locks to dark charcoal at every screen size for visual consistency. WCAG contrast holds in both modes.
+
+**Sources card polished + capitalization symmetry.** The "Sources" card on the Feed page was a plain text list. It's now a `.sources-card` with a Title-Cased subhead and a responsive `.sources-grid` of platform pills (icon + label + arrow, hover-lift, focus rings). The visible label that used to say "thelastmile.org" now reads "**The Last Mile**" — the URL is unchanged, only the human-facing text is Title-Cased to match every other entry. While I was there I also fixed "X" → "X (Twitter)" and tightened the iconography.
+
+**Spotify + SoundCloud — side-by-side on desktop, stacked on mobile, with a small audio equalizer.** Until now the two stream tiles were stacked even on a wide laptop. They're now in a 2-column grid that collapses to 1 on screens under 760px. Each tile got a circular play button with a soft hover-pulse, a tiny "SPOTIFY" / "SOUNDCLOUD" chip top-left, and a 10-bar equalizer animation in the bottom-right that bounces while you hover. (`prefers-reduced-motion` pauses it.) Click loads the official player inline, exactly like before.
+
+**Voices From The Road episodes — guaranteed never to 404 again.** The previous build constructed each episode link by guessing the WordPress slug from the title (`/podcast/episode-93-restoring-promise/`). When the site's slug pattern shifted for any episode, you got a 404. I rebuilt the link logic so each episode card now renders **two** action buttons:
+- **▶ Listen on Spotify** — opens a Spotify search for that episode title scoped to TLM Radio. Spotify search always resolves to a results page, never 404.
+- **Read on Radio site ↗** — opens `thelastmileradio.org/?s=<title>` (the WordPress search). Always returns a results page, never 404.
+
+Two buttons, both honest about what they do, both guaranteed to land somewhere useful. If we ever get verified per-episode canonical URLs we can drop them into `media.json` and prefer those — but until then, search-based links are the right call.
+
+**Files touched this round:**
+- `src/freedom-plan-panel.js` — Advanced wizard removed; downloadStarter rewritten for jsPDF.
+- `src/app.js` — downloadStarterPlanPDF rewritten for jsPDF; legacy print-window fn preserved as `__legacy` for rollback.
+- `src/theme-toggle.js` (new, ~80 lines) — light/dark/auto cycler.
+- `src/styles/globals.css` — appended ~270 lines: theme-toggle button + `[data-theme]` overrides, Sources pills, radio side-by-side grid + equalizer animation, episode-card light-mode parity.
+- `feed.html` — Sources block rebuilt as `.sources-grid`.
+- `radio.html` — stream tiles, equalizer, episode link logic.
+- All 14 HTML pages — `<script src="./src/theme-toggle.js" defer></script>` added.
+
+**Verified clean before deploy.** `node --check` passes on every JS file (app.js · freedom-plan-panel.js · mile-high-club.js · theme-toggle.js · chatbot.js · auth.js · admin-overrides.js). All 14 pages load the theme toggle. Zero `Advanced wizard` references anywhere.
+
+**Still on the punch list.** Same as before — Facebook Live mode, logo permission, attorney review, link audit. Plus the still-unspecified **"one symmetric error"** the user wants fixed: tell me which page and which element next time and I'll fix it in a single edit.
+
 ---
 
-— Tyrrell, 2026-04-28
+— Tyrrell, 2026-04-29 (polish-round ship floor)

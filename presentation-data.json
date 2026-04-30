@@ -1,0 +1,340 @@
+{
+  "title": "TLM Finance — Walkthrough",
+  "subtitle": "Stories of Paving the Road to Change",
+  "presenter": "Tyrrell K.D. Lemons",
+  "url": "tlmfinance.netlify.app",
+  "voicePreference": "male",
+  "speakingRate": 1.0,
+  "introOutroBuffer": 1.5,
+  "_comment": "Edit this file to change the script, slide content, or timing. Refresh self-running-presentation.html to see your changes. Each slide has: id, kind ('hero' | 'stat3' | 'compare' | 'walkthrough' | 'persona' | 'quote' | 'list' | 'thanks'), display fields, narration (TTS-spoken), captions (on-screen synced), durationSec.",
+
+  "slides": [
+    {
+      "id": 1,
+      "kind": "hero",
+      "eyebrow": "A finance initiative inspired by The Last Mile",
+      "title": "Paving the Road.",
+      "tagline": "Breaking chains. Building a future.",
+      "subtitle": "A free, private, mobile-first reentry-finance companion.",
+      "bullets": [
+        { "icon": "🌐", "head": "tlmfinance.netlify.app", "sub": "Live · 13 pages · mobile-first PWA" },
+        { "icon": "🛡", "head": "Free · Private · Open-source", "sub": "No analytics · plan stays on-device" },
+        { "icon": "🤝", "head": "Inspired by The Last Mile", "sub": "Independent until partnership lands" }
+      ],
+      "narration": "Welcome. I am the voice of TLM Finance, walking you through a tool built for the moments after release. Tyrrell K.D. Lemons created this project because the first ninety days outside is the most financially unsupported moment of a person's life, and nobody was building for it. In the next thirteen minutes, we will tour every page of the live site, explain why each piece exists, and show you how it helps a person walking out of a facility today turn their first ninety days into a real plan. The site is at tlmfinance dot netlify dot app, free, private, mobile first. Let's begin.",
+      "durationSec": 32
+    },
+    {
+      "id": 2,
+      "kind": "stat3",
+      "eyebrow": "The problem · live from thelastmile.org",
+      "title": "The reentry window is the unsupported half.",
+      "stats": [
+        { "num": "700%", "label": "U.S. PRISON GROWTH",   "sub": "since the 1970s",  "color": "red" },
+        { "num": "61%",  "label": "10-YEAR RECIDIVISM",   "sub": "national average", "color": "red" },
+        { "num": "<5%",  "label": "TLM RECIDIVISM",       "sub": "graduates",        "color": "green" }
+      ],
+      "footer": "TLM cracked the inside-the-walls half. The day someone walks out is the unsupported half — that is the gap this site closes.",
+      "narration": "Three numbers from thelastmile dot org as of today. The U.S. prison population is up seven hundred percent since the nineteen seventies. Sixty one percent of people released come back within ten years. But TLM graduates? Under five percent. That gap proves what TLM does works. The reentry window is the unsupported half. This site is for that half.",
+      "durationSec": 36
+    },
+    {
+      "id": 3,
+      "kind": "compare",
+      "eyebrow": "Where this fits",
+      "title": "TLM teaches inside. TLM Finance helps after.",
+      "left": {
+        "title": "thelastmile.org",
+        "subtitle": "Inside the walls",
+        "bullets": [
+          "Coding bootcamps · audio production · entrepreneurship",
+          "13 facilities · 8 states · 1,600+ alumni",
+          "75% employment · 90% further-education · <5% recidivism",
+          "Donor-funded — Anthropic, Google.org, Salesforce"
+        ]
+      },
+      "right": {
+        "title": "tlmfinance.netlify.app",
+        "subtitle": "After release",
+        "bullets": [
+          "90-day money planner · document checklist · AI helper",
+          "Privacy-first · plan stays on-device by default",
+          "Mobile-first PWA · works offline · no analytics",
+          "Built to TLM's voice · independent until permission lands"
+        ]
+      },
+      "narration": "TLM teaches inside the walls. This site helps after. Two surfaces, one population, one mission. TLM is donor funded with thirteen facilities across eight states and over sixteen hundred alumni. This site is privacy first, mobile first, works offline, no analytics. It is not trying to compete with TLM. It is trying to extend TLM into the moments after a person walks out.",
+      "durationSec": 30
+    },
+    {
+      "id": 4,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · home page",
+      "title": "Hero · Breaking chains. Building a future.",
+      "url": "tlmfinance.netlify.app/",
+      "highlights": [
+        { "label": "Top nav", "text": "Plan · Learn · Hub · Builders · Impact · Watch · Media" },
+        { "label": "Top-right CTA", "text": "Generate planner · Sign in · Create account" },
+        { "label": "Hero copy", "text": "A free, private companion for 72 hours, 30, 60, 90 days after release." },
+        { "label": "Stats", "text": "1,000 alumni supported · 75% employed · 8% recidivism" },
+        { "label": "Privacy line", "text": "Your plan is saved on this device unless you choose to export it." }
+      ],
+      "narration": "First stop. The home page at tlmfinance dot netlify dot app. Black background, gold accents, sunrise over a road that climbs toward a horizon. The hero reads, 'Breaking chains. Building a future.' Two buttons: 'Generate planner,' which pops up the sixty-second micro plan, and 'Start learning,' which goes to the education hub. Below that, three live stats, and a privacy line that says your plan stays on this device unless you choose to export it. The whole site is built around that promise.",
+      "durationSec": 40
+    },
+    {
+      "id": 5,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · planner page",
+      "title": "Customizable Plan · 7 steps",
+      "url": "tlmfinance.netlify.app/planner.html",
+      "highlights": [
+        { "label": "Step 1", "text": "Income — what comes in (wages, gig work, family support, side hustle)" },
+        { "label": "Step 2", "text": "Benefits — programs that help (SNAP, Medicaid, EITC, Lifeline)" },
+        { "label": "Step 3", "text": "Expenses — what goes out (rent, food, transit, phone, utilities)" },
+        { "label": "Step 4", "text": "Debts — where money goes (court fees, child support, old credit lines)" },
+        { "label": "Step 5", "text": "Goals — where money should go (savings, ID, certifications, transit pass)" },
+        { "label": "Step 6", "text": "Documents — what you have / need (state ID, SS card, birth certificate)" },
+        { "label": "Step 7", "text": "Sequence — first 72 hours, then 30 / 60 / 90 days" }
+      ],
+      "narration": "The planner is the macro core feature. Seven steps. Income. Benefits. Expenses. Debts. Goals. Documents. And a sequence card that maps your first seventy two hours, then thirty days, then sixty, then ninety. Each step has fifty smart suggestion chips so the user almost never has to type. Tap 'wages, job' to add an income line. Tap 'rent' to add an expense. Tap 'phone bill.' Each step also has an 'I don't have any' toggle so honest empty states still let you move forward. The whole flow takes about seven minutes start to finish.",
+      "durationSec": 50
+    },
+    {
+      "id": 6,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · plan health",
+      "title": "Live KPIs · Plan Health Score 0–100",
+      "url": "tlmfinance.netlify.app/planner.html",
+      "highlights": [
+        { "label": "Monthly income", "text": "Updated on every keystroke" },
+        { "label": "Monthly expenses", "text": "Includes debt minimums" },
+        { "label": "Net cash flow", "text": "Green when positive · red when negative" },
+        { "label": "Savings target", "text": "Auto-set at 10% of income" },
+        { "label": "Plan Health Score", "text": "Composite of step completion + cash-flow ratio + documents collected" },
+        { "label": "Sync pill", "text": "Saved on this device → Saving to cloud → Synced · 8:14 PM" }
+      ],
+      "narration": "Live KPIs update on every keystroke. Monthly income. Monthly expenses including debt minimums. Net cash flow, green when positive, red when negative. A savings target automatically set at ten percent of income. And the centerpiece, the Plan Health Score, zero to one hundred. The score is a guide, not a grade. It is composite of step completion plus cash flow ratio plus documents collected. It tells the user what to fill in next. If the user signs in, totally optional, the whole plan syncs to the cloud, debounced to one point two seconds. The sync indicator pill announces every save.",
+      "durationSec": 48
+    },
+    {
+      "id": 7,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · plan view",
+      "title": "My Plan · Read-only summary",
+      "url": "tlmfinance.netlify.app/plan.html",
+      "highlights": [
+        { "label": "What it is", "text": "Read-only inline view of your full plan" },
+        { "label": "When to use", "text": "Before a case-manager meeting · before a job interview · before a court date" },
+        { "label": "Actions", "text": "Print · Download PDF · Email · Send to case manager · Share · Copy" },
+        { "label": "Continue", "text": "Continue editing → returns to the customizable plan" }
+      ],
+      "narration": "The My Plan page is a read-only inline summary. Use it before a case manager meeting. Before a job interview. Before a court date. It shows everything in a clean, printable layout. Six action buttons let you print it, download a real PDF, email it, send it to a case manager, share via the native share sheet, or copy to clipboard. One Continue Editing button returns the user to the deeper plan to keep working.",
+      "durationSec": 36
+    },
+    {
+      "id": 8,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · learn",
+      "title": "Learn · Plain-language lessons",
+      "url": "tlmfinance.netlify.app/learn.html",
+      "highlights": [
+        { "label": "Banking", "text": "Open a checking account · activate a prepaid card" },
+        { "label": "Credit", "text": "Pull free credit reports at AnnualCreditReport.com · what helps, what hurts" },
+        { "label": "Savings", "text": "Pay-yourself-first · emergency fund vs. retirement" },
+        { "label": "Money apps", "text": "Cash App, Venmo, Zelle — what they do, what they don't protect" },
+        { "label": "Crypto basics", "text": "Wallets, exchanges, scams to spot" },
+        { "label": "AI tools", "text": "Using ChatGPT and Claude responsibly" },
+        { "label": "Scam avoidance", "text": "Common reentry-targeted scams and how to refuse them" }
+      ],
+      "narration": "Learn is plain-language education. Banking. Credit. Savings. Money apps like Cash App, Venmo, and Zelle, with what they actually protect. Crypto basics, including how to spot scams. AI tools, used responsibly. And scam avoidance specific to people in the reentry window who are commonly targeted by predatory lenders, debt-collection scams, and fake job offers. Sixth-grade reading level on every page.",
+      "durationSec": 38
+    },
+    {
+      "id": 9,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · hub",
+      "title": "Hub · Deeper learning tracks",
+      "url": "tlmfinance.netlify.app/hub.html",
+      "highlights": [
+        { "label": "Money & Banking", "text": "Beyond basics — budgeting frameworks, bank-account types, credit-building plans" },
+        { "label": "AI Literacy", "text": "How to use ChatGPT and Claude for resumes, cover letters, study help" },
+        { "label": "Crypto Basics", "text": "Wallets, exchanges, security, common scams targeting reentry" },
+        { "label": "Entrepreneurship", "text": "EIN, LLC, microloans, first sales, business books in Wave" },
+        { "label": "Study Anything", "text": "Free OER, Coursera audit tracks, edX, OpenCourseWare" },
+        { "label": "Modern Tech Jobs", "text": "Job families, certifications, fair-chance employers" }
+      ],
+      "narration": "Hub is the deeper layer. Six tracks. Money and Banking. AI Literacy. Crypto Basics. Entrepreneurship — EIN, LLC, microloans, your first sales. Study Anything — Open Educational Resources, Coursera audit tracks, edX, OpenCourseWare. And Modern Tech Jobs — what job families exist, which certifications matter, which employers actively hire fair-chance candidates. The Hub is for the user who is past survival mode and ready to compound.",
+      "durationSec": 38
+    },
+    {
+      "id": 10,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · resources",
+      "title": "Resource Hub · 25+ vetted sources",
+      "highlights": [
+        { "label": "Federal", "text": "CFPB · FDIC · SSA · Department of Labor" },
+        { "label": "Crisis", "text": "211 (basic needs) · 988 (mental health crisis)" },
+        { "label": "Reentry-specific", "text": "National Reentry Resource Center · Root & Rebound · CSU Project Rebound" },
+        { "label": "Education", "text": "Pell Grants · FAFSA · Cal Grant · Coursera Career Certificates" },
+        { "label": "Employment", "text": "Career One Stop · American Job Center · fair-chance employer database" }
+      ],
+      "narration": "Every resource on the site is sourced and dated. Federal: the Consumer Financial Protection Bureau, FDIC, Social Security Administration, Department of Labor. Crisis lines: two-one-one for basic needs like food, shelter, transportation; nine-eight-eight for mental health crisis. Reentry-specific: the National Reentry Resource Center, Root and Rebound, CSU Project Rebound. Education: Pell Grants, FAFSA, Cal Grant, Coursera Career Certificates. Employment: Career One Stop, American Job Center, fair-chance employer databases. Every URL on the site has a last-checked date. Quarterly link audit.",
+      "durationSec": 50
+    },
+    {
+      "id": 11,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · radio + watch",
+      "title": "TLM Radio · Stories of Paving the Road to Change",
+      "url": "tlmfinance.netlify.app/radio.html",
+      "highlights": [
+        { "label": "Spotify show", "text": "All 93 episodes embedded inline" },
+        { "label": "SoundCloud stream", "text": "Full archive · animated equalizer + tap-to-load" },
+        { "label": "Voices from the Road", "text": "Latest episodes pulled from thelastmileradio.org" },
+        { "label": "Search-link safety", "text": "Spotify + WP search URLs that always resolve · never 404" },
+        { "label": "Live broadcast", "text": "Saturdays at 12 PM ET on SiriusXM" }
+      ],
+      "narration": "TLM Radio is embedded. Spotify and SoundCloud play side by side, with an animated equalizer and a tap-to-load policy so nothing tracks the visitor before they press play. The Voices from the Road list pulls the latest episodes — Restoring Promise, Gio Romero, Shelley Winner, Dr. James Cavitt, and dozens more. Every link is a search URL that always resolves, so episodes never 404 even when the radio site reorganizes its archive. Live broadcast Saturdays at twelve P-M Eastern on SiriusXM.",
+      "durationSec": 42
+    },
+    {
+      "id": 12,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · privacy",
+      "title": "Privacy & Auth · Sign-in is opt-in",
+      "rows": [
+        { "icon": "🔒", "head": "No analytics. No third-party fonts.", "sub": "Nothing tracks the visitor, ever." },
+        { "icon": "💾", "head": "Plan saves to localStorage by default.", "sub": "Auto-save on every keystroke." },
+        { "icon": "☁️", "head": "Sign-in unlocks cloud sync.", "sub": "Email + Google + Facebook OAuth via Supabase. Optional." },
+        { "icon": "🛡", "head": "Row-Level Security on every table.", "sub": "Only the row owner can read or write their plan." }
+      ],
+      "narration": "Privacy and auth, because this matters more for this population than any other. No analytics. No third-party fonts. The plan saves to local storage on every keystroke. Sign-in is opt-in — only required if the user wants to sync across devices. Three providers: email, Google, and Facebook OAuth, all through Supabase. Row-Level Security on every database table — only the row owner can read or write their own plan. Period.",
+      "durationSec": 38
+    },
+    {
+      "id": 13,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · AI helper",
+      "title": "Floating AI Helper · 13 free LLMs in rotation",
+      "highlights": [
+        { "label": "Models",  "text": "Llama-3.3-70B, DeepSeek-V3, DeepSeek-R1, Qwen-2.5-72B, Gemini 2.0 Flash, plus 8 more" },
+        { "label": "Stays on", "text": "Money planning · banking · credit · AI · careers · study skills" },
+        { "label": "Declines", "text": "Parole · probation · expungement · sentencing · immigration · custody" },
+        { "label": "Redirects", "text": "NRRC · Root & Rebound · 211 · 988 (crisis line)" },
+        { "label": "Privacy",  "text": "No API key in browser · chat history in memory only, never persisted" }
+      ],
+      "narration": "Bottom right of every page is a floating AI helper. Thirteen free large language models in rotation server side. Llama three point three seventy billion, DeepSeek v three, DeepSeek r one, Qwen two point five seventy two billion, Gemini two point oh flash, and eight more. Five fallback endpoints if any tier goes dark. Topic guards built in: stays on money, banking, credit, AI, careers, study skills. Declines parole, probation, expungement, sentencing, immigration, custody — all things that need a real attorney — and redirects to the National Reentry Resource Center, Root and Rebound, two-one-one, and nine-eight-eight for crisis. No API key in the browser, ever. Chat history lives in memory only, never persisted.",
+      "durationSec": 52
+    },
+    {
+      "id": 14,
+      "kind": "persona",
+      "eyebrow": "Real-life simulation",
+      "name": "Marcus, 34",
+      "tag": "Six days from release",
+      "context": [
+        "Four years served.",
+        "Brother who can host him for two weeks.",
+        "State ID expired in 2022.",
+        "No bank account, no smartphone yet.",
+        "Job interview he can probably get if he shows up clean and on time."
+      ],
+      "narration": "Now let me make it concrete. Meet Marcus. Composited from real reentry profiles. Marcus is thirty four, six days from release, four years served. He has a brother who can host him for two weeks. A state ID that expired in twenty twenty two. No bank account, no smartphone yet. And a job interview he can probably get, if he can show up clean and on time. The next two minutes walk through how Marcus uses TLM Finance from day minus six to day ninety.",
+      "durationSec": 28
+    },
+    {
+      "id": 15,
+      "kind": "list",
+      "eyebrow": "Marcus · Day −6 → Day 90",
+      "title": "From red to green in thirteen weeks",
+      "items": [
+        { "left": "Day −6", "mid": "Prison career center, shared tablet", "right": "Picks 5 of 8 needs · prints 72-hour starter list" },
+        { "left": "Day −5", "mid": "Opens customizable plan",              "right": "\"Just released\" template · score 32 (red)" },
+        { "left": "Day 0",  "mid": "Brother's house · $40 prepaid SIM",   "right": "Signs in with email · plan syncs across devices" },
+        { "left": "Day 1",  "mid": "DMV + SSA office",                    "right": "Documents 2/12 → 4/12 · score 41 (red)" },
+        { "left": "Day 7",  "mid": "Job interview hits",                  "right": "Adds role with chip tap · score 55 (amber)" },
+        { "left": "Day 30", "mid": "First bill cycle",                    "right": "Cash flow ratio improving · score 55 → 72" },
+        { "left": "Day 60", "mid": "Stable income · all bills current",   "right": "Net cash flow positive · score 72 (green)" },
+        { "left": "Day 90", "mid": "CSU Project Rebound advisor meeting", "right": "Documents 11/12 · score 86 · prints clean copy" }
+      ],
+      "narration": "Day minus six. Marcus is at the prison career center, sharing a tablet. He opens the site on slow Wi-Fi, picks five of eight needs — money, ID, job, housing, health — and prints a starter seventy-two-hour list on the center's printer. Day minus five, he opens the customizable plan. The starter list carries over automatically. He picks the Just-Released template. Plan health, thirty two, red. Day zero, brother's house, forty-dollar prepaid SIM, signs in with email so the plan syncs across his phone and the brother's laptop. Day one, DMV and SSA office, documents move from two of twelve to four of twelve. Day seven, job interview hits, he adds the role to income with a chip tap. Score climbs to fifty five, amber. Day thirty, first bill cycle, cash flow ratio improving. Day sixty, all bills current, net cash flow positive. Day ninety, score eighty six, documents at eleven of twelve, and Marcus prints a clean copy for the CSU Project Rebound advisor he is meeting next week. Six minutes of work spread across thirteen weeks. Self-serve. Private. Free.",
+      "durationSec": 88
+    },
+    {
+      "id": 16,
+      "kind": "walkthrough",
+      "eyebrow": "Walkthrough · admin",
+      "title": "Hidden admin · password-gated · lockout-protected",
+      "highlights": [
+        { "label": "Entry method 1", "text": "Click the logo 7 times within 3 seconds" },
+        { "label": "Entry method 2", "text": "Type 'TLMadmin' anywhere on any page" },
+        { "label": "Entry method 3", "text": "Konami code · ↑↑↓↓←→←→ B A" },
+        { "label": "Then", "text": "SHA-256(salt + passcode) gate · 5 wrong tries → 5-minute lockout" },
+        { "label": "Tabs", "text": "Brand · Hero · Resources · Videos · People · Sign-ins · Audit log · Pages-visibility · Toggles · Privacy · Deploy · Export & reset" }
+      ],
+      "narration": "There is an owner panel that is intentionally hidden. Three discreet entry methods: click the logo seven times in three seconds, type the literal string T-L-M-admin anywhere on the page, or enter the Konami code. Any path then hits a hashed password gate using S-H-A two five six with a per-install salt. Five wrong tries triggers a five-minute lockout. Inside, the admin can edit hero copy, resource cards, videos, people, see sign-ins and audit logs, toggle individual pages on or off, and deploy.",
+      "durationSec": 42
+    },
+    {
+      "id": 17,
+      "kind": "list",
+      "eyebrow": "Why this matters",
+      "title": "Five reasons to approve",
+      "items": [
+        { "left": "1", "mid": "A quietly real gap",          "right": "No consumer-grade money planner exists for the reentry window. This is one." },
+        { "left": "2", "mid": "Honors the population",       "right": "Sixth-grade reading level. Zero analytics. No dark patterns. Plan stays on-device." },
+        { "left": "3", "mid": "Complete, not a prototype",   "right": "13 pages · accessibility audit passed · password-gated admin · CSP-hardened · offline-capable" },
+        { "left": "4", "mid": "Cheap to operate",            "right": "Static hosting + Supabase free tier + a single Netlify function" },
+        { "left": "5", "mid": "Adoptable, not a fork",       "right": "Branded for TLM. Re-skin or replace the moment permission lands." }
+      ],
+      "narration": "Five reasons. One. There is a quietly real gap. No consumer grade money planner exists for the reentry window. This is one. Two. It honors the population. Sixth grade reading level. Zero analytics. No dark patterns. The plan stays on the device by default. Three. It is complete, not a prototype. Thirteen pages, accessibility audit passed, password gated admin, CSP hardened, offline capable. Four. It is cheap to operate. Static hosting plus the Supabase free tier plus a single Netlify function. Five. It is adoptable, not a fork. Already branded for TLM. Re-skin or replace the moment permission lands.",
+      "durationSec": 50
+    },
+    {
+      "id": 18,
+      "kind": "list",
+      "eyebrow": "What this means for TLM",
+      "title": "Three partnership options",
+      "items": [
+        { "left": "A", "mid": "Officially adopt",       "right": "TLM Finance becomes the financial-planning surface of TLM's reentry program. We rebrand under the official mark." },
+        { "left": "B", "mid": "Sponsor + co-brand",     "right": "TLM endorses the project; we keep operating it; TLM's logo appears with proper attribution." },
+        { "left": "C", "mid": "Reference for replace",  "right": "TLM builds its own version using this codebase as the open-source reference. We hand over the keys." }
+      ],
+      "narration": "Three ways this could plug into TLM. Option A. Officially adopt — TLM Finance becomes the financial planning surface of the reentry program, rebranded under the official mark. Option B. Sponsor and co-brand — TLM endorses; this team keeps operating; TLM's logo appears with proper attribution. Option C. Reference for replacement — TLM builds its own version using this codebase as the open-source reference. We hand over the keys, the codebase, the design tokens. Any of those works. The point is to extend what TLM does into the moments after release.",
+      "durationSec": 50
+    },
+    {
+      "id": 19,
+      "kind": "list",
+      "eyebrow": "Resources that change lives",
+      "title": "What's on the site that helps you strive",
+      "items": [
+        { "left": "📋", "mid": "Personal money plan", "right": "Free · ~7 minutes · works on any phone or library computer" },
+        { "left": "🪪", "mid": "Document checklist",  "right": "ID, SS card, birth certificate, lease — what you have, what's missing" },
+        { "left": "🤖", "mid": "AI helper",            "right": "Ask anything about money, careers, AI, study skills — free, no login" },
+        { "left": "🎓", "mid": "Education tracks",    "right": "Pell, FAFSA, Cal Grant, free OER, fair-chance employer lists" },
+        { "left": "🏛", "mid": "Federal resources",    "right": "CFPB · FDIC · SSA · DOL — all sourced and dated" },
+        { "left": "🤝", "mid": "Reentry-specific",     "right": "NRRC · Root & Rebound · CSU Project Rebound" },
+        { "left": "📞", "mid": "Crisis lines",         "right": "211 for basic needs · 988 for mental-health crisis" },
+        { "left": "🎙", "mid": "TLM Radio",            "right": "93 episodes — stories of people who walked this road and won" }
+      ],
+      "narration": "If you are watching this and you are the person who would use this site — here is what is on it that can change your life if you let it. A personal money plan, free, takes about seven minutes on any phone or library computer. A document checklist for your ID, Social Security card, birth certificate, lease. An AI helper that answers anything about money, careers, AI, or study skills, free and with no login. Education tracks pointing to Pell Grants, FAFSA, California Grants, free open educational resources, and lists of fair-chance employers. Federal resources from the Consumer Financial Protection Bureau, FDIC, Social Security, and the Department of Labor — all sourced and dated. Reentry-specific organizations: the National Reentry Resource Center, Root and Rebound, CSU Project Rebound. Crisis lines: two one one for basic needs, nine eight eight for mental health. And TLM Radio, ninety three episodes of stories from people who walked this same road and made it. You are not alone. The road is paved. Walk it.",
+      "durationSec": 80
+    },
+    {
+      "id": 20,
+      "kind": "thanks",
+      "title": "Thank you.",
+      "subtitle": "Questions, edits, or a yes — all welcome.",
+      "lines": [
+        { "label": "Live site", "text": "tlmfinance.netlify.app" },
+        { "label": "Repo",      "text": "github.com/Tyrrellkdlemons/tlmfinance" },
+        { "label": "Inspiration","text": "thelastmile.org · thelastmileradio.org" },
+        { "label": "Contact",   "text": "Tyrrell K.D. Lemons · tyrrellkdlemons at gmail dot com" }
+      ],
+      "narration": "And that is the tour. The site is live at tlmfinance dot netlify dot app, free and ready to use. The code is on GitHub. The inspiration came from thelastmile dot org and thelastmileradio dot org — and this project waits, ready for an official partnership the moment one is offered. To anyone watching this who is between now and their first ninety days outside: the road is paved. Walk it. To anyone watching this who is in a position to help that road get better: questions, edits, or a yes — all welcome. Tyrrell K.D. Lemons. Tyrrell K D Lemons at gmail dot com. Thank you.",
+      "durationSec": 40
+    }
+  ]
+}
