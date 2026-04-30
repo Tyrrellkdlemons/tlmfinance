@@ -476,6 +476,65 @@ a:hover{text-decoration:underline}
   .lst .row .right{grid-column:1/3}
   .fourrow{grid-template-columns:1fr}
 }
+
+/* ===== Presenter finger pointer ===== */
+.presenter-pointer{
+  position:absolute;left:0;top:0;width:54px;height:54px;
+  pointer-events:none;z-index:25;
+  transform:translate(-9999px,-9999px);
+  transition:transform 1.05s cubic-bezier(.22,.95,.34,1.0), opacity .35s ease;
+  opacity:0;
+  filter:drop-shadow(0 6px 14px rgba(232,177,74,.35));
+  will-change:transform,opacity;
+}
+.presenter-pointer.on{opacity:1}
+.presenter-pointer .pp-finger{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:38px;line-height:1;
+  transform-origin:50% 100%;
+  animation:pp-tap 1.6s ease-in-out infinite;
+}
+@keyframes pp-tap{
+  0%,100%{transform:rotate(-12deg) translateY(0)}
+  50%{transform:rotate(-6deg) translateY(-4px)}
+}
+.presenter-pointer .pp-ring{
+  position:absolute;inset:auto auto auto auto;left:50%;top:60%;
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid var(--gold);
+  transform:translate(-50%,-50%) scale(.4);opacity:0;
+  animation:pp-ring 1.6s ease-out infinite;
+  pointer-events:none;
+}
+@keyframes pp-ring{
+  0%{transform:translate(-50%,-50%) scale(.4);opacity:.7}
+  80%{transform:translate(-50%,-50%) scale(1.6);opacity:0}
+  100%{transform:translate(-50%,-50%) scale(1.6);opacity:0}
+}
+/* Brief lift when target element is in focus */
+.pp-target{
+  outline:1.5px solid rgba(232,177,74,.55);
+  outline-offset:4px;
+  border-radius:8px;
+  transition:outline-color .3s ease, outline-offset .3s ease;
+}
+@media (prefers-reduced-motion: reduce){
+  .presenter-pointer{transition:opacity .35s ease}
+  .presenter-pointer .pp-finger{animation:none}
+  .presenter-pointer .pp-ring{animation:none;opacity:0}
+}
+
+/* Tiny voice-source pill (visible bottom-left of stage when ElevenLabs is on) */
+.voice-source{
+  position:absolute;left:18px;bottom:16px;z-index:24;
+  font-size:10px;letter-spacing:1.6px;text-transform:uppercase;
+  background:rgba(11,11,12,.7);border:1px solid var(--line);
+  color:var(--ink-2);padding:5px 9px;border-radius:999px;
+  display:none;align-items:center;gap:6px;
+}
+.voice-source.on{display:inline-flex}
+.voice-source .d{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
 </style>
 </head>
 <body>
@@ -492,7 +551,7 @@ a:hover{text-decoration:underline}
       <button class="btn primary" id="btn-start-auto">▶ Auto-play with voice</button>
       <button class="btn" id="btn-start-manual">⇆ Manual mode (click to advance)</button>
     </div>
-    <div class="hint">~13 minutes 30 seconds · 20 slides · captions on by default · TTS uses your browser's built-in voice (male preferred). Drop a <code>voiceover.mp3</code> next to this file and the player will use it instead.</div>
+    <div class="hint">~13 minutes 30 seconds · 20 slides · captions on by default · animated presenter pointer included. Voice priority: <strong>ElevenLabs</strong> (when configured) → <code>voiceover.mp3</code> override → browser TTS male voice as a graceful fallback.</div>
   </div>
 
   <!-- Top bar -->
@@ -516,6 +575,11 @@ a:hover{text-decoration:underline}
       <!-- slides rendered here -->
     </div>
     <div class="captions on" id="captions">Press play to begin the walkthrough.</div>
+    <div class="presenter-pointer" id="presenter-pointer" aria-hidden="true">
+      <div class="pp-ring"></div>
+      <div class="pp-finger">👆</div>
+    </div>
+    <div class="voice-source" id="voice-source"><span class="d"></span><span>ElevenLabs voice</span></div>
     <div class="drawer" id="drawer">
       <h4>Jump to a slide</h4>
       <div class="grid" id="drawer-grid"></div>
@@ -574,15 +638,23 @@ const state = {
   manual: false,
   muted: false,
   rate: 1.0,
-  audioMode: 'tts', // 'tts' | 'audio'
+  audioMode: 'tts',         // 'tts' | 'audio' | 'eleven'
   voice: null,
   utterance: null,
   audio: $('#audio-voice'),
+  elevenAvailable: false,   // whether /.netlify/functions/voice is configured
+  elevenChecked: false,
+  elevenCache: new Map(),   // slideId -> blob URL
+  elevenInflight: new Map(),// slideId -> Promise
+  currentBlobUrl: null,
+  pointerTimers: [],
   timers: { slide: null, idle: null },
   slideStart: 0,
   totalSec: 0,
   cumStart: [],
 };
+const ELEVEN_ENDPOINT = '/.netlify/functions/voice';
+const ELEVEN_VOICE_ID = 'ktkP7Nsj67dw2zcplQYt'; // user-chosen ElevenLabs voice
 
 /* ---------------- helpers ---------------- */
 function fmt(t){
@@ -632,12 +704,66 @@ function ensureVoiceReady(cb){
 
 /* ---------------- audio source detection ---------------- */
 async function detectAudioSource(){
-  // If a sibling voiceover.mp3 exists, prefer it. Probe via HEAD.
+  // Priority 1: ElevenLabs via Netlify function (if configured server-side).
+  // We confirm by sending a tiny probe payload and checking the status.
   try{
-    const r = await fetch('voiceover.mp3', { method: 'HEAD' });
-    if(r.ok){ state.audioMode = 'audio'; state.audio.src = 'voiceover.mp3'; return; }
-  }catch(_){}
-  state.audioMode = 'tts';
+    const r = await fetch(ELEVEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: '.', voice: ELEVEN_VOICE_ID })
+    });
+    if(r.ok){
+      state.elevenAvailable = true;
+      state.audioMode = 'eleven';
+      $('#voice-source').classList.add('on');
+      // Toss the probe response — we'll fetch real audio per slide on demand.
+    }
+  }catch(_){ /* function not deployed or no network — fall through */ }
+  state.elevenChecked = true;
+
+  // Priority 2: a pre-rendered voiceover.mp3 sitting next to the page.
+  if(!state.elevenAvailable){
+    try{
+      const r = await fetch('voiceover.mp3', { method: 'HEAD' });
+      if(r.ok){ state.audioMode = 'audio'; state.audio.src = 'voiceover.mp3'; return; }
+    }catch(_){}
+    // Priority 3: built-in browser TTS (male voice preferred).
+    state.audioMode = 'tts';
+  }
+}
+
+/* ---------------- ElevenLabs per-slide audio fetch + cache ---------------- */
+async function fetchElevenAudio(slideId, text){
+  if(!state.elevenAvailable) return null;
+  if(state.elevenCache.has(slideId)) return state.elevenCache.get(slideId);
+  if(state.elevenInflight.has(slideId)) return state.elevenInflight.get(slideId);
+
+  const p = (async () => {
+    try{
+      const r = await fetch(ELEVEN_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, voice: ELEVEN_VOICE_ID })
+      });
+      if(!r.ok) return null;
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      state.elevenCache.set(slideId, url);
+      return url;
+    }catch(_){ return null; }
+    finally{ state.elevenInflight.delete(slideId); }
+  })();
+
+  state.elevenInflight.set(slideId, p);
+  return p;
+}
+
+function prefetchNextEleven(){
+  if(!state.elevenAvailable || !state.data) return;
+  const next = state.data.slides[state.i + 1];
+  if(next && next.narration){
+    fetchElevenAudio(next.id, next.narration); // fire-and-forget
+  }
 }
 
 /* ---------------- data load ---------------- */
@@ -853,18 +979,37 @@ function render(slide){
 }
 
 /* ---------------- playback ---------------- */
-function speak(text){
+async function speak(text, slideId){
   if(state.muted) return;
+
+  // Priority 1 — ElevenLabs blob via Netlify function
+  if(state.audioMode === 'eleven' && state.elevenAvailable){
+    try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(_){}
+    try{ if(state.audio){ state.audio.pause(); } }catch(_){}
+    const url = await fetchElevenAudio(slideId, text);
+    if(url){
+      const a = state.audio;
+      a.src = url;
+      a.muted = state.muted;
+      a.playbackRate = state.rate;
+      try{ await a.play(); state.currentBlobUrl = url; return; }
+      catch(_){ /* autoplay blocked or other — fall through to TTS */ }
+    }
+    // If we got here, ElevenLabs failed for this slide — gracefully fall back.
+  }
+
+  // Priority 2 — pre-rendered voiceover.mp3 (single-track)
   if(state.audioMode === 'audio'){
     try{
       const a = state.audio;
       a.muted = state.muted;
       a.playbackRate = state.rate;
-      // For a single mp3, you'd ideally have cue points; here we just let it play through.
       if(a.paused) a.play().catch(()=>{});
     }catch(_){}
     return;
   }
+
+  // Priority 3 — browser TTS (male voice preferred)
   if(!('speechSynthesis' in window)) return;
   try{ window.speechSynthesis.cancel(); }catch(_){}
   const u = new SpeechSynthesisUtterance(text);
@@ -876,6 +1021,97 @@ function speak(text){
   window.speechSynthesis.speak(u);
 }
 
+/* ---------------- presenter finger pointer ---------------- */
+function clearPointer(){
+  state.pointerTimers.forEach(t => clearTimeout(t));
+  state.pointerTimers = [];
+  const p = $('#presenter-pointer');
+  if(p) p.classList.remove('on');
+  $$('.pp-target').forEach(el => el.classList.remove('pp-target'));
+}
+function pointAt(el){
+  const p = $('#presenter-pointer');
+  const stage = $('#stage');
+  if(!p || !el || !stage) return;
+  const sR = stage.getBoundingClientRect();
+  const eR = el.getBoundingClientRect();
+  // Anchor the fingertip at the left-third of the element, just below baseline.
+  const x = eR.left - sR.left + Math.max(8, eR.width * 0.18);
+  const y = eR.top  - sR.top  + Math.min(eR.height - 6, eR.height * 0.55);
+  p.style.transform = `translate(${x}px, ${y}px)`;
+  p.classList.add('on');
+  $$('.pp-target').forEach(n => n.classList.remove('pp-target'));
+  el.classList.add('pp-target');
+}
+function gatherPointTargets(slide){
+  // Choose visible elements in the order a real presenter would point at them.
+  const wrap = $('#slide-wrap');
+  if(!wrap) return [];
+  const order = [];
+  const push = (sel, all=false) => {
+    const list = all ? Array.from(wrap.querySelectorAll(sel)) : [wrap.querySelector(sel)].filter(Boolean);
+    list.forEach(n => n && order.push(n));
+  };
+  // Slide-kind specific point order
+  switch((slide && slide.kind) || ''){
+    case 'hero':
+      push('.eyebrow'); push('.display'); push('.tagline');
+      push('.hero .bullets li', true);
+      break;
+    case 'stat3':
+      push('.eyebrow'); push('.s-title');
+      push('.stat-card', true);
+      push('.stat3 .footer');
+      break;
+    case 'compare':
+      push('.eyebrow'); push('.s-title');
+      push('.compare .col', true);
+      break;
+    case 'walkthrough':
+      push('.eyebrow'); push('.s-title');
+      push('.walk .urlchip');
+      push('.walk ul.highlights li', true);
+      break;
+    case 'persona':
+      push('.eyebrow'); push('.persona .info h3'); push('.persona .info .ptag');
+      push('.persona .info ul li', true);
+      break;
+    case 'list':
+      push('.eyebrow'); push('.s-title');
+      push('.lst .row', true);
+      break;
+    case 'thanks':
+      push('.thanks .eyebrow'); push('.thanks .mega'); push('.thanks .sub');
+      push('.thanks .lines .pair', true);
+      break;
+    default:
+      push('.eyebrow'); push('.s-title');
+      push('.fourrow .item', true);
+  }
+  return order.filter(Boolean);
+}
+function schedulePointer(slide){
+  clearPointer();
+  // Respect reduced-motion: still highlight, but no bobbing finger.
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const targets = gatherPointTargets(slide);
+  if(!targets.length) return;
+  const dur = (slide.durationSec || 30) * 1000 / state.rate;
+  // Lead-in 600ms, stagger remaining targets across the slide window.
+  const leadIn = 500;
+  const span = Math.max(2400, dur - leadIn - 700);
+  const step = span / targets.length;
+  targets.forEach((el, idx) => {
+    const t = setTimeout(() => pointAt(el), leadIn + idx * step);
+    state.pointerTimers.push(t);
+  });
+  // Fade pointer off near the end so the cap looks clean
+  const offT = setTimeout(() => {
+    const p = $('#presenter-pointer'); if(p) p.classList.remove('on');
+  }, Math.max(800, dur - 600));
+  state.pointerTimers.push(offT);
+}
+
 function playSlide(i){
   const slide = state.data.slides[i];
   if(!slide) return finish();
@@ -883,8 +1119,14 @@ function playSlide(i){
   state.slideStart = performance.now();
   render(slide);
 
-  // Speak narration
-  speak(slide.narration || slide.title || '');
+  // Speak narration (ElevenLabs first, with graceful fallback)
+  speak(slide.narration || slide.title || '', slide.id);
+
+  // Animated presenter finger traces highlights in time with the narration
+  schedulePointer(slide);
+
+  // Pre-fetch the next slide's audio so transitions are seamless
+  prefetchNextEleven();
 
   // Auto-advance after durationSec (unless manual)
   clearTimeout(state.timers.slide);
@@ -913,6 +1155,8 @@ function finish(){
   $('#btn-play').textContent = '▶ Play';
   setStatus('Done', '#e8b14a');
   try{ window.speechSynthesis.cancel(); }catch(_){}
+  try{ if(state.audio) state.audio.pause(); }catch(_){}
+  clearPointer();
   clearTimeout(state.timers.slide);
 }
 
@@ -928,6 +1172,7 @@ function pause(){
   $('#btn-play').textContent = '▶ Play';
   try{ window.speechSynthesis.cancel(); }catch(_){}
   if(state.audio) state.audio.pause();
+  clearPointer();
   clearTimeout(state.timers.slide);
   setStatus('Paused', '#e8b14a');
 }
@@ -960,8 +1205,17 @@ function attach(){
   $('#btn-mute').addEventListener('click', () => {
     state.muted = !state.muted;
     $('#btn-mute').textContent = state.muted ? '🔇' : '🔊';
-    if(state.muted){ try{ window.speechSynthesis.cancel(); }catch(_){} state.audio.muted = true; }
-    else { state.audio.muted = false; if(state.playing) speak(state.data.slides[state.i].narration||''); }
+    if(state.muted){
+      try{ window.speechSynthesis.cancel(); }catch(_){}
+      state.audio.muted = true;
+      try{ state.audio.pause(); }catch(_){}
+    } else {
+      state.audio.muted = false;
+      if(state.playing){
+        const sl = state.data.slides[state.i];
+        speak(sl.narration||'', sl.id);
+      }
+    }
     toast(state.muted ? 'Muted' : 'Unmuted');
   });
   $('#btn-drawer').addEventListener('click', () => { $('#drawer').classList.toggle('on'); });
@@ -1018,6 +1272,16 @@ function attach(){
   const clearIdle = () => { document.body.classList.remove('idle'); document.querySelector('.app').classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(setIdle, 4000); };
   ['mousemove','keydown','click','touchstart'].forEach(ev => document.addEventListener(ev, clearIdle, { passive:true }));
   clearIdle();
+
+  // Re-aim pointer at the currently-highlighted target if the layout reflows
+  let resizeT;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => {
+      const tgt = document.querySelector('.pp-target');
+      if(tgt) pointAt(tgt);
+    }, 80);
+  });
 
   // Auto on URL ?auto=1
   const params = new URLSearchParams(location.search);
