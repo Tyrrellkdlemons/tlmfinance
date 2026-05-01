@@ -212,21 +212,166 @@ Plain HTML, CSS, and vanilla JavaScript. No bundler, no React, no transpiler.
 
 ## Features
 
-**Auth (optional — opt-in for cloud-sync only).** Supabase project `oaioqiydnrpgwbflhnba`. Three sign-in methods all live: email + password, Google OAuth, Facebook OAuth (developer mode). Tables: `tlm_subscribers`, `tlm_audit`, `tlm_plans` — all behind Row-Level Security. The site is **fully usable signed-out**; sign-in is only required when the user wants to push their plan to the cloud.
+### 🔐 Authentication (Optional)
 
-**Macro Planner Pro.** 7 steps with visual icon stepper, ~50 smart suggestion chips, 4 quick-start templates ("Just released, no income yet" / "Working part-time" / "School + side hustle" / "Family support setup"), currency-formatted inputs (`Intl.NumberFormat`), goals with ETA calculation, document grid with progress bar, sequence cards with checkbox strikethrough, plan-health score (0–100), color-coded cash-flow ratio, smart contextual tips, "I don't have any" acknowledgment toggles, debounced cloud-sync to Supabase with a live `role="status"` sync pill ("Saved on this device" / "Saving to cloud…" / "Synced · 3:41 PM").
+**Opt-in for cloud-sync only** - The site is fully usable signed-out!
 
-**Freedom Plan Panel — bottom-sheet, every page.** A 60-second quiz that builds a starter 72-hour plan from selected need-cards (Money plan, ID & docs, Job path, Housing, Education, Transportation, Health & meds, Family support). Self-injecting via `src/freedom-plan-panel.js` on every page. Auto-opens on `#fpp` URL hash. Suggests upgrading to the customizable plan (`./planner.html`).
+- **Sign-in methods**: Email/password, Google OAuth, Facebook OAuth (developer mode)
+- **Database**: Supabase project with three tables:
+  - `tlm_subscribers` - Newsletter subscribers
+  - `tlm_audit` - Activity logs
+  - `tlm_plans` - User plans (cloud-synced)
+- **Security**: All tables protected by Row-Level Security (RLS)
+- **Usage**: Sign-in only required when pushing plans to the cloud
 
-**Admin panel.** Hashed password gate (SHA-256 + per-install salt) with brute-force lockout (5 wrong tries → 5-minute timeout). Three discreet entry methods that route through the gate: 7-click logo within 3s, type `TLMadmin` anywhere, Konami code (↑↑↓↓←→←→ B A). Plus legacy `Ctrl/Cmd+Shift+A` and `#admin` URL hash. Tabs: brand / hero / impact stats / resources CRUD / videos / people / sign-ins & subscribers (Supabase + local merge) / audit log / pages-visibility (12-page list) / feature toggles / privacy / deploy / export & reset.
+### 📊 Macro Planner Pro
 
-**Chatbot — multi-LLM rotation.** Floating widget, no key in the page, no analytics. Routes through `/.netlify/functions/chat` which rotates 13 free models (Llama-3.3-70B, DeepSeek-V3, DeepSeek-R1, Qwen-2.5-72B, Qwen-QwQ, Gemini 2.0 Flash, Hermes-3-405B, Nemotron-70B, Gemma-2-9B, Phi-3, Mistral, OpenChat, Llama-3.2-3B). Falls over to four no-key Pollinations endpoints (OpenAI, Mistral, Llama variants), and finally to HuggingFace Inference for Mistral-7B. Topic guards (parole / probation / immigration / custody → declines and redirects to NRRC, Root & Rebound, 211).
+**Core 90-day money planning feature**
 
-**PWA / offline.** Manifest with five home-screen shortcuts. Service worker `paving-the-road-v20` caches the shell (HTML, CSS, JS, JSON, icons) including all 15 pages, the auth + admin scripts, the FPP module, the legal pages, and the data files. Stale-while-revalidate fetch.
+**7-Step Visual Wizard:**
+- Income sources & benefits
+- Monthly expenses
+- Debts & payment plans
+- Financial goals with ETA calculations
+- Document checklist with progress tracking
+- 72-hour / 30-day / 60-day / 90-day action sequences
+- Plan summary with health score (0-100)
 
-**Privacy posture.** No analytics, no third-party fonts. CSP enforced via `_headers` (default-src self; explicit allowlist for Supabase, esm.sh, Pollinations, HuggingFace, YouTube, Spotify, SoundCloud, Google + Facebook OAuth). Plan stays in localStorage by default; Supabase is opt-in via sign-in.
+**Smart Features:**
+- ~50 contextual suggestion chips
+- 4 quick-start templates:
+  - "Just released, no income yet"
+  - "Working part-time"
+  - "School + side hustle"
+  - "Family support setup"
+- Currency-formatted inputs (`Intl.NumberFormat`)
+- Color-coded cash-flow ratio
+- "I don't have any" acknowledgment toggles
+- Live cloud-sync status pill with real-time updates
 
-**Accessibility.** WCAG 2.1 AA pass on the Planner Pro additions (April 2026): real `role="progressbar"` + `aria-valuenow` on progress bars, `aria-current="step"` on the active stepper button, `aria-live="polite"` + `role="status"` on the sync pill so SR announces state changes, decorative emoji `aria-hidden`, `:focus-visible` rings on every chip / step / template / button, dark-mode contrast bumps for `--tlm-gold-deep` text. Auth modal has `role="dialog"` + `aria-modal` + autofocus. Reduced-motion overrides on every animation.
+### 🎯 Freedom Plan Panel
+
+**60-second starter quiz available on every page**
+
+- **What it does**: Builds a personalized 72-hour action plan
+- **8 need categories**: Money plan, ID & docs, Job path, Housing, Education, Transportation, Health & meds, Family support
+- **Access**: Click "Generate planner" button or add `#fpp` to any URL
+- **Auto-save**: Carries over to full planner automatically
+- **Implementation**: Self-injecting via `src/freedom-plan-panel.js`
+
+### 🛡️ Admin Panel
+
+**Password-protected owner dashboard**
+
+**Security:**
+- SHA-256 hashed password with per-install salt
+- Brute-force lockout: 5 wrong tries → 5-minute timeout
+
+**Three discreet entry methods:**
+1. Click brand logo 7 times within 3 seconds
+2. Type `TLMadmin` anywhere on any page
+3. Konami code: ↑↑↓↓←→←→ B A
+4. Legacy: `Ctrl/Cmd+Shift+A` or `#admin` URL hash
+
+**Admin Features:**
+- Brand customization
+- Hero section editor
+- Impact stats management
+- Resources CRUD operations
+- Video content management
+- User & subscriber analytics
+- Audit log viewer
+- Page visibility controls (hide/show 12 pages)
+- Feature toggles
+- Privacy settings
+- One-click deploy
+- Export & reset functions
+
+### 🤖 AI Chatbot
+
+**Multi-LLM intelligent assistant with fallback chain**
+
+**Architecture:**
+- Floating widget (no API key exposed to browser)
+- Routes through `/.netlify/functions/chat`
+- No analytics or tracking
+
+**13 Free AI Models (rotated):**
+- Llama-3.3-70B, DeepSeek-V3, DeepSeek-R1
+- Qwen-2.5-72B, Qwen-QwQ
+- Gemini 2.0 Flash
+- Hermes-3-405B, Nemotron-70B
+- Gemma-2-9B, Phi-3
+- Mistral, OpenChat, Llama-3.2-3B
+
+**Fallback Chain:**
+1. OpenRouter free models (13 options)
+2. Pollinations endpoints (4 no-key options)
+3. HuggingFace Inference (Mistral-7B)
+
+**Safety Guards:**
+- Topics like parole, probation, immigration, custody → Declines and redirects to:
+  - National Reentry Resource Center (NRRC)
+  - Root & Rebound
+  - 211 helpline
+
+### 📱 Progressive Web App (PWA)
+
+**Offline-first architecture**
+
+- **5 home-screen shortcuts** via manifest
+- **Service worker**: `paving-the-road-v20`
+- **Cached resources**:
+  - All 15 HTML pages
+  - CSS & JavaScript (auth, admin, chatbot, FPP)
+  - JSON data files
+  - Icons & assets
+  - Legal pages
+- **Strategy**: Stale-while-revalidate for instant loads
+- **Works offline**: Full functionality without internet
+
+### 🔒 Privacy & Security
+
+**Zero tracking, maximum privacy**
+
+**What we DON'T do:**
+- ❌ No analytics or user tracking
+- ❌ No third-party fonts (no Google Fonts CDN)
+- ❌ No fingerprinting
+- ❌ No cookies (except Supabase auth if opted-in)
+
+**What we DO:**
+- ✅ Content Security Policy (CSP) via `_headers`
+- ✅ Explicit allowlist for trusted domains only:
+  - Supabase (auth/database)
+  - esm.sh (ES modules CDN)
+  - Pollinations, HuggingFace (AI chatbot)
+  - YouTube, Spotify, SoundCloud (embedded media)
+  - Google & Facebook OAuth (optional sign-in)
+- ✅ Plans stay in localStorage by default
+- ✅ Cloud sync is opt-in only (requires sign-in)
+
+### ♿ Accessibility (WCAG 2.1 AA)
+
+**Fully compliant with modern accessibility standards**
+
+**Screen Reader Support:**
+- `role="progressbar"` + `aria-valuenow` on all progress bars
+- `aria-current="step"` on active wizard step
+- `aria-live="polite"` + `role="status"` on sync status pill
+- Decorative emoji have `aria-hidden`
+- Auth modal: `role="dialog"` + `aria-modal` + autofocus
+
+**Keyboard Navigation:**
+- `:focus-visible` rings on all interactive elements
+- Full keyboard control for chips, steps, templates, buttons
+- Tab order follows logical flow
+
+**Visual Accessibility:**
+- Dark mode contrast enhanced (`--tlm-gold-deep`)
+- Color-blind friendly indicators
+- High contrast ratios (WCAG AA compliant)
+- `prefers-reduced-motion` overrides on all animations
 
 ---
 
@@ -308,29 +453,24 @@ These scripts provide:
 
 The site works **completely standalone** with no environment variables! Supabase credentials are in `src/tlm-config.js` (safe for public repos - it's the anon key with Row-Level Security).
 
-### Optional - Netlify Functions (Server-Side Only)
+### Netlify Functions (Production Only)
 
-These environment variables are **only needed on Netlify** for serverless functions. Set them in **Netlify Dashboard → Site Settings → Environment Variables**.
+Environment variables are **only needed on Netlify** for serverless functions. All are optional except for the chatbot.
 
-| Variable | Function | Required? | Purpose |
-|----------|----------|-----------|---------|
-| `OPENROUTER_API_KEY` | `chat.js` | **Yes** (for chatbot) | API key from [openrouter.ai/keys](https://openrouter.ai/keys) - enables AI chatbot |
-| `RESEND_API_KEY` | `notify.js`, `newsletter.js` | Optional | Email notifications and newsletter ([resend.com](https://resend.com)) |
-| `TWILIO_ACCOUNT_SID` | `notify.js` | Optional | SMS notifications (Twilio account SID) |
-| `TWILIO_AUTH_TOKEN` | `notify.js` | Optional | SMS notifications (Twilio auth token) |
-| `TWILIO_FROM_NUMBER` | `notify.js` | Optional | SMS notifications (Twilio phone number) |
-| `NEON_DATABASE_URL` | `sync.js` | Optional | Neon Postgres database URL for syncing |
-| `SYNC_ENABLED` | `sync.js` | Optional | Set to `"true"` to enable Neon sync |
-| `ELEVENLABS_API_KEY` | `voice.js` | Optional | Text-to-speech API key ([elevenlabs.io](https://elevenlabs.io)) |
-| `ELEVENLABS_VOICE_ID` | `voice.js` | Optional | ElevenLabs voice ID (defaults to built-in) |
-| `ELEVENLABS_MODEL_ID` | `voice.js` | Optional | ElevenLabs model ID (defaults to built-in) |
-| `NETLIFY_API_TOKEN` | `newsletter.js` | Auto-set | Netlify automatically provides this |
-| `NETLIFY_SITE_ID` | `newsletter.js` | Auto-set | Netlify automatically provides this |
+| Variable | Required? | Purpose |
+|----------|-----------|---------|
+| `OPENROUTER_API_KEY` | **Yes** (for chatbot) | Enables AI assistant - get free key at [openrouter.ai/keys](https://openrouter.ai/keys) |
+| `RESEND_API_KEY` | Optional | Email notifications & newsletter |
+| `TWILIO_*` | Optional | SMS notifications (3 variables) |
+| `NEON_DATABASE_URL` | Optional | Database sync to Neon Postgres |
+| `ELEVENLABS_API_KEY` | Optional | Text-to-speech features |
 
-**💡 Quick Start:**
-- Site works locally with **zero configuration**
-- Only add `OPENROUTER_API_KEY` on Netlify if you want the chatbot
-- All other functions degrade gracefully if keys are missing
+**Setup:**
+1. See [`.env.example`](./.env.example) for a complete template
+2. Read [`docs/ENVIRONMENT_VARIABLES.md`](./docs/ENVIRONMENT_VARIABLES.md) for detailed documentation
+3. Set in **Netlify Dashboard → Site Settings → Environment Variables**
+
+**💡 Quick Start:** Site works locally with zero setup. Only add `OPENROUTER_API_KEY` on Netlify if you want the chatbot.
 
 ---
 
