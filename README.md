@@ -7,27 +7,111 @@
 
 This project is **not officially affiliated with The Last Mile** unless TLM grants explicit permission. Brand language uses "inspired by" and the official TLM logo isn't used until permission is in writing.
 
-For the full product walkthrough — written for non-engineers — see **[`README_FOR_DAD.md`](./README_FOR_DAD.md)**.
+---
+
+## 📚 Table of Contents
+
+- [Getting Started](#-getting-started)
+- [Pages & Navigation](#-pages--navigation)
+- [Architecture](#architecture-no-build-step)
+- [Features](#features)
+- [Development](#run-locally)
+- [Deployment](#deploy)
+- [Scripts](#scripts)
+- [Authentication Setup](#auth-setup-one-time-already-done-in-production)
+- [Status & Roadmap](#status--open-punch-list)
+- [Sources & Attribution](#sources)
+
+**📖 For a non-technical walkthrough**, see **[`docs/README_FOR_DAD.md`](./docs/README_FOR_DAD.md)**.
 
 ---
 
-## Pages
+## 🚀 Getting Started
 
-| Page | Purpose |
-|---|---|
-| `index.html` | Landing — hero, Freedom Plan Panel teaser, "Open the customizable plan" CTA card, impact, resources, Project Rebound. |
-| `planner.html` | **Macro core feature** — the full 90-day money planner (income / benefits / expenses / debts / goals / documents / 72h–90d). Plan-health score, smart suggestion chips, quick-start templates, cloud sync. |
-| `plan.html` | Read-only inline view of your plan — works mid-progress. Print, share, export, Save Progress, "Continue editing." |
-| `learn.html` | Plain-language lessons on banking, credit, savings, money apps, crypto, AI tools, tech careers, scam avoidance. |
-| `hub.html` | Deeper learning tracks: Money & Banking · AI · Crypto · Entrepreneurship · Study Anything · Modern Tech Jobs. |
-| `feed.html` | Unified social timeline — TLM site, YouTube, LinkedIn, IG, FB, X, Spotify, SoundCloud. Filterable. |
-| `watch.html` | Featured YouTube tiles + TLM Radio links. |
-| `radio.html` | Dedicated TLM Radio page. |
-| `media.html` | Press kit, official socials, annual reports, press contact. |
-| `privacy.html`, `terms.html`, `data-deletion.html` | Compliance pages required by Google + Facebook OAuth review. |
-| `admin.html` | **Hidden, password-gated** owner panel — brand / hero / resources / videos / people / users / audit log / pages-visibility / deploy. |
+### For Users (Non-Technical)
+1. Visit the live site: **[tlmfinance.netlify.app](https://tlmfinance.netlify.app)**
+2. Start with the **Freedom Plan Panel** (60-second quiz) or dive into the **full 90-day planner**
+3. No sign-up required — works completely offline and private
+4. Optional: Sign in with Google/Facebook to sync your plan across devices
 
-The Freedom Plan Panel (60-second micro-quiz that prints a starter 72-hour plan) is a **bottom-sheet that pops up on every page** via the shared `src/freedom-plan-panel.js` module.
+### For Developers
+```bash
+# 1. Clone the repository
+git clone https://github.com/Tyrrellkdlemons/tlmfinance.git
+cd tlmfinance
+
+# 2. Run locally (no build step!)
+python3 -m http.server 8080
+# or
+npx serve .
+
+# 3. Open http://localhost:8080
+```
+
+See the [Development](#run-locally) and [Deployment](#deploy) sections below for more details.
+
+---
+
+## 📄 Pages & Navigation
+
+The site is organized into several main sections, all accessible from the navigation bar:
+
+### Main User Pages
+
+| Page | Path | Purpose | Access From |
+|------|------|---------|-------------|
+| **Landing** | `index.html` | Welcome page with hero, impact stats, and quick-start CTA | Home |
+| **90-Day Planner** | `pages/planner.html` | **Core feature** — Full money planner with income, expenses, debts, goals, documents, and 72h–90d timeline | Nav: "Plan" button |
+| **Plan View** | `pages/plan.html` | Read-only view of your current plan — print, share, export | Planner: "View Plan" |
+| **Learn** | `pages/learn.html` | Plain-language lessons: banking, credit, crypto, AI, scam prevention | Nav: "Learn" |
+| **Hub** | `pages/hub.html` | Deep-dive learning tracks: Money & Banking, AI, Crypto, Entrepreneurship, Tech Jobs | Nav: "Hub" |
+| **Watch** | `pages/watch.html` | Featured YouTube content + TLM Radio links | Nav: "Watch" |
+| **Feed** | `pages/feed.html` | Unified social timeline (YouTube, LinkedIn, Instagram, X, Spotify) | Nav: "Feed" |
+| **Radio** | `pages/radio.html` | Dedicated TLM Radio page with podcast episodes | Watch page or Nav |
+| **Media** | `pages/media.html` | Press kit, official social links, annual reports, contact | Nav: "Media" |
+
+### Special Features
+
+**🎯 Freedom Plan Panel** (Available on Every Page)
+- 60-second quiz that generates a starter 72-hour plan
+- Click "Generate planner" button or add `#fpp` to any URL
+- Auto-saves and carries over to the full planner
+- Implemented via `src/freedom-plan-panel.js`
+
+### Legal & Compliance
+
+| Page | Path | Purpose |
+|------|------|---------|
+| Privacy Policy | `pages/privacy.html` | GDPR/CCPA compliance, data handling |
+| Terms of Service | `pages/terms.html` | Usage terms and conditions |
+| Data Deletion | `pages/data-deletion.html` | How to delete your data (OAuth requirement) |
+
+### Admin & Utility Pages
+
+| Page | Path | Purpose | Access |
+|------|------|---------|--------|
+| **Admin Panel** | `pages/admin.html` | Password-gated owner dashboard: brand, resources, users, analytics, deploy controls | Hidden — 7-click logo, type "TLMadmin", or Konami code |
+| Forms | `pages/forms.html` | Form templates and components | Direct link |
+| Presentation | `pages/present.html` | Presentation viewer | Direct link |
+| Self-Running Presentation | `pages/self-running-presentation.html` | Auto-playing pitch deck | Direct link |
+
+### Navigation Flow
+
+```
+┌─────────────┐
+│  index.html │  Landing Page
+│   (Home)    │
+└──────┬──────┘
+       │
+       ├──────────────┬──────────────┬──────────────┬──────────────┬──────────────┐
+       ▼              ▼              ▼              ▼              ▼              ▼
+   planner.html   learn.html     hub.html      watch.html    feed.html     media.html
+   (90-day plan)  (Lessons)   (Deep tracks)    (Videos)     (Social)      (Press kit)
+       │
+       ├──> plan.html (Read-only view)
+       │
+       └──> Freedom Plan Panel (Available on ALL pages via bottom sheet)
+```
 
 ---
 
@@ -132,7 +216,7 @@ Plain HTML, CSS, and vanilla JavaScript. No bundler, no React, no transpiler.
 
 **Chatbot — multi-LLM rotation.** Floating widget, no key in the page, no analytics. Routes through `/.netlify/functions/chat` which rotates 13 free models (Llama-3.3-70B, DeepSeek-V3, DeepSeek-R1, Qwen-2.5-72B, Qwen-QwQ, Gemini 2.0 Flash, Hermes-3-405B, Nemotron-70B, Gemma-2-9B, Phi-3, Mistral, OpenChat, Llama-3.2-3B). Falls over to four no-key Pollinations endpoints (OpenAI, Mistral, Llama variants), and finally to HuggingFace Inference for Mistral-7B. Topic guards (parole / probation / immigration / custody → declines and redirects to NRRC, Root & Rebound, 211).
 
-**PWA / offline.** Manifest with five home-screen shortcuts. Service worker `paving-the-road-v15` caches the shell (HTML, CSS, JS, JSON, icons) including all 13 pages, the auth + admin scripts, the FPP module, the legal pages, and the data files. Stale-while-revalidate fetch.
+**PWA / offline.** Manifest with five home-screen shortcuts. Service worker `paving-the-road-v20` caches the shell (HTML, CSS, JS, JSON, icons) including all 15 pages, the auth + admin scripts, the FPP module, the legal pages, and the data files. Stale-while-revalidate fetch.
 
 **Privacy posture.** No analytics, no third-party fonts. CSP enforced via `_headers` (default-src self; explicit allowlist for Supabase, esm.sh, Pollinations, HuggingFace, YouTube, Spotify, SoundCloud, Google + Facebook OAuth). Plan stays in localStorage by default; Supabase is opt-in via sign-in.
 
@@ -176,6 +260,42 @@ Manual: every push to `main` triggers `validate.mjs`, then deploys. PRs get a pr
 
 ---
 
+## Scripts
+
+This project includes several helper scripts for development, validation, and deployment.
+
+### Recommended Git Workflow
+
+**macOS/Linux:**
+```bash
+./scripts/commit-and-push.sh
+```
+
+**Windows:**
+```cmd
+scripts\commit-and-push.bat
+```
+
+These scripts provide:
+- Interactive prompts for commit messages
+- Shows changes before committing
+- Confirmation before pushing
+- Never force pushes (safe for daily use)
+
+### Other Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/validate.mjs` | Validates JSON files and checks for required files |
+| `scripts/dev.bat` | Starts local development server (Windows) |
+| `scripts/deploy.bat` | Deployment script (Windows) |
+| `scripts/netlify-deploy.bat` | Netlify deployment (Windows) |
+| `scripts/build-presentation-zip.ps1` | Builds presentation package |
+
+**📖 Full documentation:** See [`scripts/README.md`](./scripts/README.md) for complete usage instructions and best practices.
+
+---
+
 ## Auth setup (one-time, already done in production)
 
 See [`docs/SUPABASE_QUICKSTART.md`](./docs/SUPABASE_QUICKSTART.md) for the full walkthrough. Summary:
@@ -191,17 +311,18 @@ See [`docs/SUPABASE_QUICKSTART.md`](./docs/SUPABASE_QUICKSTART.md) for the full 
 ## Status & open punch list
 
 **Done.**
-- Macro Planner Pro reinvention (chips, templates, plan-health score, cloud sync)
-- Inline read-only `plan.html` + Save Progress button
-- Dedicated `planner.html` page; `index.html` is a landing CTA card
-- Freedom Plan Panel as universal bottom-sheet (every page)
-- Email + Google + Facebook OAuth via Supabase
-- Privacy + Terms + Data-deletion legal pages
-- Admin panel with hashed-password gate + brute-force lockout
-- WCAG 2.1 AA accessibility audit applied
-- CSP headers via `_headers`
-- Service-worker SHELL fully populated, version v15
-- Chatbot multi-LLM rotation refreshed for 2026
+- ✅ Macro Planner Pro reinvention (chips, templates, plan-health score, cloud sync)
+- ✅ Inline read-only `pages/plan.html` + Save Progress button
+- ✅ Dedicated `pages/planner.html` page; `index.html` is a landing CTA card
+- ✅ Freedom Plan Panel as universal bottom-sheet (every page)
+- ✅ Email + Google + Facebook OAuth via Supabase
+- ✅ Privacy + Terms + Data-deletion legal pages in `pages/`
+- ✅ Admin panel with hashed-password gate + brute-force lockout
+- ✅ WCAG 2.1 AA accessibility audit applied
+- ✅ CSP headers via `_headers`
+- ✅ Service-worker SHELL fully populated, version v20
+- ✅ Chatbot multi-LLM rotation refreshed for 2026
+- ✅ Project reorganized into logical directories (pages/, scripts/, presentations/, dist/, docs/)
 
 **Still on the list.**
 - Facebook is in **developer mode** only — Live mode requires Meta business verification + App Review.
