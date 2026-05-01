@@ -13,7 +13,7 @@
  * Storage key: tlm:admin:v1
  */
 (function adminAccess() {
-  const goAdmin = () => { location.href = './admin.html'; };
+  const goAdmin = () => { location.href = './pages/admin.html'; };
 
   // Legacy hash trigger
   if (location.hash === '#admin') goAdmin();

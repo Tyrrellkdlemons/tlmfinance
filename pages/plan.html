@@ -10,11 +10,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="TLM Finance" />
-<link rel="manifest" href="./manifest.json" />
-<link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
-<link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
-<link rel="stylesheet" href="./src/styles/globals.css" />
-<link rel="stylesheet" href="./src/styles/print.css" media="print" />
+<link rel="manifest" href="../manifest.json" />
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
+<link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg" />
+<link rel="stylesheet" href="../src/styles/globals.css" />
+<link rel="stylesheet" href="../src/styles/print.css" media="print" />
 <style>
   /* Page-local styles for the read-only inline plan view */
   .plan-view { max-width: 920px; margin: 0 auto; padding: 28px 18px 80px; }
@@ -92,10 +92,10 @@
 <a class="skip-link" href="#main">Skip to main content</a>
 <header class="nav" role="banner">
   <div class="nav__inner">
-    <a class="brand" href="./index.html" aria-label="The Last Mile · Finance home">
+    <a class="brand" href="../index.html" aria-label="The Last Mile · Finance home">
       <picture>
         <source srcset="./assets/icons/tlm-wordmark.svg" media="(prefers-color-scheme: dark)"/>
-        <img src="./assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="240" height="78" style="height:72px;width:auto"/>
+        <img src="../assets/icons/tlm-wordmark-light.svg" alt="The Last Mile · Finance" width="240" height="78" style="height:72px;width:auto"/>
       </picture>
     </a>
     <nav class="nav__links" aria-label="Primary">
@@ -152,8 +152,8 @@
 </nav>
 
 <!-- Runtime config + auth (so we can pull from Supabase if signed in) -->
-<script src="./src/tlm-config.js"></script>
-<script src="./src/auth.js" defer></script>
+<script src="../src/tlm-config.js"></script>
+<script src="../src/auth.js" defer></script>
 
 <script type="module">
   // ---- Plan view: read state from localStorage (and Supabase if available) ----
@@ -527,8 +527,8 @@
 </script>
 
 <script src="./service-worker-register.js" defer></script>
-<script src="./src/freedom-plan-panel.js" defer></script>
-<script src="./src/mile-high-club.js" defer></script>
-<script src="./src/theme-toggle.js" defer></script>
+<script src="../src/freedom-plan-panel.js" defer></script>
+<script src="../src/mile-high-club.js" defer></script>
+<script src="../src/theme-toggle.js" defer></script>
 </body>
 </html>

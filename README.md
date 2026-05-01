@@ -37,24 +37,54 @@ Plain HTML, CSS, and vanilla JavaScript. No bundler, no React, no transpiler.
 
 ```
 .
-├── index.html              Landing
-├── planner.html            Macro 90-day planner (the deep one)
-├── plan.html               Read-only inline plan view
-├── admin.html              Owner panel (password-gated, hashed, lockout-protected)
-├── learn.html hub.html watch.html feed.html radio.html media.html
-├── privacy.html terms.html data-deletion.html
+├── index.html              Landing page
 ├── manifest.json           PWA manifest
-├── service-worker.js       Stale-while-revalidate cache (v15+)
+├── service-worker.js       Stale-while-revalidate cache (v20+)
 ├── _headers                Netlify security headers + CSP
 ├── netlify.toml            Netlify build config (no build, just publish)
-├── netlify/functions/
+├── package.json            Project metadata
+├── README.md               This file
+├── pages/                  All HTML pages
+│   ├── planner.html        Macro 90-day planner (the deep one)
+│   ├── plan.html           Read-only inline plan view
+│   ├── admin.html          Owner panel (password-gated, hashed, lockout-protected)
+│   ├── learn.html          Plain-language finance lessons
+│   ├── hub.html            Learning tracks hub
+│   ├── watch.html          Video content
+│   ├── feed.html           Social media timeline
+│   ├── radio.html          TLM Radio
+│   ├── media.html          Press kit & official socials
+│   ├── privacy.html        Privacy policy
+│   ├── terms.html          Terms of service
+│   ├── data-deletion.html  Data deletion policy
+│   ├── forms.html          Forms page
+│   ├── present.html        Presentation page
+│   └── self-running-presentation.html  Self-running presentation
+├── scripts/                Build & deployment scripts
+│   ├── validate.mjs        JSON validation & required-file checks
+│   ├── setup.bat           Project setup
+│   ├── deploy.bat          Deployment script
+│   ├── dev.bat             Development server
+│   ├── netlify-deploy.bat  Netlify deployment
+│   ├── push-to-github.bat  Git push automation
+│   ├── copy-zip-to-clipboard.bat  Zip to clipboard
+│   ├── build-presentation-zip.ps1  Build presentation package
+│   └── make-lovable-zip.bat  Create lovable zip
+├── presentations/          Presentation files
+│   ├── TLM-Finance-Pitch-Today.pptx      Main pitch deck
+│   ├── TLM-Finance-Presentation.pptx     Alternative presentation
+│   └── presentation-data.json            Presentation configuration
+├── dist/                   Build outputs & archives
+│   ├── tlm-finance-deploy.zip   Deployment package
+│   └── tlm-finance-lovable.zip  Lovable package
+├── netlify/functions/      Netlify serverless functions
 │   ├── chat.js             OpenRouter relay for the chatbot
 │   ├── notify.js           Admin email pings on sign-up
 │   └── newsletter.js       Newsletter subscriber capture
-├── assets/
+├── assets/                 Static assets
 │   ├── icons/              Favicon + PWA icons + 1024×1024 app icon
 │   └── social/             og-image + og-square
-├── src/
+├── src/                    JavaScript modules & styles
 │   ├── tlm-config.js                Runtime config (Supabase URL + anon key)
 │   ├── auth.js                      Supabase email + Google + Facebook OAuth
 │   ├── app.js                       Macro Planner Pro + advanced wizard
@@ -74,12 +104,16 @@ Plain HTML, CSS, and vanilla JavaScript. No bundler, no React, no transpiler.
 │       ├── people.json              Founder / leadership / alumni cards
 │       ├── tlmStats.json            Impact metrics with year + citation
 │       └── media.json               Official YouTube / LinkedIn / IG / X / press kit
-└── docs/
+└── docs/                   Documentation
+    ├── README_FOR_DAD.md            User-friendly walkthrough
+    ├── TLM-Finance-Pitch-Voiceover-Script.md  Voiceover script
     ├── supabase-bootstrap.sql       SQL: tlm_subscribers + tlm_audit + tlm_plans + RLS
-    ├── SUPABASE_QUICKSTART.md
-    ├── SETUP_NOTES.md
+    ├── SUPABASE_QUICKSTART.md       Supabase setup guide
+    ├── SETUP_NOTES.md               Setup notes
+    ├── QA_CHECKLIST.md              Quality assurance checklist
+    ├── NEON_SYNC.md                 Neon sync documentation
     └── research/
-        ├── TLM_RESEARCH.md
+        ├── TLM_RESEARCH.md          Research notes
         ├── SOURCE_MAP.json          Every cited URL + last-checked date
         └── CONTENT_TODO.md          Permission/photo/legal items still open
 ```

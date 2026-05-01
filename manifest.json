@@ -22,10 +22,10 @@
   "categories": ["education", "finance", "social", "productivity"],
   "shortcuts": [
     { "name": "Build my plan", "short_name": "Plan",  "url": "./index.html#planner", "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Hub",           "short_name": "Hub",   "url": "./hub.html",            "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Learn",         "short_name": "Learn", "url": "./learn.html",          "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Radio",         "short_name": "Radio", "url": "./radio.html",          "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Watch",         "short_name": "Watch", "url": "./watch.html",          "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] }
+    { "name": "Hub",           "short_name": "Hub",   "url": "./pages/hub.html",            "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Learn",         "short_name": "Learn", "url": "./pages/learn.html",          "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Radio",         "short_name": "Radio", "url": "./pages/radio.html",          "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Watch",         "short_name": "Watch", "url": "./pages/watch.html",          "icons": [{ "src": "./assets/icons/icon-192.png", "sizes": "192x192" }] }
   ],
   "prefer_related_applications": false,
   "edge_side_panel": { "preferred_width": 480 },

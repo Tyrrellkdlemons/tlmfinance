@@ -37,8 +37,8 @@ New-Item -ItemType Directory -Path $StageDir | Out-Null
 # before you've generated voiceover.mp3.
 $Items = @(
     # Self-contained player + editable script
-    @{ Src = (Join-Path $ProjectDir 'self-running-presentation.html'); Dst = 'self-running-presentation.html' }
-    @{ Src = (Join-Path $ProjectDir 'presentation-data.json');         Dst = 'presentation-data.json' }
+    @{ Src = (Join-Path $ProjectDir 'pages\self-running-presentation.html'); Dst = 'self-running-presentation.html' }
+    @{ Src = (Join-Path $ProjectDir 'presentations\presentation-data.json');  Dst = 'presentation-data.json' }
 
     # Standalone pack (transcript / TTS-ready voice script / captions / readme)
     @{ Src = (Join-Path $PackDir 'README.md');                          Dst = 'README.md' }
@@ -47,8 +47,8 @@ $Items = @(
     @{ Src = (Join-Path $PackDir 'captions.md');                        Dst = 'captions.md' }
 
     # Optional companion deck — included when present
-    @{ Src = (Join-Path $ProjectDir 'TLM-Finance-Pitch-Today.pptx');    Dst = 'TLM-Finance-Pitch-Today.pptx' }
-    @{ Src = (Join-Path $ProjectDir 'TLM-Finance-Presentation.pptx');   Dst = 'TLM-Finance-Presentation.pptx' }
+    @{ Src = (Join-Path $ProjectDir 'presentations\TLM-Finance-Pitch-Today.pptx');    Dst = 'TLM-Finance-Pitch-Today.pptx' }
+    @{ Src = (Join-Path $ProjectDir 'presentations\TLM-Finance-Presentation.pptx');   Dst = 'TLM-Finance-Presentation.pptx' }
 
     # Optional voiceover (drop your generated MP3 in the project dir before running)
     @{ Src = (Join-Path $ProjectDir 'voiceover.mp3');                   Dst = 'voiceover.mp3' }

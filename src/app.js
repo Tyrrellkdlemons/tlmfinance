@@ -248,7 +248,7 @@ function renderQuizOutput() {
       <strong>Take this further.</strong>
       <span>Open the <em>customizable plan</em> — income, expenses, debts, goals, documents, and a live plan-health score. Your 72-hour starter carries over automatically.</span>
     </div>
-    <a class="btn btn--primary btn--sm" href="./planner.html">Open the customizable plan →</a>
+    <a class="btn btn--primary btn--sm" href="./pages/planner.html">Open the customizable plan →</a>
   `;
   card.appendChild(upgrade);
 

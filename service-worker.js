@@ -1,12 +1,12 @@
 /* Paving the Road — service worker. Static-first cache + stale-while-revalidate. */
-const CACHE = 'paving-the-road-v19';
+const CACHE = 'paving-the-road-v20';
 const SHELL = [
-  './', './index.html', './planner.html', './plan.html',
-  './learn.html', './hub.html', './watch.html',
-  './radio.html', './feed.html', './media.html',
-  './admin.html',
-  './privacy.html', './terms.html', './data-deletion.html',
-  './self-running-presentation.html', './presentation-data.json',
+  './', './index.html', './pages/planner.html', './pages/plan.html',
+  './pages/learn.html', './pages/hub.html', './pages/watch.html',
+  './pages/radio.html', './pages/feed.html', './pages/media.html',
+  './pages/admin.html',
+  './pages/privacy.html', './pages/terms.html', './pages/data-deletion.html',
+  './pages/self-running-presentation.html', './presentations/presentation-data.json',
   './manifest.json',
   './src/styles/globals.css', './src/styles/print.css',
   './src/app.js', './src/chatbot.js', './src/auth.js',

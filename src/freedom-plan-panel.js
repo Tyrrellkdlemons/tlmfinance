@@ -67,11 +67,11 @@
         <button class="btn btn--ghost btn--sm" id="closePlan" aria-label="Close panel">Close</button>
       </div>
       <div class="plan-panel__body">
-        <p class="muted" style="margin-top:0">Pick everything that applies. We'll generate a 72-hour plan and link to resources. Want a deeper plan? <a href="./planner.html">Open the customizable plan →</a></p>
+        <p class="muted" style="margin-top:0">Pick everything that applies. We'll generate a 72-hour plan and link to resources. Want a deeper plan? <a href="./pages/planner.html">Open the customizable plan →</a></p>
         <div class="quiz" id="quiz"></div>
         <div class="flex mt-3">
           <button class="btn btn--primary" id="generate72">Generate my 72-hour plan</button>
-          <a class="btn btn--dark" href="./planner.html">Customizable plan →</a>
+          <a class="btn btn--dark" href="./pages/planner.html">Customizable plan →</a>
         </div>
         <div id="quizOutput" class="mt-3"></div>
       </div>
@@ -148,7 +148,7 @@
           '<strong>Take this further.</strong>' +
           '<span>Open the <em>customizable plan</em> — income, expenses, debts, goals, documents, and a live plan-health score. Your 72-hour starter carries over automatically.</span>' +
         '</div>' +
-        '<a class="btn btn--primary btn--sm" href="./planner.html">Open the customizable plan →</a>' +
+        '<a class="btn btn--primary btn--sm" href="./pages/planner.html">Open the customizable plan →</a>' +
       '</div>';
     card.querySelector('[data-fpp="dl"]').addEventListener('click', () => downloadStarter(tasks, plan.needs, false));
     card.querySelector('[data-fpp="print"]').addEventListener('click', () => downloadStarter(tasks, plan.needs, true));

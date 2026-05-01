@@ -11,7 +11,7 @@ const must = (cond, msg) => {
 };
 
 const files = [
-  'index.html', 'media.html', 'manifest.json', 'service-worker.js',
+  'index.html', 'pages/media.html', 'manifest.json', 'service-worker.js',
   'src/styles/globals.css', 'src/styles/print.css',
   'src/app.js', 'src/utils/storage.js', 'src/utils/budgetCalculator.js', 'src/utils/exportPlan.js',
   'src/data/resources.json', 'src/data/people.json', 'src/data/tlmStats.json', 'src/data/media.json',
