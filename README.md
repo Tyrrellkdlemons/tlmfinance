@@ -18,6 +18,7 @@ This project is **not officially affiliated with The Last Mile** unless TLM gran
 - [Development](#run-locally)
 - [Deployment](#deploy)
 - [Scripts](#scripts)
+- [Environment Variables](#environment-variables)
 - [Authentication Setup](#auth-setup-one-time-already-done-in-production)
 - [Status & Roadmap](#status--open-punch-list)
 - [Sources & Attribution](#sources)
@@ -162,20 +163,25 @@ Plain HTML, CSS, and vanilla JavaScript. No bundler, no React, no transpiler.
 │   ├── tlm-finance-deploy.zip   Deployment package
 │   └── tlm-finance-lovable.zip  Lovable package
 ├── netlify/functions/      Netlify serverless functions
-│   ├── chat.js             OpenRouter relay for the chatbot
-│   ├── notify.js           Admin email pings on sign-up
-│   └── newsletter.js       Newsletter subscriber capture
+│   ├── chat.js             OpenRouter relay for the chatbot (requires OPENROUTER_API_KEY)
+│   ├── notify.js           Admin email/SMS notifications (optional: RESEND_API_KEY, TWILIO_*)
+│   ├── newsletter.js       Newsletter subscriber management (requires RESEND_API_KEY)
+│   ├── sync.js             Neon database sync (optional: NEON_DATABASE_URL, SYNC_ENABLED)
+│   ├── voice.js            ElevenLabs text-to-speech (optional: ELEVENLABS_API_KEY)
+│   └── package.json        Function dependencies
 ├── assets/                 Static assets
 │   ├── icons/              Favicon + PWA icons + 1024×1024 app icon
 │   └── social/             og-image + og-square
 ├── src/                    JavaScript modules & styles
-│   ├── tlm-config.js                Runtime config (Supabase URL + anon key)
+│   ├── tlm-config.js                Runtime config (Supabase URL + anon key - hardcoded, no .env needed)
 │   ├── auth.js                      Supabase email + Google + Facebook OAuth
 │   ├── app.js                       Macro Planner Pro + advanced wizard
 │   ├── freedom-plan-panel.js        Shared bottom-sheet FPP — runs on every page
 │   ├── chatbot.js                   Floating AI helper, multi-LLM rotation
 │   ├── admin-overrides.js           Three discreet admin entry methods + page-hide
 │   ├── contact-gate.js              (Neutralized — only fires when admin flag is on)
+│   ├── theme-toggle.js              Dark/light mode toggle
+│   ├── mile-high-club.js            Special feature module
 │   ├── styles/
 │   │   ├── globals.css              Charcoal/gold theme, Planner Pro CSS, FPP, a11y
 │   │   └── print.css                Print layout with URL citations
@@ -293,6 +299,38 @@ These scripts provide:
 | `scripts/build-presentation-zip.ps1` | Builds presentation package |
 
 **📖 Full documentation:** See [`scripts/README.md`](./scripts/README.md) for complete usage instructions and best practices.
+
+---
+
+## Environment Variables
+
+### Required for Local Development: NONE ✅
+
+The site works **completely standalone** with no environment variables! Supabase credentials are in `src/tlm-config.js` (safe for public repos - it's the anon key with Row-Level Security).
+
+### Optional - Netlify Functions (Server-Side Only)
+
+These environment variables are **only needed on Netlify** for serverless functions. Set them in **Netlify Dashboard → Site Settings → Environment Variables**.
+
+| Variable | Function | Required? | Purpose |
+|----------|----------|-----------|---------|
+| `OPENROUTER_API_KEY` | `chat.js` | **Yes** (for chatbot) | API key from [openrouter.ai/keys](https://openrouter.ai/keys) - enables AI chatbot |
+| `RESEND_API_KEY` | `notify.js`, `newsletter.js` | Optional | Email notifications and newsletter ([resend.com](https://resend.com)) |
+| `TWILIO_ACCOUNT_SID` | `notify.js` | Optional | SMS notifications (Twilio account SID) |
+| `TWILIO_AUTH_TOKEN` | `notify.js` | Optional | SMS notifications (Twilio auth token) |
+| `TWILIO_FROM_NUMBER` | `notify.js` | Optional | SMS notifications (Twilio phone number) |
+| `NEON_DATABASE_URL` | `sync.js` | Optional | Neon Postgres database URL for syncing |
+| `SYNC_ENABLED` | `sync.js` | Optional | Set to `"true"` to enable Neon sync |
+| `ELEVENLABS_API_KEY` | `voice.js` | Optional | Text-to-speech API key ([elevenlabs.io](https://elevenlabs.io)) |
+| `ELEVENLABS_VOICE_ID` | `voice.js` | Optional | ElevenLabs voice ID (defaults to built-in) |
+| `ELEVENLABS_MODEL_ID` | `voice.js` | Optional | ElevenLabs model ID (defaults to built-in) |
+| `NETLIFY_API_TOKEN` | `newsletter.js` | Auto-set | Netlify automatically provides this |
+| `NETLIFY_SITE_ID` | `newsletter.js` | Auto-set | Netlify automatically provides this |
+
+**💡 Quick Start:**
+- Site works locally with **zero configuration**
+- Only add `OPENROUTER_API_KEY` on Netlify if you want the chatbot
+- All other functions degrade gracefully if keys are missing
 
 ---
 
