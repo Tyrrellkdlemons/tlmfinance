@@ -1236,7 +1236,8 @@
   margin-top: var(--pathways-spacing-xs);
 }
 
-.form-hint {
+.form-hint,
+.form-help {
   display: block;
   color: var(--pathways-gray-500);
   font-size: 0.875rem;

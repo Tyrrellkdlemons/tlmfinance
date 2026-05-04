@@ -193,10 +193,14 @@ export class EnrollmentWizard extends Component {
             id="dateOfBirth"
             name="dateOfBirth"
             value="${formData.dateOfBirth}"
+            min="1924-01-01"
+            max="${new Date().toISOString().split('T')[0]}"
             class="form-control ${errors.dateOfBirth ? 'error' : ''}"
+            placeholder="MM/DD/YYYY"
             required
           />
           ${errors.dateOfBirth ? html`<span class="error-message">${errors.dateOfBirth}</span>` : ''}
+          <small class="form-help">Enter your date of birth (you must be 18 or older)</small>
         </div>
       </div>
     `;
@@ -516,17 +520,85 @@ export class EnrollmentWizard extends Component {
 
     switch (step) {
       case 1:
-        if (!formData.fullName.trim()) errors.fullName = 'Full name is required';
-        if (!formData.email.trim()) errors.email = 'Email is required';
-        if (!formData.phone.trim()) errors.phone = 'Phone number is required';
-        if (!formData.dateOfBirth) errors.dateOfBirth = 'Date of birth is required';
+        // Full name validation
+        if (!formData.fullName.trim()) {
+          errors.fullName = 'Full name is required';
+        } else if (formData.fullName.trim().length < 2) {
+          errors.fullName = 'Please enter your full name';
+        }
+
+        // Email validation
+        if (!formData.email.trim()) {
+          errors.email = 'Email is required';
+        } else {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(formData.email)) {
+            errors.email = 'Please enter a valid email address';
+          }
+        }
+
+        // Phone validation
+        if (!formData.phone.trim()) {
+          errors.phone = 'Phone number is required';
+        } else {
+          const phoneDigits = formData.phone.replace(/\D/g, '');
+          if (phoneDigits.length < 10) {
+            errors.phone = 'Please enter a valid phone number (at least 10 digits)';
+          }
+        }
+
+        // Date of birth validation
+        if (!formData.dateOfBirth) {
+          errors.dateOfBirth = 'Date of birth is required';
+        } else {
+          const birthDate = new Date(formData.dateOfBirth);
+          const today = new Date();
+          const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+
+          if (isNaN(birthDate.getTime())) {
+            errors.dateOfBirth = 'Please enter a valid date';
+          } else if (age < 18) {
+            errors.dateOfBirth = 'You must be at least 18 years old to enroll';
+          } else if (age > 120) {
+            errors.dateOfBirth = 'Please enter a valid date of birth';
+          }
+        }
         break;
 
       case 2:
-        if (!formData.housingStatus) errors.housingStatus = 'Housing status is required';
-        if (!formData.employmentStatus) errors.employmentStatus = 'Employment status is required';
-        if (!formData.monthlyIncome) errors.monthlyIncome = 'Monthly income is required';
-        if (!formData.householdSize) errors.householdSize = 'Household size is required';
+        // Housing status validation
+        if (!formData.housingStatus) {
+          errors.housingStatus = 'Housing status is required';
+        }
+
+        // Employment status validation
+        if (!formData.employmentStatus) {
+          errors.employmentStatus = 'Employment status is required';
+        }
+
+        // Monthly income validation
+        if (!formData.monthlyIncome && formData.monthlyIncome !== 0) {
+          errors.monthlyIncome = 'Monthly income is required';
+        } else {
+          const income = parseFloat(formData.monthlyIncome);
+          if (isNaN(income) || income < 0) {
+            errors.monthlyIncome = 'Please enter a valid income amount (0 or greater)';
+          } else if (income > 999999) {
+            errors.monthlyIncome = 'Please enter a reasonable income amount';
+          }
+        }
+
+        // Household size validation
+        if (!formData.householdSize) {
+          errors.householdSize = 'Household size is required';
+        } else {
+          const size = parseInt(formData.householdSize);
+          if (isNaN(size) || size < 1) {
+            errors.householdSize = 'Household must be at least 1 person';
+          } else if (size > 50) {
+            errors.householdSize = 'Please enter a reasonable household size';
+          }
+        }
         break;
 
       case 3:
@@ -536,9 +608,37 @@ export class EnrollmentWizard extends Component {
         break;
 
       case 4:
-        if (!formData.preferredStartDate) errors.preferredStartDate = 'Start date is required';
-        if (!formData.agreedToTerms) errors.agreedToTerms = 'You must agree to the terms';
-        if (!formData.agreedToCoaching) errors.agreedToCoaching = 'You must commit to coaching sessions';
+        // Preferred start date validation
+        if (!formData.preferredStartDate) {
+          errors.preferredStartDate = 'Start date is required';
+        } else {
+          const startDate = new Date(formData.preferredStartDate);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          if (isNaN(startDate.getTime())) {
+            errors.preferredStartDate = 'Please enter a valid date';
+          } else if (startDate < today) {
+            errors.preferredStartDate = 'Start date must be today or in the future';
+          }
+
+          // Optional: Warn if start date is more than 6 months away
+          const sixMonthsFromNow = new Date();
+          sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+          if (startDate > sixMonthsFromNow) {
+            errors.preferredStartDate = 'Start date should be within the next 6 months';
+          }
+        }
+
+        // Terms agreement validation
+        if (!formData.agreedToTerms) {
+          errors.agreedToTerms = 'You must agree to the program terms and conditions';
+        }
+
+        // Coaching commitment validation
+        if (!formData.agreedToCoaching) {
+          errors.agreedToCoaching = 'You must commit to attending quarterly coaching sessions';
+        }
         break;
     }
 
