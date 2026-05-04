@@ -1,8 +1,0 @@
-{
-  "name": "paving-the-road-functions",
-  "type": "module",
-  "private": true,
-  "dependencies": {
-    "@neondatabase/serverless": "^0.10.0"
-  }
-}

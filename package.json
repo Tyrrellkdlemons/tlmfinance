@@ -3,14 +3,11 @@
   "version": "1.0.0",
   "description": "The Last Mile · Finance — a free, private, mobile-first reentry planning companion. Money plan, modern-finance education (banking, credit, crypto, AI), and resource hub for returning citizens.",
   "private": true,
-  "homepage": "https://tlmfinance.netlify.app",
   "repository": { "type": "git", "url": "https://github.com/Tyrrellkdlemons/tlmfinance.git" },
   "scripts": {
     "start": "npx -y serve@latest -l 8080 .",
     "dev": "npx -y serve@latest -l 8080 .",
-    "validate": "node ./scripts/validate.mjs",
-    "deploy": "netlify deploy --prod --dir=.",
-    "deploy:preview": "netlify deploy --dir=."
+    "validate": "node ./scripts/validate.mjs"
   },
   "keywords": [
     "reentry",
