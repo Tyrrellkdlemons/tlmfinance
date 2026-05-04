@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pathways Home - Your journey to housing independence and financial stability">
+  <meta name="theme-color" content="#2ecc71">
+
+  <title>Pathways Home - TLM Finance</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="./assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="./assets/favicon-180.png">
+
+  <!-- Manifest -->
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./src/styles/globals.css">
+  <link rel="stylesheet" href="./src/styles/pathways.css">
+
+  <!-- Preload critical resources -->
+  <link rel="modulepreload" href="./src/app-pathways.js">
+</head>
+<body>
+  <!-- Desktop Navigation -->
+  <nav class="navbar" role="navigation">
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <a href="#/" class="navbar-logo">
+          <strong>Pathways Home</strong>
+        </a>
+      </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a href="#/dashboard" class="navbar-item" id="navDashboard">Dashboard</a>
+          <a href="#/milestones" class="navbar-item" id="navMilestones">Milestones</a>
+          <a href="#/resources" class="navbar-item" id="navResources">Resources</a>
+        </div>
+
+        <div class="navbar-end">
+          <!-- Auth UI -->
+          <div id="authUI" class="navbar-auth"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+    <a href="#/" class="mobile-nav-item" data-route="home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Home</span>
+    </a>
+    <a href="#/dashboard" class="mobile-nav-item" data-route="dashboard" id="mobileNavDashboard">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="#/milestones" class="mobile-nav-item" data-route="milestones" id="mobileNavMilestones">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>Progress</span>
+    </a>
+    <a href="#/resources" class="mobile-nav-item" data-route="resources" id="mobileNavResources">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>Resources</span>
+    </a>
+    <a href="#/profile" class="mobile-nav-item" data-route="profile" id="mobileNavProfile">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Main App Container -->
+  <main id="app" class="app-container">
+    <!-- SPA content will be rendered here -->
+    <div class="app-loading">
+      <div class="spinner"></div>
+      <p>Loading Pathways Home...</p>
+    </div>
+  </main>
+
+  <!-- Notifications Container -->
+  <div id="notifications" class="notifications-container"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h4>Pathways Home</h4>
+        <p>Your journey to housing independence and financial stability.</p>
+      </div>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#/about">About</a></li>
+          <li><a href="#/resources">Resources</a></li>
+          <li><a href="./pages/privacy.html">Privacy Policy</a></li>
+          <li><a href="./pages/terms.html">Terms of Service</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <p>Questions? Reach out to your coach or contact us.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 TLM Finance. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Load Supabase config (existing) -->
+  <script type="module">
+    import { supabaseClient } from './src/supabase-client.js';
+
+    // Initialize auth UI - integrates with TLMAuth from main site
+    async function initAuthUI() {
+      const authUIContainer = document.getElementById('authUI');
+      const navDashboard = document.getElementById('navDashboard');
+
+      // Wait for TLMAuth to load
+      const user = window.TLMAuth?.getUser() || null;
+
+      if (user) {
+        // User is logged in via TLMAuth
+        const userName = user.name || user.email?.split('@')[0] || 'User';
+        authUIContainer.innerHTML = `
+          <div class="user-menu">
+            <span class="user-name">${userName}</span>
+            <button id="signOutBtn" class="btn btn--sm btn--secondary">Sign Out</button>
+          </div>
+        `;
+
+        // Show dashboard link
+        if (navDashboard) navDashboard.style.display = 'block';
+
+        // Sign out handler
+        document.getElementById('signOutBtn')?.addEventListener('click', async () => {
+          if (window.TLMAuth) {
+            await window.TLMAuth.signOut();
+          } else {
+            await supabaseClient.auth.signOut();
+          }
+          window.location.hash = '/';
+          window.location.reload();
+        });
+      } else {
+        // User is not logged in
+        authUIContainer.innerHTML = `
+          <button id="authButton" class="btn btn--sm btn--primary">Sign In</button>
+        `;
+
+        // Hide dashboard link
+        if (navDashboard) navDashboard.style.display = 'none';
+
+        // Sign in handler - use TLMAuth modal
+        document.getElementById('authButton')?.addEventListener('click', () => {
+          if (window.TLMAuth) {
+            window.TLMAuth.openSignIn({
+              reason: 'Sign in to access Pathways Home and save your progress.'
+            });
+          } else {
+            console.warn('TLMAuth not loaded yet, retrying...');
+            setTimeout(() => {
+              if (window.TLMAuth) {
+                window.TLMAuth.openSignIn({
+                  reason: 'Sign in to access Pathways Home and save your progress.'
+                });
+              } else {
+                alert('Please wait for the page to fully load before signing in.');
+              }
+            }, 500);
+          }
+        });
+      }
+    }
+
+    // Listen for TLMAuth changes (from main site auth.js)
+    if (window.TLMAuth) {
+      window.TLMAuth.onChange((user) => {
+        console.log('TLMAuth state changed:', user ? 'signed in' : 'signed out');
+        initAuthUI();
+
+        // Sync with store
+        if (window.store) {
+          window.store.setState({
+            user: user,
+            isAuthenticated: !!user
+          });
+        }
+      });
+    }
+
+    // Listen for Supabase auth changes as fallback
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      console.log('Supabase auth changed:', event);
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        // Give TLMAuth priority, but update if no TLMAuth
+        if (!window.TLMAuth) {
+          initAuthUI();
+        }
+      }
+    });
+
+    // Initialize on page load
+    // Wait for TLMAuth to load first (auth.js is deferred)
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initAuthUI, 100);
+      });
+    } else {
+      setTimeout(initAuthUI, 100);
+    }
+
+    // Update active nav state on route changes
+    function updateActiveNav() {
+      const hash = window.location.hash.substring(1) || '/';
+      const route = hash.split('/')[1] || 'home';
+
+      // Update desktop nav
+      document.querySelectorAll('.navbar-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      // Update mobile nav
+      document.querySelectorAll('.mobile-nav-item').forEach(item => {
+        const itemRoute = item.getAttribute('data-route');
+        if (itemRoute === route || (route === '' && itemRoute === 'home')) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    // Listen for route changes
+    window.addEventListener('hashchange', updateActiveNav);
+    window.addEventListener('load', updateActiveNav);
+    window.addEventListener('route-changed', updateActiveNav);
+  </script>
+
+  <!-- Notification System -->
+  <script type="module">
+    import { store } from './src/store.js';
+
+    // Render notifications
+    function renderNotifications(notifications) {
+      const container = document.getElementById('notifications');
+      if (!container) return;
+
+      container.innerHTML = notifications.map(notif => `
+        <div class="notification notification--${notif.type || 'info'}" data-id="${notif.id}">
+          <div class="notification-content">
+            <span class="notification-message">${notif.message}</span>
+          </div>
+          <button class="notification-close" onclick="removeNotification(${notif.id})">×</button>
+        </div>
+      `).join('');
+    }
+
+    // Subscribe to notifications
+    store.subscribe('notifications', (notifications) => {
+      renderNotifications(notifications);
+    });
+
+    // Global remove function
+    window.removeNotification = (id) => {
+      store.dispatch('removeNotification', id);
+    };
+  </script>
+
+  <!-- Load auth system (from main site) -->
+  <script src="./src/auth.js" defer></script>
+
+  <!-- Load Pathways Home App -->
+  <script type="module" src="./src/app-pathways.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(reg => console.log('✅ Service Worker registered'))
+          .catch(err => console.warn('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
