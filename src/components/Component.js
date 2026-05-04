@@ -37,6 +37,9 @@ export class Component {
       await this.beforeRender();
     }
 
+    // Clean up old event listeners before re-render
+    this._cleanupListeners();
+
     // Get template HTML
     const html = await this.template();
 
@@ -58,6 +61,17 @@ export class Component {
     if (this.mounted) {
       await this.mounted();
     }
+  }
+
+  /**
+   * Clean up event listeners
+   * @private
+   */
+  _cleanupListeners() {
+    this.listeners.forEach(({ element, event, handler, options }) => {
+      element?.removeEventListener(event, handler, options);
+    });
+    this.listeners = [];
   }
 
   /**
