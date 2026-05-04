@@ -141,6 +141,12 @@ export class EnrollmentWizard extends Component {
   _renderPersonalInfo() {
     const { formData, errors } = this.state;
 
+    // Calculate max date (today) for DOB input
+    const today = new Date().toISOString().split('T')[0];
+
+    // Calculate min date (100 years ago)
+    const minDate = '1924-01-01';
+
     return html`
       <div class="wizard-step-content">
         <h2>Let's Get Started</h2>
@@ -193,10 +199,9 @@ export class EnrollmentWizard extends Component {
             id="dateOfBirth"
             name="dateOfBirth"
             value="${formData.dateOfBirth}"
-            min="1924-01-01"
-            max="${new Date().toISOString().split('T')[0]}"
+            min="${minDate}"
+            max="${today}"
             class="form-control ${errors.dateOfBirth ? 'error' : ''}"
-            placeholder="MM/DD/YYYY"
             required
           />
           ${errors.dateOfBirth ? html`<span class="error-message">${errors.dateOfBirth}</span>` : ''}
@@ -364,6 +369,14 @@ export class EnrollmentWizard extends Component {
   _renderConsent() {
     const { formData, errors } = this.state;
 
+    // Calculate today's date for minimum start date
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Calculate 6 months from today for maximum start date
+    const sixMonthsFromNow = new Date();
+    sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+    const maxStartDate = sixMonthsFromNow.toISOString().split('T')[0];
+
     return html`
       <div class="wizard-step-content">
         <h2>Program Commitment</h2>
@@ -387,11 +400,13 @@ export class EnrollmentWizard extends Component {
             id="preferredStartDate"
             name="preferredStartDate"
             value="${formData.preferredStartDate}"
-            min="${new Date().toISOString().split('T')[0]}"
+            min="${todayStr}"
+            max="${maxStartDate}"
             class="form-control ${errors.preferredStartDate ? 'error' : ''}"
             required
           />
           ${errors.preferredStartDate ? html`<span class="error-message">${errors.preferredStartDate}</span>` : ''}
+          <small class="form-help">Choose a date within the next 6 months</small>
         </div>
 
         <div class="form-group">
